@@ -1,91 +1,80 @@
+--ОБЪЯВЛЕНИЕ ТИПОВ ДАННЫХ
+data SimpleType = IntType | DoubleType | StringType
+  deriving (Eq, Show)
 
-data SimpleType = IntType | FloatType | StringType deriving (Eq, Show)
+data Field = Field { fieldName :: String, fieldType :: SimpleType }
+  deriving (Eq, Show)
 
+data StructType = StructType { structName :: String, fields :: [Field] }
+  deriving (Eq, Show)
 
-data Field = Field String SimpleType deriving (Show)
+data Type = Simple SimpleType | Struct StructType
+  deriving (Eq, Show)
 
-
-data Structure = Structure String [Field] deriving (Show)
-
-
-data Type = Simple SimpleType | Complex String deriving (Eq, Show)
-
-
-data Identifier = Identifier String Type deriving (Show)
-
-
-type Database = [(String, Identifier)]
+type Database = [(String, Type)]
 
 
-structures :: [(String, Structure)]
-structures =
-    [ ("Person", Structure "Person" [Field "age" IntType, Field "name" StringType])
-    , ("Car", Structure "Car" [Field "model" StringType, Field "year" IntType])
-    ]
-
-
-isStructured :: Identifier -> Bool
-isStructured (Identifier _ (Complex _)) = True
-isStructured _ = False
-
+--ОБЪЯВЛЕНИЕ ФУНКЦИЙ
+isStructured :: Type -> Bool
+isStructured (Struct _) = True
+isStructured _          = False
 
 getType :: String -> Database -> Maybe Type
-getType name db = lookup name db >>= Just . snd
-
-
-lookupStruct :: String -> [(String, Structure)] -> Maybe [Field]
-lookupStruct name structs =
-    case lookup name structs of
-        Just (Structure _ fields) -> Just fields
-        Nothing -> Nothing
-
+getType = lookup
 
 getFields :: String -> Database -> Maybe [Field]
 getFields name db =
-    case getType name db of
-        Just (Complex structName) ->
-            lookupStruct structName structures
-        _ -> Nothing
+  case lookup name db of
+    Just (Struct (StructType _ fs)) -> Just fs
+    _                              -> Nothing
 
+getByType :: SimpleType -> Database -> [String]
+getByType t db =
+  [ name | (name, typ) <- db, isSimpleType t typ ]
+  where
+    isSimpleType :: SimpleType -> Type -> Bool
+    isSimpleType t' (Simple s) = t' == s
+    isSimpleType _ _           = False
 
-getByType :: Type -> Database -> [String]
-getByType targetType db =
-    [name | (name, Identifier _ typ) <- db, typ == targetType]
-
-
-getByTypes :: [Type] -> Database -> [String]
+getByTypes :: [SimpleType] -> Database -> [String]
 getByTypes types db =
-    [name | (name, Identifier _ typ) <- db, typ `elem` types]
+  [ name | (name, typ) <- db, any (`isSimpleType` typ) types ]
+  where
+    isSimpleType :: SimpleType -> Type -> Bool
+    isSimpleType t' (Simple s) = t' == s
+    isSimpleType _ _           = False
 
 
-database :: Database
-database =
-    [ ("age", Identifier "age" (Simple IntType))
-    , ("height", Identifier "height" (Simple FloatType))
-    , ("name", Identifier "name" (Simple StringType))
-    , ("person", Identifier "person" (Complex "Person"))
-    , ("car", Identifier "car" (Complex "Car"))
-    ]
+--ОБЪЯВЛЕНИЕ БАЗЫ ДАННЫХ ДЛЯ ТЕСТА
+exampleDatabase :: Database
+exampleDatabase =
+  [ ("age", Simple IntType)
+  , ("height", Simple DoubleType)
+  , ("name", Simple StringType)
+  , ("person", Struct (StructType "Person" [
+      Field "name" StringType,
+      Field "age" IntType,
+      Field "height" DoubleType
+    ]))
+  ]
 
 
+--ПРОВЕРКА РАБОТЫ ФУНКЦИЙ
 main :: IO ()
 main = do
-    
-    putStrLn "Проверка, является ли идентификатор 'person' сложным:"
-    print (isStructured (Identifier "person" (Complex "Person")))  
+  putStrLn "Пример работы функций:"
 
-    
-    putStrLn "Получение типа идентификатора 'age':"
-    print (getType "age" database)  
+  print $ isStructured (Simple IntType)
+  print $ isStructured (Struct (StructType "Person" []))
 
-    
-    putStrLn "Получение полей структуры 'person':"
-    print (getFields "person" database)  
+  print $ getType "age" exampleDatabase
+  print $ getType "nonexistent" exampleDatabase
 
-    
-    putStrLn "Получение идентификаторов типа IntType:"
-    print (getByType (Simple IntType) database)  
+  print $ getFields "person" exampleDatabase
+  print $ getFields "age" exampleDatabase
 
-    
-    putStrLn "Получение идентификаторов типов IntType и StringType:"
-    print (getByTypes [Simple IntType, Simple StringType] database)  
+  print $ getByType IntType exampleDatabase
+  print $ getByType StringType exampleDatabase
+
+  print $ getByTypes [IntType, StringType] exampleDatabase
+  print $ getByTypes [DoubleType] exampleDatabase
