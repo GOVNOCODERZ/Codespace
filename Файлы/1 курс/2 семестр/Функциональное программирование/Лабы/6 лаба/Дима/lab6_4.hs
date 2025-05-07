@@ -1,4 +1,3 @@
--- Программа для вывода первых n строк файла
 import System.Environment (getArgs)
 import System.IO
 

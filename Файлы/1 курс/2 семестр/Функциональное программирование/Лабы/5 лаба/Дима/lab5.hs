@@ -1,33 +1,28 @@
 import Data.Foldable (asum)
 
--- Тип данных для представления содержимого каталога
 data FileSystem = File { name :: String, size :: Int }
                 | Directory { name :: String, contents :: [FileSystem] }
                 deriving (Show)
 
--- Функция dirAll: получить список полных имен всех файлов
 dirAll :: FileSystem -> [String]
-dirAll (File name _) = [name] -- Для файла просто возвращаем его имя
+dirAll (File name _) = [name]
 dirAll (Directory dirName contents) =
     concatMap (\item -> map (dirName ++) (dirAll item)) contents
 
--- Функция find: найти путь к файлу с заданным именем
 find :: String -> FileSystem -> Maybe String
 find target (File fileName _)
-    | target == fileName = Just fileName -- Если найден файл с нужным именем
-    | otherwise          = Nothing       -- Иначе ничего не возвращаем
+    | target == fileName = Just fileName
+    | otherwise          = Nothing
 find target (Directory dirName contents) =
     let paths = map (\item -> fmap (dirName ++) (find target item)) contents
-    in asum paths -- Объединяем все Maybe в один результат
+    in asum paths
 
--- Функция du: вычислить общий размер файлов в каталоге
 du :: FileSystem -> Int
-du (File _ size) = size -- Для файла возвращаем его размер
-du (Directory _ contents) = sum (map du contents) -- Для каталога суммируем размеры всех элементов
+du (File _ size) = size
+du (Directory _ contents) = sum (map du contents)
 
--- Пример файловой системы
-exampleFS :: FileSystem
-exampleFS =
+eFS :: FileSystem
+eFS =
     Directory "root" [
         File "file1.txt" 100,
         Directory "docs" [
@@ -43,14 +38,13 @@ exampleFS =
         ]
     ]
 
--- Тестирование функций
 main :: IO ()
 main = do
     putStrLn "Список всех файлов:"
-    print (dirAll exampleFS)
+    print (dirAll eFS)
 
     putStrLn "\nПоиск файла 'doc1.txt':"
-    print (find "doc1.txt" exampleFS)
+    print (find "doc1.txt" eFS)
 
     putStrLn "\nОбщий размер файлов в каталоге:"
-    print (du exampleFS)
+    print (du eFS)

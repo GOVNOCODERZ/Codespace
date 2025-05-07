@@ -1,49 +1,44 @@
 data RealEstate = Apartment 
-    { floor :: Int       -- этаж квартиры
-    , totalArea :: Float -- общая площадь квартиры
-    , buildingFloors :: Int -- этажность дома
+    { floor :: Int
+    , totalArea :: Float
+    , buildingFloors :: Int
     }
     | Room 
-    { floor :: Int       -- этаж квартиры
-    , totalArea :: Float -- общая площадь квартиры
-    , buildingFloors :: Int -- этажность дома
-    , roomArea :: Float  -- площадь комнаты
+    { floor :: Int
+    , totalArea :: Float
+    , buildingFloors :: Int
+    , roomArea :: Float
     }
     | House 
-    { area :: Float      -- площадь дома
+    { area :: Float
     }
     deriving (Show, Eq)
 
--- Тип для базы данных: список пар (объект недвижимости, цена)
 type Database = [(RealEstate, Float)]
 
--- Тип для требований к недвижимости
 data Requirement = 
-      TypeReq RealEstateType  -- желаемый тип недвижимости
-    | MinArea Float           -- минимальная площадь
-    | MaxPrice Float          -- максимальная цена
-    | FloorConstraint FloorCondition -- ограничения на этаж
+      TypeReq RealEstateType
+    | MinArea Float
+    | MaxPrice Float
+    | FloorConstraint FloorCondition
     deriving (Show, Eq)
 
 data RealEstateType = AnyType | ApartmentType | RoomType | HouseType
     deriving (Show, Eq)
 
 data FloorCondition = 
-      AnyFloor                   -- любой этаж
-    | ExactFloor Int             -- конкретный этаж
-    | NotExtremeFloors           -- не крайние этажи
+      AnyFloor
+    | ExactFloor Int
+    | NotExtremeFloors
     deriving (Show, Eq)
 
 
--- 1) Выбирает только частные дома
 getHouses :: Database -> Database
 getHouses db = filter (\(estate, _) -> case estate of House _ -> True; _ -> False) db
 
--- 2) Выбирает объекты с ценой меньше указанной
 getByPrice :: Float -> Database -> Database
 getByPrice maxPrice db = filter (\(_, price) -> price < maxPrice) db
 
--- 3) Выбирает квартиры на указанном этаже
 getByLevel :: Int -> Database -> Database
 getByLevel level db = filter (\(estate, _) -> 
     case estate of 
@@ -51,7 +46,6 @@ getByLevel level db = filter (\(estate, _) ->
         Room fl _ _ _ -> fl == level
         _ -> False) db
 
--- 4) Выбирает квартиры не на крайних этажах
 getExceptBounds :: Database -> Database
 getExceptBounds db = filter (\(estate, _) -> 
     case estate of 
@@ -60,7 +54,6 @@ getExceptBounds db = filter (\(estate, _) ->
         _ -> False) db
 
 
--- Проверяет, удовлетворяет ли объект недвижимости и его цена одному требованию
 satisfiesRequirement :: (RealEstate, Float) -> Requirement -> Bool
 satisfiesRequirement (estate, price) req = case req of
     TypeReq t -> case t of
@@ -84,13 +77,11 @@ satisfiesRequirement (estate, price) req = case req of
             Room fl _ totalFloors _ -> fl > 1 && fl < totalFloors
             House _ -> False
 
--- Основная функция запроса
 query :: [Requirement] -> Database -> Database
 query reqs db = filter (\item -> all (satisfiesRequirement item) reqs) db
 
--- Пример базы данных
-sampleDB :: Database
-sampleDB = 
+aBD :: Database
+aBD = 
     [ (Apartment 2 50.0 5, 200000)
     , (Apartment 1 40.0 5, 180000)
     , (Apartment 5 60.0 5, 220000)
@@ -98,11 +89,10 @@ sampleDB =
     , (House 120.0, 350000)
     ]
 
--- Пример запроса: квартиры не на крайних этажах с ценой до 210000
-exampleQuery :: Database
-exampleQuery = query [TypeReq ApartmentType, MaxPrice 210000, FloorConstraint NotExtremeFloors] sampleDB
+eQuery :: Database
+eQuery = query [TypeReq ApartmentType, MaxPrice 210000, FloorConstraint NotExtremeFloors] aBD
 
 main :: IO ()
 main = do
     putStrLn "Результаты запроса:"
-    print exampleQuery
+    print eQuery

@@ -1,4 +1,3 @@
--- Программа для чтения и вывода содержимого файла
 import System.Environment (getArgs)
 import System.IO
 

@@ -1,17 +1,14 @@
 import Data.Foldable (asum)
 
--- Тип данных для представления содержимого каталога
 data FileSystem = File { name :: String, size :: Int }
                 | Directory { name :: String, contents :: [FileSystem] }
                 deriving (Show)
 
--- Функция dirAll: получить список полных имен всех файлов
 dirAll :: FileSystem -> [String]
-dirAll (File name _) = [name] -- Для файла просто возвращаем его имя
+dirAll (File name _) = [name]
 dirAll (Directory dirName contents) =
     concatMap (\item -> map (dirName ++) (dirAll item)) contents
 
--- Функция find: найти путь к файлу с заданным именем
 find :: String -> FileSystem -> Maybe String
 find target (File fileName _)
     | target == fileName = Just fileName -- Если найден файл с нужным именем
