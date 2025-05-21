@@ -13,13 +13,15 @@ private:
 
 public:
     Angle();
-    Angle(int deg, int min, int sec);
-    Angle(const Angle& other);
+
     Angle(int totalSeconds);
-    ~Angle();
+
+    Angle(int deg, int min, int sec);
 
     Angle& operator=(const Angle& other);
+
     Angle operator+(const Angle& other) const;
+
     bool operator>=(const Angle& other) const;
 
     void input();

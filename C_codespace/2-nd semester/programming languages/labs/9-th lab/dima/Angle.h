@@ -22,8 +22,8 @@ public:
     Angle operator+(const Angle& other) const;
     bool operator>=(const Angle& other) const;
 
-    void input();
-    void display() const;
+    friend std::ostream& operator<<(std::ostream& os, const Angle& angle);
+    friend std::istream& operator>>(std::istream& is, Angle& angle);
 };
 
 #endif

@@ -1,33 +1,41 @@
 #include "Angle.h"
-#include <cstdlib>
 #include <ctime>
+#include <cstdlib>
 
 using namespace std;
+
+int Angle::objectCount = 0;
 
 Angle::Angle() {
     srand(time(0));
     degrees = rand() % 360;
     minutes = rand() % 60;
     seconds = rand() % 60;
+    ++objectCount;
 }
 
 Angle::Angle(int deg, int min, int sec)
     : degrees(deg), minutes(min), seconds(sec) {
     normalize();
+    ++objectCount;
 }
 
 Angle::Angle(const Angle& other)
-    : degrees(other.degrees), minutes(other.minutes), seconds(other.seconds) {}
+    : degrees(other.degrees), minutes(other.minutes), seconds(other.seconds) {
+    ++objectCount;
+}
 
 Angle::Angle(int totalSeconds) {
     degrees = totalSeconds / 3600;
     minutes = (totalSeconds % 3600) / 60;
     seconds = totalSeconds % 60;
     normalize();
+    ++objectCount;
 }
 
 Angle::~Angle() {
-    std::cout << "Angle object destroyed.\n";
+    cout << "Object Angle has destroyed.\n";
+    --objectCount;
 }
 
 void Angle::normalize() {
@@ -39,7 +47,6 @@ void Angle::normalize() {
         degrees += minutes / 60;
         minutes %= 60;
     }
-
     if (degrees < 0 || minutes < 0 || seconds < 0) {
         degrees = minutes = seconds = 0;
     }
@@ -70,16 +77,17 @@ bool Angle::operator>=(const Angle& other) const {
     return seconds >= other.seconds;
 }
 
-void Angle::input() {
-    cout << "Enter degrees: ";
-    cin >> degrees;
-    cout << "Enter minutes: ";
-    cin >> minutes;
-    cout << "Enter seconds: ";
-    cin >> seconds;
-    normalize();
+int Angle::getObjectCount() {
+    return objectCount;
 }
 
-void Angle::display() const {
-    cout << degrees << "* " << minutes << "' " << seconds << "\"\n";
+ostream& operator<<(ostream& os, const Angle& angle) {
+    os << angle.degrees << "* " << angle.minutes << "' " << angle.seconds << "\"";
+    return os;
+}
+
+istream& operator>>(istream& is, Angle& angle) {
+    is >> angle.degrees >> angle.minutes >> angle.seconds;
+    angle.normalize();
+    return is;
 }
