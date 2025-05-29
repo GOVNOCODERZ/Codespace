@@ -1,33 +1,29 @@
-#include "Angle.h"
 #include <iostream>
-
+#include "Angle.h"
+#include <cstdlib>
 using namespace std;
 
 int main() {
-    Angle A;
-    Angle B("CustomAngle", 45, 30, 15);
-    Angle C(A);
-    Angle* D = new Angle(7295);
+    cout << "Angle created by default (random): ";
+    Angle a1;
+    a1.display();
 
-    cout << "Angle A: ";
-    A.Out();
+    cout << "\nAngle specified by parameters (10*, 40', 75\"): ";
+    Angle a2(10, 40, 75);
+    a2.display();
 
-    cout << "Angle B: ";
-    B.Out();
+    cout << "\nCopy of the previous angle: ";
+    Angle a3(a2);
+    a3.display();
 
-    cout << "Angle C: ";
-    C.Out();
+    cout << "\nAngle created by the number of seconds (3723): ";
+    Angle a4(3723);
+    a4.display();
 
-    cout << "Angle D: ";
-    D->Out();
-
-    cout << "\nTotal seconds for each angle:\n";
-    cout << "Angle A: " << A.ToSeconds() << "\n";
-    cout << "Angle B: " << B.ToSeconds() << "\n";
-    cout << "Angle C: " << C.ToSeconds() << "\n";
-    cout << "Angle D: " << D->ToSeconds() << "\n";
-
-    delete D;
+    Angle a5;
+    a5 = a4;
+    cout << "\nAngle a5 after assignment from a4: ";
+    a5.display();
 
     return 0;
 }
