@@ -1,0 +1,2 @@
+Object name: "name_test"
+Object age: 1 years, 2 months, 3 days

@@ -1,5 +1,6 @@
 #ifndef AGE_H
 #define AGE_H
+#include <iostream>
 #include <cstdlib>
 #include <ctime>
 
@@ -40,5 +41,14 @@ class Age {
             years(totalDays / 365), 
             months((totalDays % 365) / 30), 
             days((totalDays % 365) % 30){}
+
+            
+        Age& operator=(const Age& other);
+        Age& operator*=(int multiplier);
+        bool operator<(Age& other);
+
+
+        friend std::istream& operator>>(std::istream&, Age&);
+        friend std::ostream& operator<<(std::ostream&, const Age&);
     };
 #endif
