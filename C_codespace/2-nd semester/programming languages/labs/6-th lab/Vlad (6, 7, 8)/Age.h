@@ -4,12 +4,13 @@
 #include <cstdlib>
 #include <ctime>
 #include <string>
+using namespace std;
 
 class Age {
     private:
         string name;
-        int years;  
-        int months; 
+        int years; 
+        int months;
         int days;
         static int objectCount;
 

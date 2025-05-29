@@ -26,11 +26,23 @@ int main()
     Age E(10000);
     cout << "After creating E: " << Age::getObjectsCount() << " active objects." << endl;
 
-    delete []D;
-    cout << "After deleting D: " << Age::getObjectsCount() << " active objects." << endl;
+    delete D;
+    cout << "\nAfter deleting D: " << Age::getObjectsCount() << " active objects." << endl;
+
+    Age *F = new Age("test_name_3", 5, 5, 5);
+    cout << "\nAfter creating F: " << Age::getObjectsCount() << " active objects." << endl;
+
+    Age *G = new Age("test_name_4", 5, 5, 5);
+    cout << "After creating G: " << Age::getObjectsCount() << " active objects." << endl;
+
+    delete F;
+    cout << "\nAfter deleting F: " << Age::getObjectsCount() << " active objects." << endl;
+
+    delete G;
+    cout << "After deleting G: " << Age::getObjectsCount() << " active objects." << endl;
 
     
-    cout << "\nFinal active objects: " << Age::getObjectsCount() << " (should be 0)\n";
+    cout << "\nFinal active objects: " << Age::getObjectsCount() << " (should be 4)\n";
     
 /*
     person.input();
