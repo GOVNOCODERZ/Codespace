@@ -8,11 +8,29 @@ int main()
 {
     srand(static_cast<unsigned int>(time(0)));
 
+    cout << "Initial objects count: " << Age::getObjectsCount() << endl;
+
+
     Age A;
+    cout << "After creating A: " << Age::getObjectsCount() << " active objects." << endl;
+
     Age B("test_name", 10, 10, 10);
+    cout << "After creating B: " << Age::getObjectsCount() << " active objects." << endl;
+
     Age C(A);
+    cout << "After creating C: " << Age::getObjectsCount() << " active objects." << endl;
+
     Age *D = new Age("test_name_2", 5, 5, 5);
+    cout << "After creating D: " << Age::getObjectsCount() << " active objects." << endl;
+
     Age E(10000);
+    cout << "After creating E: " << Age::getObjectsCount() << " active objects." << endl;
+
+    delete []D;
+    cout << "After deleting D: " << Age::getObjectsCount() << " active objects." << endl;
+
+    
+    cout << "\nFinal active objects: " << Age::getObjectsCount() << " (should be 0)\n";
     
 /*
     person.input();
@@ -20,15 +38,13 @@ int main()
 
     int totalDays = person.calculateDays();
     cout << "Total object age in days: " << totalDays << " days" << endl;
-*/
+
     cout << "Initial objects:\n";
     cout << "Object A: "; A.output();
     cout << "Object B: "; B.output();
     cout << "Object C: "; C.output();
-/*
     cout << "Object D: "; D->output();
     cout << "Object E: "; E.output();
-*/
 
     cout << "\nOperation \"C = B\":\n";
     C = B;
@@ -77,8 +93,7 @@ int main()
     inFile.close();
 
     cout << "\nData from file:\n" << G;
+*/
 
-
-    // delete []D;
     return 0;
 }

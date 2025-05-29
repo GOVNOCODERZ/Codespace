@@ -1,6 +1,9 @@
 #include <iostream>
+#include <string>
 using namespace std;
 #include "Age.h"
+
+int Age::objectCount = 0;
 
 void Age::input() 
 {
