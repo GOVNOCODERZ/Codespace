@@ -6,26 +6,42 @@
 using namespace std;
 
 class Array {
-private:
-    int* data;    
-    size_t size;  
+    private:
+        int* data;    
+        size_t size;  
 
-    void copyFrom(const Array& other);     
+    public:
+        Array(): 
+            size(0),
+            data(nullptr){}
 
-public:
-    Array();                               
-    Array(size_t sz);                      
-    Array(const Array& other);             
-    ~Array();                              
+        Array(size_t sz): 
+            size(sz) {
+                if (size == 0) {
+                    data = nullptr;
+                } 
+                else {
+                    data = new int[size];
+                    for (size_t i = 0; i < size; ++i) {data[i] = 0;}
+                }
+            }
 
-    void input();                          
-    void output() const;                   
+        Array(const Array&other):
+            size(other.size), 
+            data(other.data){}
 
-    Array& operator=(const Array& other);  
-    Array& operator-=(const Array& other);
+        ~Array() {
+            delete[] data;
+        }
 
-    friend std::istream& operator>>(std::istream& is, Array& arr)
-    friend std::ostream& operator<<(std::ostream& os, const Array& arr)
+        void input();                          
+        void output() const;                   
+
+        Array& operator=(const Array& other);  
+        Array& operator-=(const Array& other);
+
+        friend std::istream& operator>>(std::istream& is, Array& arr);
+        friend std::ostream& operator<<(std::ostream& os, const Array& arr);
 };
 
 #endif

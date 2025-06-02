@@ -4,11 +4,14 @@ using namespace std;
 
 int main() {
     
-        cout << "\nCreating and trying to output an empty massive:" << endl;
+        cout << "\nCreating a default empty massive:";
         Array* arr0 = new Array();
+        cout << "\nTrying to input data in the created massive:";
+        arr0->input();
+        cout << "\nTrying to output data from the created massive:";
         arr0->output();
 
-        cout << "Deleting empty massive (via destructor).\n";
+        cout << "Deleting default massive (via destructor).\n";
         delete arr0;
 
         Array arr1(4);
