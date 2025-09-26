@@ -1,6 +1,6 @@
 #include "movie.h"
 #include <iostream>
-#include <vector>
+#include <vector> // для массивов
 using namespace std;
 
 Movie::Movie(): 
@@ -11,7 +11,14 @@ Movie::Movie():
     rating(0),
     length(0){}
 
-Movie::Movie(string myName, string myDirector, int myYear, string myGenre, float myRating, int myLength): 
+Movie::Movie(
+    string myName, 
+    string myDirector, 
+    int myYear, 
+    string myGenre, 
+    float myRating, 
+    int myLength
+): 
     name(myName),
     director(myDirector),
     year(myYear),
@@ -29,7 +36,12 @@ Movie::Movie(const Movie& other):
 
 Movie::~Movie() {}
 
-istream& operator>>(istream& is, Movie& mov) {
+/// @brief Ввод полей объекта ч/з поток
+/// @return Поля объекта
+istream& operator>>(
+    istream& is, 
+    Movie& mov
+) {
     cout << "Enter name: ";
     is >> mov.name;
     cout << "Enter director: ";
@@ -45,7 +57,12 @@ istream& operator>>(istream& is, Movie& mov) {
     return is;
 }
 
-ostream& operator<<(ostream& os, const Movie& mov) {
+/// @brief Вывод полей объекта ч/з поток
+/// @return Поля объекта
+ostream& operator<<(
+    ostream& os,
+    const Movie& mov
+) {
     os << "Name: \"" << mov.name << "\"" << endl
        << "Director: \"" << mov.director << "\"" << endl
        << "Year: \"" << mov.year << "\"" << endl
@@ -53,4 +70,90 @@ ostream& operator<<(ostream& os, const Movie& mov) {
        << "Rating: \"" << mov.rating << "\"" << endl
        << "Length: \"" << mov.length << "\"" << endl;
     return os;
+}
+
+/// @brief Выборка a) По фильмам режиссёра
+/// @param movies массив объектов
+/// @param director имя режиссёра
+/// @return Отфильтрованный массив
+vector<Movie> getMoviesByDirector(
+    const vector<Movie>& movies, 
+    const string& director
+) {
+    vector<Movie> result;
+    for (const Movie& mov : movies) {
+        if (mov.getDirector() == director) {
+            result.push_back(mov);
+        }
+    }
+    return result;
+}
+
+/// @brief Выборка б) По жанру + рейтинг больше искомого
+/// @param movies массив объектов
+/// @param genre жанр
+/// @param minRating минимальный допустимый рейтинг
+/// @return Отфильтрованный массив
+vector<Movie> getMoviesByGenreAndRating(
+    const vector<Movie>& movies, 
+    const string& genre, 
+    float minRating
+) {
+    vector<Movie> result;
+    for (const Movie& mov : movies) {
+        if (mov.getGenre() == genre && mov.getRating() > minRating) {
+            result.push_back(mov);
+        }
+    }
+    return result;
+}
+
+/// @brief Выборка в) год выхода в опр-м промежутке (включительно)
+/// @param movies массив объектов
+/// @param startYear ранний год
+/// @param endYear поздний год
+/// @return Отфильтрованный массив
+vector<Movie> getMoviesBetweenYears(const vector<Movie>& movies, int startYear, int endYear) {
+    vector<Movie> result;
+    for (const Movie& mov : movies) {
+        if (mov.getYear() >= startYear && mov.getYear() <= endYear) {
+            result.push_back(mov);
+        }
+    }
+    return result;
+}
+
+/// @brief Компаратор для qsort
+/// @param a Поинтер на первый объект
+/// @param b Поинтер на второй объект
+/// @return Целое число как результат сравнения
+int compareMoviesByRating(const void* a, const void* b) {
+    const Movie* movieA = (const Movie*)a;
+    const Movie* movieB = (const Movie*)b;
+
+    if (movieA->getRating() < movieB->getRating()) return -1;
+    else if (movieA->getRating() > movieB->getRating()) return 1;
+    else return 0;
+}
+
+Movie* Movie::readFromFile(istream& is, int& count) {
+    is >> count;  // считываем количество фильмов
+
+    if (count <= 0) {
+        return nullptr;
+    }
+
+    Movie* movies = new Movie[count];  // динамическое выделение
+
+    for (int i = 0; i < count; ++i) {
+        is >> movies[i];  // используем перегруженный operator>>
+    }
+
+    return movies;
+}
+
+void Movie::writeToFile(ostream& os, const Movie* movies, int count) {
+    for (int i = 0; i < count; ++i) {
+        os << movies[i] << endl;  // используем перегруженный operator<<
+    }
 }
