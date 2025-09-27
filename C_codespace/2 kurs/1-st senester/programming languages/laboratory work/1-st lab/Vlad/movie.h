@@ -15,6 +15,7 @@ private:
     int length;
 
 public:
+
 /**
  * Конструкторы класса (по умолчанию; с аргументами; копирование; удаление)
  */
@@ -76,18 +77,6 @@ public:
 
     bool operator>(const Movie& other) const {
         return this->rating > other.rating;
-    }
-
-    bool operator==(const Movie& other) const {
-        return this->rating == other.rating;
-    }
-
-    bool operator<=(const Movie& other) const {
-        return this->rating <= other.rating;
-    }
-
-    bool operator>=(const Movie& other) const {
-        return this->rating >= other.rating;
     }
 
 /**

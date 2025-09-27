@@ -113,7 +113,11 @@ vector<Movie> getMoviesByGenreAndRating(
 /// @param startYear ранний год
 /// @param endYear поздний год
 /// @return Отфильтрованный массив
-vector<Movie> getMoviesBetweenYears(const vector<Movie>& movies, int startYear, int endYear) {
+vector<Movie> getMoviesBetweenYears(
+    const vector<Movie>& movies, 
+    int startYear, 
+    int endYear
+) {
     vector<Movie> result;
     for (const Movie& mov : movies) {
         if (mov.getYear() >= startYear && mov.getYear() <= endYear) {
@@ -123,11 +127,14 @@ vector<Movie> getMoviesBetweenYears(const vector<Movie>& movies, int startYear, 
     return result;
 }
 
-/// @brief Компаратор для qsort
+/// @brief Компаратор для функции qsort
 /// @param a Поинтер на первый объект
 /// @param b Поинтер на второй объект
 /// @return Целое число как результат сравнения
-int compareMoviesByRating(const void* a, const void* b) {
+int compareMoviesByRating(
+    const void* a, 
+    const void* b
+) {
     const Movie* movieA = (const Movie*)a;
     const Movie* movieB = (const Movie*)b;
 
@@ -136,24 +143,38 @@ int compareMoviesByRating(const void* a, const void* b) {
     else return 0;
 }
 
-Movie* Movie::readFromFile(istream& is, int& count) {
+/// @brief Чтение инфы из файла 
+/// @param is Поток ввода
+/// @param count Счётчик кол-ва объектов
+/// @return Список прочитанных объектов 
+Movie* Movie::readFromFile(
+    istream& is, 
+    int& count
+) {
     is >> count;  // считываем количество фильмов
 
     if (count <= 0) {
         return nullptr;
     }
 
-    Movie* movies = new Movie[count];  // динамическое выделение
-
+    Movie* movies = new Movie[count];
     for (int i = 0; i < count; ++i) {
-        is >> movies[i];  // используем перегруженный operator>>
+        is >> movies[i];
     }
 
     return movies;
 }
 
-void Movie::writeToFile(ostream& os, const Movie* movies, int count) {
+/// @brief Запись инфы в файл
+/// @param os Поток вывода 
+/// @param movies Список объектов для записи
+/// @param count Счётчик кол-ва объектов
+void Movie::writeToFile(
+    ostream& os, 
+    const Movie* movies, 
+    int count
+) {
     for (int i = 0; i < count; ++i) {
-        os << movies[i] << endl;  // используем перегруженный operator<<
+        os << movies[i] << endl;
     }
 }
