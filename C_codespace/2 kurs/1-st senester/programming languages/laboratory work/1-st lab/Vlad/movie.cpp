@@ -145,13 +145,13 @@ int compareMoviesByRating(
 
 /// @brief Чтение инфы из файла 
 /// @param is Поток ввода
-/// @param count Счётчик кол-ва объектов
 /// @return Список прочитанных объектов 
 Movie* Movie::readFromFile(
     istream& is, 
-    int& count
 ) {
-    is >> count;  // считываем количество фильмов
+    int& count
+    is >> count;
+    
 
     if (count <= 0) {
         return nullptr;
