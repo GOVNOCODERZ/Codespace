@@ -2,7 +2,7 @@
 #define MOVIE_H
 
 #include <iostream>
-#include <vector> // для массивов
+#include <vector>
 using namespace std;
 
 class Movie {
@@ -15,10 +15,6 @@ private:
     int length;
 
 public:
-
-/**
- * Конструкторы класса (по умолчанию; с аргументами; копирование; удаление)
- */
     Movie();
     Movie(string myName, string myDirector, int myYear, string myGenre, float myRating, int myLength);
     Movie(const Movie& other);
@@ -27,66 +23,28 @@ public:
     friend istream& operator>>(istream& is, Movie& mov);
     friend ostream& operator<<(ostream& os, const Movie& mov);
 
-/**
- * Геттеры (используются в выборках)
- */
+    // Геттеры
+    string getName() const { return name; }
+    string getDirector() const { return director; }
+    int getYear() const { return year; }
+    string getGenre() const { return genre; }
+    float getRating() const { return rating; }
+    int getLength() const { return length; }
 
-    string getName() const { 
-        return name;
-    }
+    // Сеттеры
+    void set_default_Name(string name_to_set) { name = name_to_set; }
+    void set_default_Year(int year_to_set) { year = year_to_set; }
 
-    string getDirector() const { 
-        return director; 
-    }
+    // Операторы сравнения — будем сравнивать по рейтингу
+    bool operator<(const Movie& other) const { return this->rating < other.rating; }
+    bool operator>(const Movie& other) const { return this->rating > other.rating; }
+    bool operator==(const Movie& other) const { return this->rating == other.rating; }
+    bool operator<=(const Movie& other) const { return this->rating <= other.rating; }
+    bool operator>=(const Movie& other) const { return this->rating >= other.rating; }
 
-    int getYear() const { 
-        return year;
-    }
-
-    string getGenre() const { 
-        return genre; 
-    }
-
-    float getRating() const { 
-        return rating; 
-    }
-
-    int getLength() const { 
-        return length; 
-    }
-
-/**
- * Сеттеры
- */
-
-    void set_default_Name(string name_to_set){ 
-        name = name_to_set;
-    }
-
-    void set_default_Year(int year_to_set){ 
-        year = year_to_set;
-    }
-
-/**
- * Методы сравнения по рейтингу
- */
-
-    bool operator<(const Movie& other) const {
-        return this->rating < other.rating;
-    }
-
-    bool operator>(const Movie& other) const {
-        return this->rating > other.rating;
-    }
-
-/**
- * Методы для работы с файлами
- */
-
+    // Статические методы
     static Movie* readFromFile(istream& is, int& count);
-
     static void writeToFile(ostream& os, const Movie* movies, int count);
-
 };
 
 #endif
