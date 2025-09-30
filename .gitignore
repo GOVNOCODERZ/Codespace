@@ -391,6 +391,3 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
-
-#Exe files (for C/C++)
-*.exe
