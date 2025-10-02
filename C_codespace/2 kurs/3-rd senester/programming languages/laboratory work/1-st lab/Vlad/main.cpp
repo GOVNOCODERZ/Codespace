@@ -1,11 +1,14 @@
 #include "movie.h"
 #include <iostream>
-#include <fstream>
 #include <string>
 #include <algorithm>
 #include <vector>
 #include <cstdlib>
 using namespace std;
+
+// File names for writing to/reading from
+const string input_file_name = "input.txt";
+const string output_file_name = "output.txt";
 
 // Prototypes for selection functions
 void selectByDirector(Movie* movies, int count);
@@ -43,7 +46,7 @@ int main() {
 
     while (running) {
         cout << "\n======================================" << endl;
-        cout << "           MAIN MENU" << endl;
+        cout << "               MAIN MENU" << endl;
         cout << "======================================" << endl;
         cout << "1. Load data from file" << endl;
         cout << "2. Display data on screen" << endl;
@@ -61,23 +64,7 @@ int main() {
 
         switch (choice) {
             case 1: {
-                ifstream inFile("movies.txt");
-                if (inFile.is_open()) {
-                    if (movies != nullptr) {
-                        delete[] movies;
-                        movies = nullptr;
-                        movieCount = 0;
-                    }
-                    movies = Movie::readFromFile(inFile, movieCount);
-                    inFile.close();
-                    if (movies != nullptr) {
-                        cout << "Data loaded successfully. Number of movies: " << movieCount << endl;
-                    } else {
-                        cout << "Error loading data." << endl;
-                    }
-                } else {
-                    cout << "Could not open file movies.txt" << endl;
-                }
+                movies = Movie::readFromFile(input_file_name, movieCount);
                 break;
             }
 
@@ -96,15 +83,9 @@ int main() {
             case 3: {
                 if (movies == nullptr || movieCount == 0) {
                     cout << "No data to save." << endl;
-                } else {
-                    ofstream outFile("output.txt");
-                    if (outFile.is_open()) {
-                        Movie::writeToFile(outFile, movies, movieCount);
-                        outFile.close();
-                        cout << "Data saved to output.txt" << endl;
-                    } else {
-                        cout << "Could not open file for writing." << endl;
-                    }
+                }
+                else {
+                    Movie::writeToFile(output_file_name, movies, movieCount);
                 }
                 break;
             }

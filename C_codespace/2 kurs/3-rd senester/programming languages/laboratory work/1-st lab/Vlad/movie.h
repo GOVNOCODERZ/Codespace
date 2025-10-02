@@ -43,8 +43,8 @@ public:
     bool operator>=(const Movie& other) const { return this->rating >= other.rating; }
 
     // Статические методы
-    static Movie* readFromFile(istream& is, int& count);
-    static void writeToFile(ostream& os, const Movie* movies, int count);
+    static Movie* readFromFile(const string& filename, int& count);
+    static void writeToFile(const string& filename, const Movie* movies, int count);
 };
 
 #endif

@@ -1,5 +1,6 @@
 #include "movie.h"
 #include <iostream>
+#include <fstream>
 using namespace std;
 
 Movie::Movie(): 
@@ -29,18 +30,36 @@ Movie::Movie(const Movie& other):
 Movie::~Movie() {}
 
 istream& operator>>(istream& is, Movie& mov) {
-    cout << "Enter name: ";
-    getline(is >> ws, mov.name);
-    cout << "Enter director: ";
-    getline(is, mov.director);
-    cout << "Enter year: ";
+    if (&is == &cin) {
+        cout << "Enter name: ";
+    }
+    is >> mov.name;
+
+    if (&is == &cin) {
+        cout << "Enter director: ";
+    }
+    is >> mov.director;
+
+    if (&is == &cin) {
+        cout << "Enter year: ";
+    }
     is >> mov.year;
-    cout << "Enter genre: ";
-    getline(is, mov.genre);
-    cout << "Enter rating: ";
+
+    if (&is == &cin) {
+        cout << "Enter genre: ";
+    }
+    is >> mov.genre;
+
+    if (&is == &cin) {
+        cout << "Enter rating: ";
+    }
     is >> mov.rating;
-    cout << "Enter length: ";
+
+    if (&is == &cin) {
+        cout << "Enter length: ";
+    }
     is >> mov.length;
+
     return is;
 }
 
@@ -54,24 +73,42 @@ ostream& operator<<(ostream& os, const Movie& mov) {
     return os;
 }
 
-Movie* Movie::readFromFile(istream& is, int& count) {
-    is >> count;
+Movie* Movie::readFromFile(const string& filename, int& count) {
+    ifstream file(filename);
+    file >> count;
+    if (file.is_open()) {
+        if (count <= 0) {
+            return nullptr;
+        }
 
-    if (count <= 0) {
-        return nullptr;
+        Movie* movies = new Movie[count];
+
+        for (int i = 0; i < count; ++i) {
+            file >> movies[i];
+        }
+        file.close();
+        if (movies != nullptr) {
+            cout << "Data loaded successfully. Number of movies: " << count << endl;
+            return movies;
+        }
     }
-
-    Movie* movies = new Movie[count];
-
-    for (int i = 0; i < count; ++i) {
-        is >> movies[i];
+    else {
+        cout << "Error loading data." << endl;
     }
-
-    return movies;
+    return nullptr;
 }
 
-void Movie::writeToFile(ostream& os, const Movie* movies, int count) {
-    for (int i = 0; i < count; ++i) {
-        os << movies[i] << endl;
+void Movie::writeToFile(const string& filename, const Movie* movies, int count) {
+    ofstream file(filename);
+
+    if (file.is_open()) {
+        for (int i = 0; i < count; ++i) {
+            file << movies[i] << endl;
+        }
+        file.close();
+        cout << "Data saved to output.txt" << endl;
+    }
+    else {
+        cout << "Could not open file for writing." << endl;
     }
 }
