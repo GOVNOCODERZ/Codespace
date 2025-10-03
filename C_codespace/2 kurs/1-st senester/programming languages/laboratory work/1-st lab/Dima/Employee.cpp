@@ -1,152 +1,184 @@
-// Employee.cpp - файл реализации методов класса Employee
+#include "employee.h"
+#include <iostream>
+#include <string>
+#include <vector>
 
-#include "Employee.h"
-#include <fstream>
-#include <limits>
-#include <iomanip> // для std::fixed
+// конструктор по умолчанию
+Employee::Employee() : salary(0.0), startYear(0) {}
 
-// Указываем текущий год для расчета стажа
-const int CURRENT_YEAR = 2025;
-
-// --- Реализация конструкторов ---
-Employee::Employee() {
-    fullName = "";
-    position = "";
-    department = "";
-    salary = 0.0;
-    employmentYear = 0;
-}
-
+// конструктор с параметрами
 Employee::Employee(const std::string& fn, const std::string& pos, const std::string& dept, double sal, int year)
-    : fullName(fn), position(pos), department(dept), salary(sal), employmentYear(year) {}
+    : fullName(fn), position(pos), department(dept), salary(sal), startYear(year) {}
 
+// конструктор копирования
 Employee::Employee(const Employee& other)
     : fullName(other.fullName), position(other.position), department(other.department),
-      salary(other.salary), employmentYear(other.employmentYear) {}
+      salary(other.salary), startYear(other.startYear) {}
 
-// --- Реализация геттеров ---
+// геттеры и сеттеры
+std::string Employee::getFullName() const { return fullName; }
+std::string Employee::getPosition() const { return position; }
 std::string Employee::getDepartment() const { return department; }
 double Employee::getSalary() const { return salary; }
-int Employee::getWorkExperience() const { return CURRENT_YEAR - employmentYear; }
-
-
-// --- Реализация основных методов ---
-void Employee::print(std::ostream& os) const {
-    os << "Full Name: " << fullName << "\n";
-    os << "Position: " << position << "\n";
-    os << "Department: " << department << "\n";
-    // Используем std::fixed для вывода полного числа
-    os << "Salary: " << std::fixed << salary << "\n";
-    os << "Employment Year: " << employmentYear << "\n";
-}
-
-void Employee::read(std::istream& is) {
-    std::cout << "Enter Full Name: ";
-    std::getline(is >> std::ws, fullName);
-    std::cout << "Enter Position: ";
-    std::getline(is, position);
-    std::cout << "Enter Department: ";
-    std::getline(is, department);
-    std::cout << "Enter Salary: ";
-    is >> salary;
-    while (is.fail() || salary < 0) {
-        std::cout << "Error! Please enter a positive number: ";
-        is.clear();
-        is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        is >> salary;
+int Employee::getStartYear() const { return startYear; }
+void Employee::setSalary(double newSalary) {
+    if (newSalary > 0) {
+        salary = newSalary;
     }
-    std::cout << "Enter Employment Year: ";
-    is >> employmentYear;
-    while (is.fail() || employmentYear < 1900 || employmentYear > CURRENT_YEAR) {
-        std::cout << "Error! Please enter a valid year: ";
-        is.clear();
-        is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        is >> employmentYear;
-    }
-    is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
-// --- Реализация перегрузки операторов ---
-bool Employee::operator<(const Employee& other) const {
-    // Сортировка по убыванию: "меньше" тот, у кого зарплата "больше"
-    return this->salary > other.salary;
-}
+// перегруженные операторы
+// оператор > для сортировки по убыванию
+bool Employee::operator>(const Employee& other) const { return this->salary > other.salary; }
+// оператор <
+bool Employee::operator<(const Employee& other) const { return this->salary < other.salary; }
+// оператор ==
+bool Employee::operator==(const Employee& other) const { return this->salary == other.salary; }
 
-std::ostream& operator<<(std::ostream& os, const Employee& emp) {
-    os << emp.fullName << "\n"
-       << emp.position << "\n"
-       << emp.department << "\n"
-       << std::fixed << emp.salary << "\n"
-       << emp.employmentYear;
-    return os;
-}
-
+// перегрузка оператора >> для ввода из потока
 std::istream& operator>>(std::istream& is, Employee& emp) {
     std::getline(is >> std::ws, emp.fullName);
-    std::getline(is, emp.position);
-    std::getline(is, emp.department);
-    is >> emp.salary;
-    is >> emp.employmentYear;
-    is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::getline(is >> std::ws, emp.position);
+    std::getline(is >> std::ws, emp.department);
+    is >> emp.salary >> emp.startYear;
     return is;
 }
 
-// --- Реализация статических методов ---
-std::vector<Employee> Employee::readFromFile(const std::string& filename) {
+// перегрузка оператора << для вывода в поток
+std::ostream& operator<<(std::ostream& os, const Employee& emp) {
+    os << "Full Name: " << emp.fullName << std::endl;
+    os << "Position: " << emp.position << std::endl;
+    os << "Department: " << emp.department << std::endl;
+    os << "Salary: " << emp.salary << std::endl;
+    os << "Start Year: " << emp.startYear << std::endl;
+    return os;
+}
+
+Employee* readFromFile(const std::string& filename, int& size) {
     std::ifstream file(filename);
-    std::vector<Employee> employees;
-
     if (!file.is_open()) {
-        std::cerr << "Error! Failed to open file for reading: " << filename << std::endl;
-        return employees;
+        std::cerr << "Error: Could not open file " << filename << std::endl;
+        size = 0;
+        return nullptr;
     }
-    
-    // Проверяем и пропускаем метку BOM, если она есть
-    char bom[3] = {0};
-    file.read(bom, 3);
-    if (bom[0] != (char)0xEF || bom[1] != (char)0xBB || bom[2] != (char)0xBF) {
-        file.seekg(0); // если это не BOM, возвращаемся в начало файла
+    file >> size;
+    if (size <= 0) {
+        size = 0;
+        return nullptr;
     }
-
-    int count;
-    file >> count;
-    file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-    for (int i = 0; i < count; ++i) {
-        Employee temp;
-        file >> temp;
-        if(file.fail()) {
-            std::cerr << "Error reading data from file." << std::endl;
-            employees.clear();
-            break;
-        }
-        employees.push_back(temp);
+    // динамически выделяем память под массив
+    Employee* employees = new Employee[size];
+    for (int i = 0; i < size; ++i) {
+        file >> employees[i]; // используем перегруженный оператор >>
     }
-
     file.close();
-    std::cout << "Data loaded successfully. Records loaded: " << employees.size() << std::endl;
     return employees;
 }
 
-void Employee::writeToFile(const std::string& filename, const std::vector<Employee>& employees) {
-    // Открываем файл в бинарном режиме для корректной записи BOM
-    std::ofstream file(filename, std::ios::binary); 
-
+void writeToFile(const std::string& filename, const Employee* employees, int size) {
+    std::ofstream file(filename);
     if (!file.is_open()) {
-        std::cerr << "Error! Failed to open file for writing: " << filename << std::endl;
+        std::cerr << "Error: Could not write to file " << filename << std::endl;
         return;
     }
-
-    // Записываем метку BOM для UTF-8 (три байта: 0xEF, 0xBB, 0xBF)
-    // Это нужно для правильного отображения не-английских символов в программах вроде Блокнота
-    file << (char)0xEF << (char)0xBB << (char)0xBF;
-
-    file << employees.size() << "\n";
-
-    for (const auto& emp : employees) {
-        file << emp << "\n";
+    file << size << std::endl; // записываем количество объектов
+    for (int i = 0; i < size; ++i) {
+        file << employees[i].getFullName() << std::endl;
+        file << employees[i].getPosition() << std::endl;
+        file << employees[i].getDepartment() << std::endl;
+        file << employees[i].getSalary() << std::endl;
+        file << employees[i].getStartYear() << std::endl;
     }
-
     file.close();
-    std::cout << "Data saved successfully to file '" << filename << "'." << std::endl;
+    std::cout << "Data successfully written to " << filename << std::endl;
+}
+
+
+// выборка
+void employeesByDep(const Employee* employees, int size, const std::string& department) {
+    std::cout << "\n--- Employees in department '" << department << "' ---\n";
+    bool found = false;
+    for (int i = 0; i < size; ++i) {
+        if (employees[i].getDepartment() == department) {
+            std::cout << employees[i] << std::endl;
+            found = true;
+        }
+    }
+    if (!found) {
+        std::cout << "No employees found in this department.\n";
+    }
+}
+
+void employeesSalAboveAvg(const Employee* employees, int size, const std::string& department) {
+    double totalSalary = 0;
+    int count = 0;
+    for (int i = 0; i < size; ++i) {
+        if (employees[i].getDepartment() == department) {
+            totalSalary += employees[i].getSalary();
+            count++;
+        }
+    }
+    if (count == 0) {
+        std::cout << "No employees found in department '" << department << "' to calculate average salary.\n";
+        return;
+    }
+    double averageSalary = totalSalary / count;
+    std::cout << "\n--- Employees in '" << department << "' with salary above average (" << averageSalary << ") ---\n";
+    bool found = false;
+    for (int i = 0; i < size; ++i) {
+        if (employees[i].getDepartment() == department && employees[i].getSalary() > averageSalary) {
+            std::cout << employees[i] << std::endl;
+            found = true;
+        }
+    }
+    if (!found) {
+        std::cout << "No employees found with salary above average.\n";
+    }
+}
+
+void employees5years(const Employee* employees, int size, int currentYear) {
+    std::cout << "\n--- Employees working more than 5 years (as of " << currentYear << ") ---\n";
+    bool found = false;
+    for (int i = 0; i < size; ++i) {
+        if ((currentYear - employees[i].getStartYear()) > 5) {
+            std::cout << employees[i] << std::endl;
+            found = true;
+        }
+    }
+    if (!found) {
+        std::cout << "No employees found with more than 5 years of experience.\n";
+    }
+}
+
+void sortBySalary(Employee* employees, int size) {
+    for (int i = 0; i < size - 1; ++i) {
+        for (int j = 0; j < size - i - 1; ++j) {
+            // используем перегруженный оператор < для сортировки по убыванию
+            if (employees[j] < employees[j + 1]) {
+                Employee temp = employees[j];
+                employees[j] = employees[j + 1];
+                employees[j + 1] = temp;
+            }
+        }
+    }
+    std::cout << "\nArray has been sorted by salary in descending order.\n";
+}
+
+Employee* addEmployeeToArray(Employee* employees, int& size, const Employee& newEmployee) {
+    // 1. создаем новый массив размером на 1 больше
+    Employee* newArray = new Employee[size + 1];
+    // 2. копируем все элементы из старого массива в новый
+    for (int i = 0; i < size; ++i) {
+        newArray[i] = employees[i];
+    }
+    // 3. добавляем новый элемент в конец нового массива
+    newArray[size] = newEmployee;
+    // 4. увеличиваем счетчик размера
+    size++;
+    // 5. удаляем старый массив, чтобы освободить память (если он не был пустым)
+    if (employees != nullptr) {
+        delete[] employees;
+    }
+    // 6. возвращаем указатель на новый, расширенный массив
+    return newArray;
 }

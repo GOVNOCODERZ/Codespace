@@ -1,176 +1,157 @@
-// main.cpp - главный файл программы
-
 #include <iostream>
 #include <string>
-#include <vector>
-#include <algorithm>
-#include <limits>
-#include <windows.h> // Для настройки кодировки консоли (полезно для Windows)
+#include <limits> // для std::numeric_limits
+#include "employee.h"
 
-#include "Employee.h"
-
-// Прототипы функций
-void sortEmployees(std::vector<Employee>& employees);
-void findByDepartment(const std::vector<Employee>& employees);
-void findAboveAverageSalary(const std::vector<Employee>& employees);
-void findWithExperience(const std::vector<Employee>& employees);
+void menu() {
+    std::cout << "\n===== MENU =====\n";
+    std::cout << "1. Load data from file\n";
+    std::cout << "2. Display data on screen\n";
+    std::cout << "3. Write data to file\n";
+    std::cout << "4. Show employees by department\n";
+    std::cout << "5. Show employees with salary above department average\n";
+    std::cout << "6. Show employees working more than 5 years\n";
+    std::cout << "7. Sort employees by salary (descending)\n";
+    std::cout << "8. Add new employee manually\n";
+    std::cout << "0. Exit\n";
+    std::cout << "Enter your choice: ";
+}
 
 int main() {
-    // Эти строки настраивают консоль Windows на корректную работу с кодировкой UTF-8.
-    // Для чисто английского языка они не строго обязательны, но это хорошая практика.
-    SetConsoleOutputCP(CP_UTF8);
-    SetConsoleCP(CP_UTF8);
-
-    std::vector<Employee> employees;
-    std::string filename = "employees.txt";
+    Employee* employees = nullptr; // указатель на динамический массив
+    int size = 0; // размер массива
     int choice;
 
-    do {
-        std::cout << "\n========= MENU =========\n"
-                  << "1. Load from file\n"
-                  << "2. Save to file\n"
-                  << "3. Show all employees\n"
-                  << "4. Add a new employee\n"
-                  << "5. Sort by salary (descending)\n"
-                  << "6. Find by department\n"
-                  << "7. Find with salary > average in department\n"
-                  << "8. Find with experience > 5 years\n"
-                  << "0. Exit\n"
-                  << "========================\n"
-                  << "Your choice: ";
+    const std::string inputFile = "employees.txt";
+    const std::string outputFile = "output.txt";
+    const int currentYear = 2025;
 
+    do {
+        menu();
         std::cin >> choice;
+
         if (std::cin.fail()) {
-            std::cout << "Error! Please enter a number.\n";
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            continue;
+            std::cout << "Invalid input. Please enter a number.\n";
+            choice = -1; // присваиваем неверное значение, чтобы цикл продолжился
         }
 
         switch (choice) {
-            case 1:
-                employees = Employee::readFromFile(filename);
-                break;
-            case 2:
-                Employee::writeToFile(filename, employees);
-                break;
-            case 3:
-                if (employees.empty()) {
-                    std::cout << "The list is empty.\n";
-                } else {
-                    for (const auto& emp : employees) {
-                        std::cout << "--------------------\n";
-                        emp.print(std::cout);
-                    }
+            case 1: {
+                if (employees != nullptr) {
+                    delete[] employees; // освобождаем старую память перед загрузкой новых данных
+                }
+                employees = readFromFile(inputFile, size);
+                if (employees != nullptr) {
+                    std::cout << size << " records loaded successfully.\n";
                 }
                 break;
-            case 4: {
-                Employee newEmp;
-                newEmp.read(std::cin);
-                employees.push_back(newEmp);
-                std::cout << "Employee added successfully.\n";
+            }
+            case 2: {
+                if (size > 0) {
+                    std::cout << "\n--- List of All Employees ---\n";
+                    for (int i = 0; i < size; ++i) {
+                        std::cout << "--- Record " << i + 1 << " ---\n";
+                        std::cout << employees[i] << std::endl;
+                    }
+                } else {
+                    std::cout << "No data to display. Please load from file first.\n";
+                }
                 break;
             }
-            case 5:
-                if (!employees.empty()) sortEmployees(employees);
-                else std::cout << "The list is empty, nothing to sort.\n";
+            case 3: {
+                if (size > 0) {
+                    writeToFile(outputFile, employees, size);
+                } else {
+                    std::cout << "No data to write. Please load from file first.\n";
+                }
                 break;
-            case 6:
-                if (!employees.empty()) findByDepartment(employees);
-                else std::cout << "The list is empty.\n";
+            }
+            case 4: {
+                if (size > 0) {
+                    std::string dept;
+                    std::cout << "Enter department name: ";
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // очистить буфер перед getline
+                    std::getline(std::cin, dept);
+                    employeesByDep(employees, size, dept);
+                } else {
+                    std::cout << "No data available. Please load from file first.\n";
+                }
                 break;
-            case 7:
-                 if (!employees.empty()) findAboveAverageSalary(employees);
-                 else std::cout << "The list is empty.\n";
+            }
+            case 5: {
+                if (size > 0) {
+                    std::string dept;
+                    std::cout << "Enter department name: ";
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                    std::getline(std::cin, dept);
+                    employeesSalAboveAvg(employees, size, dept);
+                } else {
+                    std::cout << "No data available. Please load from file first.\n";
+                }
                 break;
-            case 8:
-                 if (!employees.empty()) findWithExperience(employees);
-                 else std::cout << "The list is empty.\n";
+            }
+            case 6: {
+                if (size > 0) {
+                    employees5years(employees, size, currentYear);
+                } else {
+                    std::cout << "No data available. Please load from file first.\n";
+                }
                 break;
+            }
+            case 7: {
+                if (size > 0) {
+                    sortBySalary(employees, size);
+                    std::cout << "Data sorted. Use option 2 to see the result.\n";
+                } else {
+                    std::cout << "No data to sort. Please load from file first.\n";
+                }
+                break;
+            }
+            case 8: {
+                std::string fn, pos, dept;
+                double sal;
+                int year;
+                std::cout << "\n--- Adding a New Employee ---\n";
+                
+                // очищаем буфер ввода перед использованием getline
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
+                
+                std::cout << "Enter Full Name: ";
+                std::getline(std::cin, fn);
+                std::cout << "Enter Position: ";
+                std::getline(std::cin, pos);
+                std::cout << "Enter Department: ";
+                std::getline(std::cin, dept);
+                std::cout << "Enter Salary: ";
+                std::cin >> sal;
+                std::cout << "Enter Start Year: ";
+                std::cin >> year;
+                
+                // создаем временный объект с введенными данными
+                Employee newEmployee(fn, pos, dept, sal, year);
+                
+                // вызываем функцию для добавления объекта в массив
+                employees = addEmployeeToArray(employees, size, newEmployee);
+                
+                std::cout << "Employee added successfully! Current number of employees: " << size << std::endl;
+                break;
+            }
             case 0:
-                std::cout << "Exiting the program...\n";
+                std::cout << "Exiting program.\n";
                 break;
             default:
-                std::cout << "Invalid menu option. Please try again.\n";
+                std::cout << "Invalid choice. Please try again.\n";
                 break;
         }
+
     } while (choice != 0);
 
+    // освобождение памяти перед выходом
+    if (employees != nullptr) {
+        delete[] employees;
+    }
+
     return 0;
-}
-
-// --- Реализация вспомогательных функций ---
-void sortEmployees(std::vector<Employee>& employees) {
-    std::sort(employees.begin(), employees.end());
-    std::cout << "Employees sorted by salary (descending).\n";
-}
-
-void findByDepartment(const std::vector<Employee>& employees) {
-    std::string dept;
-    std::cout << "Enter department name: ";
-    std::getline(std::cin >> std::ws, dept);
-
-    bool found = false;
-    std::cout << "\n--- Employees in department '" << dept << "' ---\n";
-    for (const auto& emp : employees) {
-        if (emp.getDepartment() == dept) {
-            emp.print(std::cout);
-            std::cout << "--------------------\n";
-            found = true;
-        }
-    }
-    if (!found) {
-        std::cout << "No employees found in this department.\n";
-    }
-}
-
-void findAboveAverageSalary(const std::vector<Employee>& employees) {
-    std::string dept;
-    std::cout << "Enter department name: ";
-    std::getline(std::cin >> std::ws, dept);
-
-    double totalSalary = 0;
-    int count = 0;
-    for (const auto& emp : employees) {
-        if (emp.getDepartment() == dept) {
-            totalSalary += emp.getSalary();
-            count++;
-        }
-    }
-
-    if (count == 0) {
-        std::cout << "Department not found or it has no employees.\n";
-        return;
-    }
-
-    double average = totalSalary / count;
-    std::cout << "\n--- Employees with salary > average (" << std::fixed << average << ") in department '" << dept << "' ---\n";
-    bool found = false;
-    for (const auto& emp : employees) {
-        if (emp.getDepartment() == dept && emp.getSalary() > average) {
-            emp.print(std::cout);
-            std::cout << "--------------------\n";
-            found = true;
-        }
-    }
-    if (!found) {
-        std::cout << "No such employees found.\n";
-    }
-}
-
-void findWithExperience(const std::vector<Employee>& employees) {
-    const int years = 5;
-    bool found = false;
-    std::cout << "\n--- Employees with more than " << years << " years of experience ---\n";
-    for (const auto& emp : employees) {
-        if (emp.getWorkExperience() > years) {
-            emp.print(std::cout);
-            std::cout << "Experience: " << emp.getWorkExperience() << " years\n";
-            std::cout << "--------------------\n";
-            found = true;
-        }
-    }
-    if (!found) {
-        std::cout << "No employees with such experience found.\n";
-    }
 }
