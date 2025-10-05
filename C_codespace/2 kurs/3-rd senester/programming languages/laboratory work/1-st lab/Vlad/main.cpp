@@ -10,15 +10,9 @@ using namespace std;
 const string input_file_name = "input.txt";
 const string output_file_name = "output.txt";
 
-// Prototypes for selection functions
-void selectByDirector(Movie* movies, int count);
-void selectByGenreAndRating(Movie* movies, int count);
-void selectByYears(Movie* movies, int count);
-
-// Comparator prototype for qsort
-int compareMoviesByRating(const void* a, const void* b);
-
-// Function to add a new movie
+/// @brief Метод для добавления объекта в массив
+/// @param movies Массив для добавления
+/// @param count Длина массива
 void addMovie(Movie*& movies, int& count) {
     cout << "\n=== ADDING A NEW MOVIE ===" << endl;
     Movie newMovie;
@@ -40,8 +34,11 @@ void addMovie(Movie*& movies, int& count) {
 }
 
 int main() {
+    /// Массив фильмов
     Movie* movies = nullptr;
+    /// Счётчик фильмов в массиве
     int movieCount = 0;
+    /// Переменная для цикла while
     bool running = true;
 
     while (running) {
@@ -64,7 +61,7 @@ int main() {
 
         switch (choice) {
             case 1: {
-                movies = Movie::readFromFile(input_file_name, movieCount);
+                movies = Movie::read_from_file(input_file_name, movieCount);
                 break;
             }
 
@@ -85,7 +82,7 @@ int main() {
                     cout << "No data to save." << endl;
                 }
                 else {
-                    Movie::writeToFile(output_file_name, movies, movieCount);
+                    Movie::write_to_file(output_file_name, movies, movieCount);
                 }
                 break;
             }
@@ -107,7 +104,7 @@ int main() {
                     cout << "No data to sort." << endl;
                 } else {
                     cout << "Sorting by rating (descending) using qsort..." << endl;
-                    qsort(movies, movieCount, sizeof(Movie), compareMoviesByRating);
+                    qsort(movies, movieCount, sizeof(Movie), compare_movies_by_rating);
                     cout << "Sorting completed." << endl;
                 }
                 break;
@@ -129,107 +126,10 @@ int main() {
         }
     }
 
-    // Free memory before exit
+    // Очищаем память перед окончанием программы
     if (movies != nullptr) {
         delete[] movies;
     }
 
     return 0;
-}
-
-// Comparator for qsort
-int compareMoviesByRating(const void* a, const void* b) {
-    const Movie* movieA = (const Movie*)a;
-    const Movie* movieB = (const Movie*)b;
-
-    if (movieA->getRating() > movieB->getRating()) return -1;  // descending order
-    else if (movieA->getRating() < movieB->getRating()) return 1;
-    else return 0;
-}
-
-// Selection functions
-void selectByDirector(Movie* movies, int count) {
-    if (movies == nullptr || count == 0) {
-        cout << "No data for selection." << endl;
-        return;
-    }
-
-    string director;
-    cout << "Enter director name: ";
-    cin >> director;
-
-    vector<Movie> selected;
-    for (int i = 0; i < count; ++i) {
-        if (movies[i].getDirector() == director) {
-            selected.push_back(movies[i]);
-        }
-    }
-
-    if (selected.empty()) {
-        cout << "No movies found by this director." << endl;
-    } else {
-        cout << "\n=== MOVIES BY DIRECTOR \"" << director << "\" ===" << endl;
-        for (const Movie& m : selected) {
-            cout << m << endl;
-        }
-    }
-}
-
-void selectByGenreAndRating(Movie* movies, int count) {
-    if (movies == nullptr || count == 0) {
-        cout << "No data for selection." << endl;
-        return;
-    }
-
-    string genre;
-    float minRating;
-    cout << "Enter genre: ";
-    cin >> genre;
-    cout << "Enter minimum rating: ";
-    cin >> minRating;
-
-    vector<Movie> selected;
-    for (int i = 0; i < count; ++i) {
-        if (movies[i].getGenre() == genre && movies[i].getRating() > minRating) {
-            selected.push_back(movies[i]);
-        }
-    }
-
-    if (selected.empty()) {
-        cout << "No movies found with this genre and rating." << endl;
-    } else {
-        cout << "\n=== MOVIES OF GENRE \"" << genre << "\" WITH RATING > " << minRating << " ===" << endl;
-        for (const Movie& m : selected) {
-            cout << m << endl;
-        }
-    }
-}
-
-void selectByYears(Movie* movies, int count) {
-    if (movies == nullptr || count == 0) {
-        cout << "No data for selection." << endl;
-        return;
-    }
-
-    int startYear, endYear;
-    cout << "Enter start year: ";
-    cin >> startYear;
-    cout << "Enter end year: ";
-    cin >> endYear;
-
-    vector<Movie> selected;
-    for (int i = 0; i < count; ++i) {
-        if (movies[i].getYear() >= startYear && movies[i].getYear() <= endYear) {
-            selected.push_back(movies[i]);
-        }
-    }
-
-    if (selected.empty()) {
-        cout << "No movies found in the specified year range." << endl;
-    } else {
-        cout << "\n=== MOVIES BETWEEN " << startYear << " AND " << endYear << " ===" << endl;
-        for (const Movie& m : selected) {
-            cout << m << endl;
-        }
-    }
 }
