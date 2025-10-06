@@ -1,50 +1,24 @@
 #include "movie.h"
 #include <iostream>
 #include <string>
-#include <algorithm>
 #include <vector>
-#include <cstdlib>
 using namespace std;
 
 // File names for writing to/reading from
 const string input_file_name = "input.txt";
 const string output_file_name = "output.txt";
 
-/// @brief Метод для добавления объекта в массив
-/// @param movies Массив для добавления
-/// @param count Длина массива
-void addMovie(Movie*& movies, int& count) {
-    cout << "\n=== ADDING A NEW MOVIE ===" << endl;
-    Movie newMovie;
-    cin >> newMovie;
-
-    Movie* newMovies = new Movie[count + 1];
-    for (int i = 0; i < count; ++i) {
-        newMovies[i] = movies[i];
-    }
-    newMovies[count] = newMovie;
-
-    if (movies != nullptr) {
-        delete[] movies;
-    }
-
-    movies = newMovies;
-    count++;
-    cout << "Movie added successfully!" << endl;
-}
-
 int main() {
+
     /// Массив фильмов
-    Movie* movies = nullptr;
-    /// Счётчик фильмов в массиве
-    int movieCount = 0;
+    vector<Movie> movies;
     /// Переменная для цикла while
     bool running = true;
 
     while (running) {
         cout << "\n======================================" << endl;
         cout << "               MAIN MENU" << endl;
-        cout << "======================================" << endl;
+        cout << "=======================================" << endl;
         cout << "1. Load data from file" << endl;
         cout << "2. Display data on screen" << endl;
         cout << "3. Save data to file" << endl;
@@ -60,75 +34,69 @@ int main() {
         cin >> choice;
 
         switch (choice) {
+            /// Загрузка данных из файла
             case 1: {
-                movies = Movie::read_from_file(input_file_name, movieCount);
+                movies = Movie::read_from_file(input_file_name);
                 break;
             }
-
+            /// Отображение данных массива
             case 2: {
-                if (movies == nullptr || movieCount == 0) {
-                    cout << "No data to display." << endl;
+                if (movies.empty()) {
+                    cout << ERROR_MESSAGE_EMPTY_LIST << endl;
                 } else {
                     cout << "\n=== ALL MOVIES ===" << endl;
-                    for (int i = 0; i < movieCount; ++i) {
+                    for (int i = 0; i < movies.size(); ++i) {
                         cout << movies[i] << endl;
                     }
                 }
                 break;
             }
-
+            /// Запись данных в файл
             case 3: {
-                if (movies == nullptr || movieCount == 0) {
-                    cout << "No data to save." << endl;
-                }
-                else {
-                    Movie::write_to_file(output_file_name, movies, movieCount);
-                }
+                Movie::write_to_file(output_file_name, movies);
                 break;
             }
-
-            case 4:
-                selectByDirector(movies, movieCount);
+            /// Выборка а) по режиссёру
+            case 4: {
+                Movie::select_by_director(movies, movies.size());
                 break;
-
-            case 5:
-                selectByGenreAndRating(movies, movieCount);
+            }
+            /// Выборка б) по жанру и рейтингу
+            case 5: {
+                Movie::select_by_genre_and_rating(movies, movies.size());
                 break;
-
-            case 6:
-                selectByYears(movies, movieCount);
+            }
+            /// Выборка в) по году выхода
+            case 6: {
+                Movie::select_by_years(movies, movies.size());
                 break;
-
+            }
+            /// Сортировка по рейтингу (по убыванию)
             case 7: {
-                if (movies == nullptr || movieCount == 0) {
-                    cout << "No data to sort." << endl;
-                } else {
-                    cout << "Sorting by rating (descending) using qsort..." << endl;
-                    qsort(movies, movieCount, sizeof(Movie), compare_movies_by_rating);
-                    cout << "Sorting completed." << endl;
-                }
+                if (!movies.empty())
+                    Movie::sort_by_rating(movies);
+                else 
+                    cout << ERROR_MESSAGE_EMPTY_LIST << endl;
                 break;
             }
-
+            /// Добавление фильма в массив
             case 8: {
-                addMovie(movies, movieCount);
+                Movie new_movie;
+                cin >> new_movie;
+                movies.push_back(new_movie);
+                cout << "Movies added successfully." << endl;
                 break;
             }
-
+            /// Выход из программы
             case 9: {
                 cout << "Exiting the program..." << endl;
                 running = false;
                 break;
             }
-
+            /// Неверный выбор опции меню
             default:
-                cout << "Invalid choice. Please try again." << endl;
+                cout << ERROR_MESSAGE_INVALID_MENU_CHOICE << endl;
         }
-    }
-
-    // Очищаем память перед окончанием программы
-    if (movies != nullptr) {
-        delete[] movies;
     }
 
     return 0;

@@ -8,6 +8,10 @@
 #define ERROR_MESSAGE_EMPTY_LIST "ERROR: The list is empty."
 #define ERROR_MESSAGE_NOT_A_NUM "ERROR: Inserted text isn't a number."
 #define ERROR_MESSAGE_INVALID_MENU_CHOICE "ERROR: Invalid menu option."
+#define ERROR_MESSAGE_FILE_OPENING_FAIL "ERROR: Failed to open file."
+#define ERROR_MESSAGE_FILE_READING_FAIL "ERROR: Failed to read from file."
+#define ERROR_MESSAGE_FILE_WRITING_FAIL "ERROR: Failed to write to file."
+
 
 #include <iostream>
 #include <vector>
@@ -32,7 +36,7 @@ public:
     Movie(string myName, string myDirector, int myYear, string myGenre, float myRating, int myLength);
     Movie(const Movie& other);
     ~Movie();
-
+    
     friend istream& operator>>(istream& is, Movie& mov);
     friend ostream& operator<<(ostream& os, const Movie& mov);
 
@@ -59,23 +63,34 @@ public:
      * Методы для работы с файлами
      */
     
-    static Movie* read_from_file(const string& filename, int& count);
-    static void write_to_file(const string& filename, const Movie* movies, int count);
+    static vector<Movie> read_from_file(const string& filename);
+    static void write_to_file(const string& filename, const vector<Movie>& movies);
 
     /**
      * Компаратор для qsort
      */
 
-    int compare_movies_by_rating(const void* a, const void* b);
+    static int compare_movies_by_rating(const void* a, const void* b);
 
     /**
      * Выборки
      */
 
-    void selectByDirector(Movie* movies, int count);
-    void selectByGenreAndRating(Movie* movies, int count);
-    void selectByYears(Movie* movies, int count);
+    static void select_by_director(vector<Movie>& movies, int count);
+    static void select_by_genre_and_rating(vector<Movie>& movies, int count);
+    static void select_by_years(vector<Movie>& movies, int count);
 
+    /**
+     * Сортировка фильмов по рейтингу
+     */
+
+    static void sort_by_rating(vector<Movie>& movies);
+
+    /**
+     * Метод для добавления фильма в массив
+     */
+
+    static void add_movie(vector<Movie>& movies, int count);
 };
 
 #endif

@@ -1,6 +1,7 @@
 #include "movie.h"
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 using namespace std;
 
 Movie::Movie(): 
@@ -31,7 +32,7 @@ Movie::~Movie() {}
 
 /// @brief Ввод полей объекта ч/з поток. Проверки на соответствие потока нужны для правильной работы read_from_file
 /// @param is Входящий поток
-/// @param mov Поинтер на объект
+/// @param mov Изменяемый объект
 /// @return Поля объекта в виде потока
 istream& operator>>(istream& is, Movie& mov) {
     if (&is == &cin) {
@@ -70,8 +71,8 @@ istream& operator>>(istream& is, Movie& mov) {
 
 /// @brief Вывод полей объекта ч/з поток
 /// @param os Выходящий поток
-/// @param mov Поинтер на объект
-/// @return Поля оьъекта в виде потока
+/// @param mov Считываемый объект
+/// @return Поля объекта в виде потока
 ostream& operator<<(ostream& os, const Movie& mov) {
     os << "Name: \"" << mov.name << "\"" << endl
        << "Director: \"" << mov.director << "\"" << endl
@@ -83,52 +84,57 @@ ostream& operator<<(ostream& os, const Movie& mov) {
 }
 
 /// @brief Чтение инфы из файла 
-/// @param is Название файла для открытия
-/// @param count Счётчик кол-ва объектов
+/// @param filename Название файла для открытия
 /// @return Список прочитанных объектов 
-Movie* Movie::read_from_file(const string& filename, int& count) {
+vector<Movie> Movie::read_from_file(const string& filename) {
     ifstream file(filename);
+    vector<Movie> movies;
+
+    if (!file.is_open()) {
+        cout << ERROR_MESSAGE_FILE_OPENING_FAIL << endl;
+        return movies;
+    }
+
+    int count;
     file >> count;
-    if (file.is_open()) {
-        if (count <= 0) {
-            return nullptr;
-        }
 
-        Movie* movies = new Movie[count];
+    for (int i = 0; i < count; ++i) {
+        Movie temp;
+        file >> temp;
+        if(file.fail()) {
+            cout << ERROR_MESSAGE_FILE_READING_FAIL << endl;
+            movies.clear();
+            break;
+        }
+        movies.push_back(temp);
+    }
+    
+    file.close();
+    if (!movies.empty()) {
+        cout << "Data loaded successfully. Number of movies: " << movies.size() << endl;
+    }
 
-        for (int i = 0; i < count; ++i) {
-            file >> movies[i];
-        }
-        file.close();
-        if (movies != nullptr) {
-            cout << "Data loaded successfully. Number of movies: " << count << endl;
-            return movies;
-        }
-    }
-    else {
-        cout << "Error loading data." << endl;
-    }
-    return nullptr;
+    return movies;
 }
 
 
 /// @brief Запись инфы в файл
-/// @param os Название файла для открытия
+/// @param filename Название файла для открытия
 /// @param movies Список объектов для записи
-/// @param count Счётчик кол-ва объектов
-void Movie::write_to_file(const string& filename, const Movie* movies, int count) {
+void Movie::write_to_file(const string& filename, const vector<Movie>& movies) {
     ofstream file(filename);
 
-    if (file.is_open()) {
-        for (int i = 0; i < count; ++i) {
-            file << movies[i] << endl;
-        }
-        file.close();
-        cout << "Data saved to output.txt" << endl;
+    if (!file.is_open()) {
+        cout << ERROR_MESSAGE_FILE_WRITING_FAIL << endl;
+        return;
     }
-    else {
-        cout << "Could not open file for writing." << endl;
+
+    for (const auto& mov : movies) {
+        file << mov << "\n";
     }
+
+    file.close();
+    cout << "Data saved to " << filename << endl;
 }
 
 /// @brief Компаратор для qsort
@@ -145,11 +151,11 @@ int Movie::compare_movies_by_rating(const void* a, const void* b) {
 }
 
 /// @brief Выборка а) по режиссёру
-/// @param movies Поинтер на массив
+/// @param movies Массив фильмов
 /// @param count Количество фильмов в массиве
-void Movie::selectByDirector(Movie* movies, int count) {
-    if (movies == nullptr || count == 0) {
-        cout << "No data for selection." << endl;
+void Movie::select_by_director(vector<Movie>& movies, int count) {
+    if (movies.empty()) {
+        cout << ERROR_MESSAGE_EMPTY_LIST << endl;
         return;
     }
 
@@ -175,11 +181,11 @@ void Movie::selectByDirector(Movie* movies, int count) {
 }
 
 /// @brief Выборка б) по жанру + рейтинг выше указанного
-/// @param movies Поинтер на массив
+/// @param movies Массив фильмов
 /// @param count Количество фильмов в массиве
-void Movie::selectByGenreAndRating(Movie* movies, int count) {
-    if (movies == nullptr || count == 0) {
-        cout << "No data for selection." << endl;
+void Movie::select_by_genre_and_rating(vector<Movie>& movies, int count) {
+    if (movies.empty()) {
+        cout << ERROR_MESSAGE_EMPTY_LIST << endl;
         return;
     }
 
@@ -208,11 +214,11 @@ void Movie::selectByGenreAndRating(Movie* movies, int count) {
 }
 
 /// @brief Выборка в) год выхода в указанном промежутке
-/// @param movies Поинтер на массив
+/// @param movies Массив фильмов
 /// @param count Количество фильмов в массиве
-void Movie::selectByYears(Movie* movies, int count) {
-    if (movies == nullptr || count == 0) {
-        cout << "No data for selection." << endl;
+void Movie::select_by_years(vector<Movie>& movies, int count) {
+    if (movies.empty()) {
+        cout << ERROR_MESSAGE_EMPTY_LIST << endl;
         return;
     }
 
@@ -237,4 +243,13 @@ void Movie::selectByYears(Movie* movies, int count) {
             cout << m << endl;
         }
     }
+}
+
+/// @brief Сортирует массив фильмов по рейтингу (в порядке убывания)
+/// @param movies Массив фильмов
+void Movie::sort_by_rating(vector<Movie>& movies) {
+    sort(movies.begin(), movies.end(), [](const Movie& a, const Movie& b) {
+        return a > b;
+    });
+    cout << "Movies sorted by rating (descending).\n";
 }
