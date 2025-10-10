@@ -22,7 +22,7 @@ int main() {
     int size = 0; // размер массива
     int choice;
 
-    const std::string inputFile = "employees.txt";
+    const std::string inputFile = "output.txt";
     const std::string outputFile = "output.txt";
     const int currentYear = 2025;
 
@@ -110,31 +110,10 @@ int main() {
                 break;
             }
             case 8: {
-                std::string fn, pos, dept;
-                double sal;
-                int year;
                 std::cout << "\n--- Adding a New Employee ---\n";
-                
-                // очищаем буфер ввода перед использованием getline
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
-                
-                std::cout << "Enter Full Name: ";
-                std::getline(std::cin, fn);
-                std::cout << "Enter Position: ";
-                std::getline(std::cin, pos);
-                std::cout << "Enter Department: ";
-                std::getline(std::cin, dept);
-                std::cout << "Enter Salary: ";
-                std::cin >> sal;
-                std::cout << "Enter Start Year: ";
-                std::cin >> year;
-                
-                // создаем временный объект с введенными данными
-                Employee newEmployee(fn, pos, dept, sal, year);
-                
-                // вызываем функцию для добавления объекта в массив
+                Employee newEmployee;
+                std::cin >> newEmployee;
                 employees = addEmployeeToArray(employees, size, newEmployee);
-                
                 std::cout << "Employee added successfully! Current number of employees: " << size << std::endl;
                 break;
             }
