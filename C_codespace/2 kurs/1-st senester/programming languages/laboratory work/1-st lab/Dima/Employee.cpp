@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <limits>
 
 // конструктор по умолчанию
 Employee::Employee() : salary(0.0), startYear(0) {}
@@ -35,22 +36,38 @@ bool Employee::operator<(const Employee& other) const { return this->salary < ot
 // оператор ==
 bool Employee::operator==(const Employee& other) const { return this->salary == other.salary; }
 
-// перегрузка оператора >> для ввода из потока
+void Employee::read(std::istream& is) {
+    std::getline(is >> std::ws, fullName);
+    std::getline(is >> std::ws, position);
+    std::getline(is >> std::ws, department);
+    is >> salary >> startYear;
+    is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+}
+
+void Employee::print(std::ostream& os) const {
+    if (&os == &std::cout) {
+        os << "Full Name: " << fullName << std::endl;
+        os << "Position: " << position << std::endl;
+        os << "Department: " << department << std::endl;
+        os << "Salary: " << salary << std::endl;
+        os << "Start Year: " << startYear << std::endl;
+    } else {
+        os << fullName << '\n'
+           << position << '\n'
+           << department << '\n'
+           << salary << '\n'
+           << startYear << std::endl;
+    }
+}
+
+// перегрузка операторов через методы
 std::istream& operator>>(std::istream& is, Employee& emp) {
-    std::getline(is >> std::ws, emp.fullName);
-    std::getline(is >> std::ws, emp.position);
-    std::getline(is >> std::ws, emp.department);
-    is >> emp.salary >> emp.startYear;
+    emp.read(is);
     return is;
 }
 
-// перегрузка оператора << для вывода в поток
 std::ostream& operator<<(std::ostream& os, const Employee& emp) {
-    os << "Full Name: " << emp.fullName << std::endl;
-    os << "Position: " << emp.position << std::endl;
-    os << "Department: " << emp.department << std::endl;
-    os << "Salary: " << emp.salary << std::endl;
-    os << "Start Year: " << emp.startYear << std::endl;
+    emp.print(os);
     return os;
 }
 
@@ -83,11 +100,7 @@ void writeToFile(const std::string& filename, const Employee* employees, int siz
     }
     file << size << std::endl; // записываем количество объектов
     for (int i = 0; i < size; ++i) {
-        file << employees[i].getFullName() << std::endl;
-        file << employees[i].getPosition() << std::endl;
-        file << employees[i].getDepartment() << std::endl;
-        file << employees[i].getSalary() << std::endl;
-        file << employees[i].getStartYear() << std::endl;
+    file << employees[i];
     }
     file.close();
     std::cout << "Data successfully written to " << filename << std::endl;

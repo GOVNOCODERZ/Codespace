@@ -35,12 +35,16 @@ public:
     bool operator<(const Employee& other) const;
     bool operator==(const Employee& other) const;
 
+    // Методы для ввода/вывода
+    void read(std::istream& is);
+    void print(std::ostream& os) const;
+
     // дружественные функции для перегрузки операторов ввода/вывода
     friend std::istream& operator>>(std::istream& is, Employee& emp);
     friend std::ostream& operator<<(std::ostream& os, const Employee& emp);
 };
 
-// --- Прототипы функций ---
+// прототипы функций
 
 // функция для чтения массива сотрудников из файла
 Employee* readFromFile(const std::string& filename, int& size);
@@ -63,4 +67,4 @@ void sortBySalary(Employee* employees, int size);
 // добавление нового сотрудника
 Employee* addEmployeeToArray(Employee* employees, int& size, const Employee& newEmployee);
 
-#endif // EMPLOYEE_H
+#endif

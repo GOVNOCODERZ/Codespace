@@ -5,13 +5,12 @@ def inp():
 
 def massBForm(mass):
     B = []
-    summpol = 0
-    cnt = 0
-    for i in mass:
-        if i >= 0:
-            cnt += 1 
-            summpol += i
+    cacheB = [i for i in mass if i>=0] #реализация через списоквое включение
+    # for i in mass:
+    #     if i >= 0:
+    #         cnt += 1 
+    #         summpol += i
     B.append(max(mass))    #Заполнение массива
-    B.append(summpol/cnt)
+    B.append(sum(cacheB)/len(cacheB))
     B.append(abs(min(mass)))
     return(B)
