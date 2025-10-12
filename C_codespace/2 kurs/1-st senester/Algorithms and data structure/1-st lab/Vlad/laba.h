@@ -9,7 +9,6 @@
 #include <algorithm>
 using namespace std;
 
-// --- Timer for measuring time ---
 class Timer {
 public:
     Timer() : start_time(chrono::high_resolution_clock::now()) {}
@@ -17,7 +16,7 @@ public:
     double elapsed() const {
         auto end_time = chrono::high_resolution_clock::now();
         auto duration = chrono::duration_cast<chrono::microseconds>(end_time - start_time);
-        return static_cast<double>(duration.count()) / 1000.0; // in milliseconds
+        return static_cast<double>(duration.count()) / 1000.0;
     }
 private:
     chrono::high_resolution_clock::time_point start_time;
