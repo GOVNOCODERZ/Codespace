@@ -1,4 +1,4 @@
-3
+4
 Bad_movie
 Mr_Bad_Director
 2010
@@ -17,3 +17,9 @@ Mr_Bad_Director
 Thriller
 6.5
 120
+Some_Horror
+Mr_Lame_Director
+1997
+Horror
+4.8
+75
