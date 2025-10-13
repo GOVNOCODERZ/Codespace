@@ -149,8 +149,13 @@ ostream& operator<<(ostream& os, const WebMoney& w) {
 // Конструкторы
 
 Sales::Sales() {}
-Sales::Sales(const Sales& other)
-    : payments(other.payments) {}/// ТУДУ: взять из какой-то лекции какие-то операторы копирования
+Sales::Sales(const Sales& other) {
+    for (auto p : other.payments) {
+        Payment* obj;
+        obj = p;
+        payments.push_back(obj);
+    }
+}
 Sales::~Sales() {
     for (auto p : payments) {
         delete p;
@@ -248,19 +253,14 @@ void Sales::loadFromFile(const string& filename) {
         Payment* obj;
         if (type == "BankTransfer") {
             obj = new BankTransfer;
-            string date, bank;
-            float amount;
-            file >> date >> amount >> bank;
-            addPayment(new BankTransfer(date, amount, bank));
-        } else if (type == "WebMoney") {
-            string date;
-            float amount, commission;
-            file >> date >> amount >> commission;
-            addPayment(new WebMoney(date, amount, commission));
+            file >> *obj;
+            addPayment(obj);
         }
-        /// ТУДУ: вот таким образом выше заменить
-        file >> *obj;
-        addPayment(obj);
+        if (type == "WebMoney") {
+            obj = new WebMoney;
+            file >> *obj;
+            addPayment(obj);
+        }
     }
     
     file.close();

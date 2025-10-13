@@ -1,4 +1,5 @@
 #include "payment.h"
+#include "payment.cpp"
 #include <iostream>
 using namespace std;
 
