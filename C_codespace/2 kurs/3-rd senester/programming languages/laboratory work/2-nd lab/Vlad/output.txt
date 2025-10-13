@@ -4,5 +4,3 @@ BankTransfer 05.10 13 BANK_2
 WebMoney 20.04 1002 10
 BankTransfer 31.12 10000 BANK_3
 WebMoney 26.08 4200 13
-BankTransfer 12.10 2000 SOME_BANK
-WebMoney 12.10 2500 10

@@ -19,8 +19,8 @@ public:
 
     virtual string myName() const = 0;
 
-    virtual void input();
-    virtual void output() const;
+    virtual void input(istream& is);
+    virtual void output(ostream& os) const;
 
     // Геттеры
     string getDate() const { return date; }
@@ -29,11 +29,6 @@ public:
     // Виртуальные операторы ввода/вывода
     friend istream& operator>>(istream& is, Payment& p);
     friend ostream& operator<<(ostream& os, const Payment& p);
-
-    // Статические методы для выборок (реализуем в Sales)
-    static void selectByDate(const vector<Payment*>& payments, const string& date);
-    static void selectByAmountRange(const vector<Payment*>& payments, float minAmount, float maxAmount);
-    static void showStatsByType(const vector<Payment*>& payments);
 };
 
 class BankTransfer : public Payment {
@@ -47,8 +42,9 @@ public:
     virtual ~BankTransfer();
 
     virtual string myName() const override;
-    virtual void input() override;
-    virtual void output() const override;
+
+    virtual void input(istream& is) override;
+    virtual void output(ostream& os) const override;
 
     string getBank() const { return bank; }
 };
@@ -64,8 +60,9 @@ public:
     virtual ~WebMoney();
 
     virtual string myName() const override;
-    virtual void input() override;
-    virtual void output() const override;
+    
+    virtual void input(istream& is) override;
+    virtual void output(ostream& os) const override;
 
     float getCommission() const { return commission; }
 };
@@ -76,6 +73,7 @@ private:
 
 public:
     Sales();
+    Sales(const Sales& other);
     ~Sales();
 
     void addPayment(Payment* p);
