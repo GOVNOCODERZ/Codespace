@@ -30,41 +30,57 @@ Movie::Movie(const Movie& other):
 
 Movie::~Movie() {}
 
+/// @brief Считывание и запись данных в поля объекта
+/// @param is Входящий поток
+void Movie::read(istream& is) {
+    if (&is == &cin) {
+        cout << "Enter name: ";
+    }
+    is >> name;
+
+    if (&is == &cin) {
+        cout << "Enter director: ";
+    }
+    is >> director;
+
+    if (&is == &cin) {
+        cout << "Enter year: ";
+    }
+    is >> year;
+
+    if (&is == &cin) {
+        cout << "Enter genre: ";
+    }
+    is >> genre;
+
+    if (&is == &cin) {
+        cout << "Enter rating: ";
+    }
+    is >> rating;
+
+    if (&is == &cin) {
+        cout << "Enter length: ";
+    }
+    is >> length;
+}
+
+/// @brief Вывод полей объекта
+/// @param is Выходящий поток
+void Movie::print(ostream& os) const {
+    os << "Name: \"" << name << "\"" << endl
+       << "Director: \"" << director << "\"" << endl
+       << "Year: \"" << year << "\"" << endl
+       << "Genre: \"" << genre << "\"" << endl
+       << "Rating: \"" << rating << "\"" << endl
+       << "Length: \"" << length << "\"" << endl;
+}
+
 /// @brief Ввод полей объекта ч/з поток. Проверки на соответствие потока нужны для правильной работы read_from_file
 /// @param is Входящий поток
 /// @param mov Изменяемый объект
 /// @return Поля объекта в виде потока
 istream& operator>>(istream& is, Movie& mov) {
-    if (&is == &cin) {
-        cout << "Enter name: ";
-    }
-    is >> mov.name;
-
-    if (&is == &cin) {
-        cout << "Enter director: ";
-    }
-    is >> mov.director;
-
-    if (&is == &cin) {
-        cout << "Enter year: ";
-    }
-    is >> mov.year;
-
-    if (&is == &cin) {
-        cout << "Enter genre: ";
-    }
-    is >> mov.genre;
-
-    if (&is == &cin) {
-        cout << "Enter rating: ";
-    }
-    is >> mov.rating;
-
-    if (&is == &cin) {
-        cout << "Enter length: ";
-    }
-    is >> mov.length;
-
+    mov.read(is);
     return is;
 }
 
@@ -74,12 +90,7 @@ istream& operator>>(istream& is, Movie& mov) {
 /// @param mov Считываемый объект
 /// @return Поля объекта в виде потока
 ostream& operator<<(ostream& os, const Movie& mov) {
-    os << "Name: \"" << mov.name << "\"" << endl
-       << "Director: \"" << mov.director << "\"" << endl
-       << "Year: \"" << mov.year << "\"" << endl
-       << "Genre: \"" << mov.genre << "\"" << endl
-       << "Rating: \"" << mov.rating << "\"" << endl
-       << "Length: \"" << mov.length << "\"" << endl;
+    mov.print(os);
     return os;
 }
 
@@ -137,18 +148,6 @@ void Movie::write_to_file(const string& filename, const vector<Movie>& movies) {
     cout << "Data saved to " << filename << endl;
 }
 
-/// @brief Компаратор для qsort
-/// @param a Первый фильм для сравнения
-/// @param b Второй фильм для сравнения
-/// @return Результат сравнения как int
-int Movie::compare_movies_by_rating(const void* a, const void* b) {
-    const Movie* movieA = (const Movie*)a;
-    const Movie* movieB = (const Movie*)b;
-
-    if (movieA->getRating() > movieB->getRating()) return -1;  // в порядке убывания
-    else if (movieA->getRating() < movieB->getRating()) return 1;
-    else return 0;
-}
 
 /// @brief Выборка а) по режиссёру
 /// @param movies Массив фильмов

@@ -11,16 +11,21 @@ Payment::Payment(const Payment& other) : date(other.date), amount(other.amount) 
 Payment::~Payment() {}
 
 /// @brief Заполнение полей объекта
-void Payment::input() {
-    cout << "Enter date: ";
-    cin >> date;
-    cout << "Enter amount: ";
-    cin >> amount;
+void Payment::input(istream& is) {
+    if (&is == &cin) {
+        cout << "Enter date: ";
+    }
+    is >> date;
+
+    if (&is == &cin) {
+        cout << "Enter amount: ";
+    }
+    is >> amount;
 }
 
 /// @brief Вывод полей объекта
-void Payment::output() const {
-    cout << "Date: " << date << ", Amount: " << amount;
+void Payment::output(ostream& os) const {
+    os << "Date: " << date << ", Amount: " << amount;
 }
 
 /// @brief Надстройка над input()
@@ -28,16 +33,16 @@ void Payment::output() const {
 /// @param p Объект для ввода
 /// @return Изменённый поток
 istream& operator>>(istream& is, Payment& p) {
-    p.input();
+    p.input(is);
     return is;
 }
 
 /// @brief Надстройка над output()
-/// @param is Исходящий поток
+/// @param os Исходящий поток
 /// @param p Объект для вывода
 /// @return Изменённый поток
 ostream& operator<<(ostream& os, const Payment& p) {
-    p.output();
+    p.output(os);
     return os;
 }
 
@@ -59,18 +64,37 @@ string BankTransfer::myName() const {
 }
 
 /// @brief Заполнение полей объекта
-void BankTransfer::input() {
-    Payment::input();
-    cout << "Enter bank: ";
-    cin >> bank;
+void BankTransfer::input(istream& is) {
+    Payment::input(is);
+    if (&is == &cin) {
+        cout << "Enter bank: ";
+    }
+    is >> bank;
 }
 
 /// @brief Вывод полей объекта
-void BankTransfer::output() const {
-    Payment::output();
-    cout << ", Bank: " << bank;
+void BankTransfer::output(ostream& os) const {
+    Payment::output(os);
+    os << ", Bank: " << bank;
 }
 
+/// @brief Надстройка над input()
+/// @param is Входящий поток
+/// @param p Объект для ввода
+/// @return Изменённый поток
+istream& operator>>(istream& is, BankTransfer& b) {
+    b.input(is);
+    return is;
+}
+
+/// @brief Надстройка над output()
+/// @param os Исходящий поток
+/// @param p Объект для вывода
+/// @return Изменённый поток
+ostream& operator<<(ostream& os, const BankTransfer& b) {
+    b.output(os);
+    return os;
+}
 
 
 // Конструкторы
@@ -89,23 +113,44 @@ string WebMoney::myName() const {
 }
 
 /// @brief Заполнение полей объекта
-void WebMoney::input() {
-    Payment::input();
-    cout << "Enter commission: ";
-    cin >> commission;
+void WebMoney::input(istream& is) {
+    Payment::input(is);
+    if (&is == &cin) {
+        cout << "Enter commission: ";
+    }
+    is >> commission;
 }
 
 /// @brief Вывод полей объекта
-void WebMoney::output() const {
-    Payment::output();
-    cout << ", Commission: " << commission;
+void WebMoney::output(ostream& os) const {
+    Payment::output(os);
+    os << ", Commission: " << commission;
 }
 
+/// @brief Надстройка над input()
+/// @param is Входящий поток
+/// @param p Объект для ввода
+/// @return Изменённый поток
+istream& operator>>(istream& is, WebMoney& w) {
+    w.input(is);
+    return is;
+}
+
+/// @brief Надстройка над output()
+/// @param os Исходящий поток
+/// @param p Объект для вывода
+/// @return Изменённый поток
+ostream& operator<<(ostream& os, const WebMoney& w) {
+    w.output(os);
+    return os;
+}
 
 
 // Конструкторы
 
 Sales::Sales() {}
+Sales::Sales(const Sales& other)
+    : payments(other.payments) {}/// ТУДУ: взять из какой-то лекции какие-то операторы копирования
 Sales::~Sales() {
     for (auto p : payments) {
         delete p;
@@ -122,8 +167,7 @@ void Sales::addPayment(Payment* p) {
 void Sales::displayAll() const {
     for (auto p : payments) {
         cout << p->myName() << ": ";
-        p->output();
-        cout << endl;
+        cout << p << endl;
     }
 }
 
@@ -135,8 +179,7 @@ void Sales::selectByDate(const string& date) const {
     for (auto p : payments) {
         if (p->getDate() == date) {
             cout << p->myName() << ": ";
-            p->output();
-            cout << endl;
+            cout << p << endl;
             found = true;
         }
     }
@@ -154,8 +197,7 @@ void Sales::selectByAmountRange(float min, float max) const {
     for (auto p : payments) {
         if (p->getAmount() >= min && p->getAmount() <= max) {
             cout << p->myName() << ": ";
-            p->output();
-            cout << endl;
+            cout << p << endl;
             found = true;
         }
     }
@@ -193,6 +235,7 @@ void Sales::showStatsByType() const {
 /// @param filename Файл с данными
 void Sales::loadFromFile(const string& filename) {
     ifstream file(filename);
+
     if (!file.is_open()) {
         cout << "Error: Cannot open file " << filename << endl;
         return;
@@ -202,7 +245,9 @@ void Sales::loadFromFile(const string& filename) {
     
     string type;
     while (file >> type) {
+        Payment* obj;
         if (type == "BankTransfer") {
+            obj = new BankTransfer;
             string date, bank;
             float amount;
             file >> date >> amount >> bank;
@@ -213,7 +258,11 @@ void Sales::loadFromFile(const string& filename) {
             file >> date >> amount >> commission;
             addPayment(new WebMoney(date, amount, commission));
         }
+        /// ТУДУ: вот таким образом выше заменить
+        file >> *obj;
+        addPayment(obj);
     }
+    
     file.close();
     cout << "Data loaded from " << filename << endl;
 }
@@ -222,6 +271,7 @@ void Sales::loadFromFile(const string& filename) {
 /// @param filename Файл для записи
 void Sales::saveToFile(const string& filename) const {
     ofstream file(filename);
+
     if (!file.is_open()) {
         cout << "Error: Cannot open file " << filename << endl;
         return;
@@ -231,11 +281,13 @@ void Sales::saveToFile(const string& filename) const {
         file << p->myName() << " " << p->getDate() << " " << p->getAmount() << " ";
         if (auto* bt = dynamic_cast<BankTransfer*>(p)) {
             file << bt->getBank();
-        } else if (auto* wm = dynamic_cast<WebMoney*>(p)) {
+        }
+        if (auto* wm = dynamic_cast<WebMoney*>(p)) {
             file << wm->getCommission();
         }
         file << endl;
     }
+
     file.close();
     cout << "Data saved to " << filename << endl;
 }

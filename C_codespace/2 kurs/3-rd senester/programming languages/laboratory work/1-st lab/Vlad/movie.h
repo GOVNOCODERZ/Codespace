@@ -12,7 +12,6 @@
 #define ERROR_MESSAGE_FILE_READING_FAIL "ERROR: Failed to read from file."
 #define ERROR_MESSAGE_FILE_WRITING_FAIL "ERROR: Failed to write to file."
 
-
 #include <iostream>
 #include <vector>
 using namespace std;
@@ -39,6 +38,10 @@ public:
     
     friend istream& operator>>(istream& is, Movie& mov);
     friend ostream& operator<<(ostream& os, const Movie& mov);
+
+    // Методы для ввода/вывода
+    void read(istream& is);
+    void print(ostream& os) const;
 
     /**
      * Геттеры (используются в выборках)
@@ -67,12 +70,6 @@ public:
     static void write_to_file(const string& filename, const vector<Movie>& movies);
 
     /**
-     * Компаратор для qsort
-     */
-
-    static int compare_movies_by_rating(const void* a, const void* b);
-
-    /**
      * Выборки
      */
 
@@ -86,11 +83,6 @@ public:
 
     static void sort_by_rating(vector<Movie>& movies);
 
-    /**
-     * Метод для добавления фильма в массив
-     */
-
-    static void add_movie(vector<Movie>& movies, int count);
 };
 
 #endif

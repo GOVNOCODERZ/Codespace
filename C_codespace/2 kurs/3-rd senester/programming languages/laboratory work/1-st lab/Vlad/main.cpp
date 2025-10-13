@@ -1,5 +1,4 @@
 #include "movie.h"
-#include "movie.cpp"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -26,7 +25,7 @@ int main() {
         cout << "4. Select movies by director" << endl;
         cout << "5. Select movies by genre and rating" << endl;
         cout << "6. Select movies by years" << endl;
-        cout << "7. Sort movies by rating (qsort)" << endl;
+        cout << "7. Sort movies by rating" << endl;
         cout << "8. Add new movie" << endl;
         cout << "9. Exit" << endl;
         cout << "\nChoose an action: ";
