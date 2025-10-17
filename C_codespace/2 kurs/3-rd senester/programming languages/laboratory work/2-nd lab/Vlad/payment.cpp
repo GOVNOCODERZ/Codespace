@@ -57,6 +57,10 @@ BankTransfer::BankTransfer(const BankTransfer& other)
     : Payment(other), bank(other.bank) {}
 BankTransfer::~BankTransfer() {}
 
+Payment* BankTransfer::getCopy() const {
+    return new BankTransfer(*this);
+}
+
 /// @brief Геттер для названия объекта
 /// @return Строка с названием
 string BankTransfer::myName() const {
@@ -106,6 +110,10 @@ WebMoney::WebMoney(const WebMoney& other)
     : Payment(other), commission(other.commission) {}
 WebMoney::~WebMoney() {}
 
+Payment* WebMoney::getCopy() const {
+    return new WebMoney(*this);
+}
+
 /// @brief Геттер для названия объекта
 /// @return Строка с названием
 string WebMoney::myName() const {
@@ -150,10 +158,8 @@ ostream& operator<<(ostream& os, const WebMoney& w) {
 
 Sales::Sales() {}
 Sales::Sales(const Sales& other) {
-    for (auto p : other.payments) {
-        Payment* obj;
-        obj = p;
-        payments.push_back(obj);
+    for (const auto& p : other.payments) {
+        addPayment(p->getCopy());
     }
 }
 Sales::~Sales() {

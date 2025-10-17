@@ -17,6 +17,8 @@ public:
     Payment(const Payment& other);
     virtual ~Payment();
 
+    virtual Payment* getCopy() const = 0;
+
     virtual string myName() const = 0;
 
     virtual void input(istream& is);
@@ -41,6 +43,8 @@ public:
     BankTransfer(const BankTransfer& other);
     virtual ~BankTransfer();
 
+    virtual Payment* getCopy() const override;
+
     virtual string myName() const override;
 
     virtual void input(istream& is) override;
@@ -58,6 +62,8 @@ public:
     WebMoney(const string& date, float amount, float commission);
     WebMoney(const WebMoney& other);
     virtual ~WebMoney();
+
+    virtual Payment* getCopy() const override;
 
     virtual string myName() const override;
     
