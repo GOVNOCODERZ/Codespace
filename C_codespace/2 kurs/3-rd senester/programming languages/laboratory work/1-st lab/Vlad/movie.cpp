@@ -1,0 +1,254 @@
+#include "movie.h"
+#include <iostream>
+#include <fstream>
+#include <algorithm>
+using namespace std;
+
+Movie::Movie(): 
+    name(""),
+    director(""),
+    year(0),
+    genre(""),
+    rating(0),
+    length(0) {}
+
+Movie::Movie(string myName, string myDirector, int myYear, string myGenre, float myRating, int myLength): 
+    name(myName),
+    director(myDirector),
+    year(myYear),
+    genre(myGenre),
+    rating(myRating),
+    length(myLength) {}
+
+Movie::Movie(const Movie& other):
+    name(other.name),
+    director(other.director),
+    year(other.year),
+    genre(other.genre),
+    rating(other.rating),
+    length(other.length) {}
+
+Movie::~Movie() {}
+
+/// @brief Считывание и запись данных в поля объекта
+/// @param is Входящий поток
+void Movie::read(istream& is) {
+    if (&is == &cin) {
+        cout << "Enter name: ";
+    }
+    is >> name;
+
+    if (&is == &cin) {
+        cout << "Enter director: ";
+    }
+    is >> director;
+
+    if (&is == &cin) {
+        cout << "Enter year: ";
+    }
+    is >> year;
+
+    if (&is == &cin) {
+        cout << "Enter genre: ";
+    }
+    is >> genre;
+
+    if (&is == &cin) {
+        cout << "Enter rating: ";
+    }
+    is >> rating;
+
+    if (&is == &cin) {
+        cout << "Enter length: ";
+    }
+    is >> length;
+}
+
+/// @brief Вывод полей объекта
+/// @param is Выходящий поток
+void Movie::print(ostream& os) const {
+    os << "Name: \"" << name << "\"" << endl
+       << "Director: \"" << director << "\"" << endl
+       << "Year: \"" << year << "\"" << endl
+       << "Genre: \"" << genre << "\"" << endl
+       << "Rating: \"" << rating << "\"" << endl
+       << "Length: \"" << length << "\"" << endl;
+}
+
+/// @brief Ввод полей объекта ч/з поток. Проверки на соответствие потока нужны для правильной работы read_from_file
+/// @param is Входящий поток
+/// @param mov Изменяемый объект
+/// @return Поля объекта в виде потока
+istream& operator>>(istream& is, Movie& mov) {
+    mov.read(is);
+    return is;
+}
+
+
+/// @brief Вывод полей объекта ч/з поток
+/// @param os Выходящий поток
+/// @param mov Считываемый объект
+/// @return Поля объекта в виде потока
+ostream& operator<<(ostream& os, const Movie& mov) {
+    mov.print(os);
+    return os;
+}
+
+/// @brief Чтение инфы из файла 
+/// @param filename Название файла для открытия
+/// @return Список прочитанных объектов 
+vector<Movie> Movie::read_from_file(const string& filename) {
+    ifstream file(filename);
+    vector<Movie> movies;
+
+    if (!file.is_open()) {
+        cout << ERROR_MESSAGE_FILE_OPENING_FAIL << endl;
+        return movies;
+    }
+
+    int count;
+    file >> count;
+
+    for (int i = 0; i < count; ++i) {
+        Movie temp;
+        file >> temp;
+        if(file.fail()) {
+            cout << ERROR_MESSAGE_FILE_READING_FAIL << endl;
+            movies.clear();
+            break;
+        }
+        movies.push_back(temp);
+    }
+    
+    file.close();
+    if (!movies.empty()) {
+        cout << "Data loaded successfully. Number of movies: " << movies.size() << endl;
+    }
+
+    return movies;
+}
+
+
+/// @brief Запись инфы в файл
+/// @param filename Название файла для открытия
+/// @param movies Список объектов для записи
+void Movie::write_to_file(const string& filename, const vector<Movie>& movies) {
+    ofstream file(filename);
+
+    if (!file.is_open()) {
+        cout << ERROR_MESSAGE_FILE_WRITING_FAIL << endl;
+        return;
+    }
+
+    for (const auto& mov : movies) {
+        file << mov << "\n";
+    }
+
+    file.close();
+    cout << "Data saved to " << filename << endl;
+}
+
+
+/// @brief Выборка а) по режиссёру
+/// @param movies Массив фильмов
+/// @param count Количество фильмов в массиве
+void Movie::select_by_director(vector<Movie>& movies, int count) {
+    if (movies.empty()) {
+        cout << ERROR_MESSAGE_EMPTY_LIST << endl;
+        return;
+    }
+
+    string director;
+    cout << "Enter director name: ";
+    cin >> director;
+
+    vector<Movie> selected;
+    for (int i = 0; i < count; ++i) {
+        if (movies[i].getDirector() == director) {
+            selected.push_back(movies[i]);
+        }
+    }
+
+    if (selected.empty()) {
+        cout << "No movies found by this director." << endl;
+    } else {
+        cout << "\n=== MOVIES BY DIRECTOR \"" << director << "\" ===" << endl;
+        for (const Movie& m : selected) {
+            cout << m << endl;
+        }
+    }
+}
+
+/// @brief Выборка б) по жанру + рейтинг выше указанного
+/// @param movies Массив фильмов
+/// @param count Количество фильмов в массиве
+void Movie::select_by_genre_and_rating(vector<Movie>& movies, int count) {
+    if (movies.empty()) {
+        cout << ERROR_MESSAGE_EMPTY_LIST << endl;
+        return;
+    }
+
+    string genre;
+    float minRating;
+    cout << "Enter genre: ";
+    cin >> genre;
+    cout << "Enter minimum rating: ";
+    cin >> minRating;
+
+    vector<Movie> selected;
+    for (int i = 0; i < count; ++i) {
+        if (movies[i].getGenre() == genre && movies[i].getRating() > minRating) {
+            selected.push_back(movies[i]);
+        }
+    }
+
+    if (selected.empty()) {
+        cout << "No movies found with this genre and rating." << endl;
+    } else {
+        cout << "\n=== MOVIES OF GENRE \"" << genre << "\" WITH RATING > " << minRating << " ===" << endl;
+        for (const Movie& m : selected) {
+            cout << m << endl;
+        }
+    }
+}
+
+/// @brief Выборка в) год выхода в указанном промежутке
+/// @param movies Массив фильмов
+/// @param count Количество фильмов в массиве
+void Movie::select_by_years(vector<Movie>& movies, int count) {
+    if (movies.empty()) {
+        cout << ERROR_MESSAGE_EMPTY_LIST << endl;
+        return;
+    }
+
+    int startYear, endYear;
+    cout << "Enter start year: ";
+    cin >> startYear;
+    cout << "Enter end year: ";
+    cin >> endYear;
+
+    vector<Movie> selected;
+    for (int i = 0; i < count; ++i) {
+        if (movies[i].getYear() >= startYear && movies[i].getYear() <= endYear) {
+            selected.push_back(movies[i]);
+        }
+    }
+
+    if (selected.empty()) {
+        cout << "No movies found in the specified year range." << endl;
+    } else {
+        cout << "\n=== MOVIES BETWEEN " << startYear << " AND " << endYear << " ===" << endl;
+        for (const Movie& m : selected) {
+            cout << m << endl;
+        }
+    }
+}
+
+/// @brief Сортирует массив фильмов по рейтингу (в порядке убывания)
+/// @param movies Массив фильмов
+void Movie::sort_by_rating(vector<Movie>& movies) {
+    sort(movies.begin(), movies.end(), [](const Movie& a, const Movie& b) {
+        return a > b;
+    });
+    cout << "Movies sorted by rating (descending).\n";
+}
