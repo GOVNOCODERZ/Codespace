@@ -10,7 +10,6 @@ struct Point {
 };
 
 // Перегрузка оператора ввода для Point
-// Добавлено ключевое слово 'inline'
 inline std::istream& operator>>(std::istream& is, Point& p) {
     // Ожидаемый формат: x y
     is >> p.x >> p.y;
@@ -23,4 +22,4 @@ inline std::ostream& operator<<(std::ostream& os, const Point& p) {
     return os;
 }
 
-#endif // POINT_H
+#endif
