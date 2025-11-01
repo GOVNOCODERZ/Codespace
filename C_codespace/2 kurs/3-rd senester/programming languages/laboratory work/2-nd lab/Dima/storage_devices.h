@@ -6,7 +6,7 @@
 #include <vector>
 #include <memory>
 
-// Абстрактный базовый класс для накопителей (Interface Segregation & Liskov Substitution)
+// Абстрактный базовый класс для накопителей
 class StorageDev {
 protected:
     std::string name;
@@ -20,7 +20,7 @@ public:
     StorageDev();
     virtual ~StorageDev() = default; // Виртуальный деструктор для корректного удаления
 
-    // Чистые виртуальные функции для полиморфного ввода/вывода (Open/Closed Principle)
+    // Чистые виртуальные функции для полиморфного ввода/вывода
     virtual void print(std::ostream& os) const = 0;
     virtual void read(std::istream& is) = 0;
 
@@ -58,10 +58,10 @@ public:
     std::unique_ptr<StorageDev> clone() const override;
 };
 
-// Класс "Флеш-накопитель" (FlashD)
+// Класс "Флеш-накопитель"
 class FlashD : public StorageDev {
 private:
-    std::string usb_type; // Тип USB (e.g., "3.1")
+    std::string usb_type;
 
 public:
     FlashD(std::string name, std::string firm, int capacity, double price, std::string usb);
@@ -73,7 +73,7 @@ public:
     std::unique_ptr<StorageDev> clone() const override;
 };
 
-// Класс "Магазин", управляющий коллекцией накопителей (Single Responsibility & Dependency Inversion)
+// Класс "Магазин", управляющий коллекцией накопителей
 class Shop {
 private:
     std::vector<std::unique_ptr<StorageDev>> devices;
@@ -99,4 +99,4 @@ public:
     bool saveToFile(const std::string& filename) const;
 };
 
-#endif // STORAGE_DEVICES_H
+#endif

@@ -186,12 +186,10 @@ bool Shop::saveToFile(const std::string& filename) const {
 
     for (const auto& dev : devices) {
         file << dev->myName() << " " << dev->getName() << " " << dev->getCapacity() << " " << dev->getPrice() << " ";
-        // Это не самый лучший способ, но для простоты примера подойдет.
-        // В идеале, нужно использовать виртуальный метод save.
         if (dynamic_cast<HDD*>(dev.get())) {
-             file << "\n"; // Placeholder for specific data
+             file << "\n";
         } else if (dynamic_cast<FlashD*>(dev.get())) {
-             file << "\n"; // Placeholder for specific data
+             file << "\n";
         }
     }
     return true;

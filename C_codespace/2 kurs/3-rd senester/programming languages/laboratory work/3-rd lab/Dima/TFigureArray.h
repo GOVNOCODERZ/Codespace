@@ -50,4 +50,4 @@ template <typename U>
 std::istream& operator>>(std::istream& is, TFigureArray<U>& arr);
 
 
-#endif // TFIGUREARRAY_H
+#endif
