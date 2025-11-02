@@ -9,18 +9,29 @@
 #include <algorithm>
 using namespace std;
 
+/**
+ * @brief Шаблонный класс, реализующий динамический двумерный массив
+ * и предоставляющий методы для работы с ним.
+ * 
+ * @tparam T Тип элементов матрицы:
+ * float (вещественное число)
+ * Fraction (дробь вида a/b)
+ */
 template<typename T>
 class TMatrix {
 private:
+    // Представление матрицы как вектора векторов (двумерный массив)
     vector<vector<T>> data;
+    // Количество строк матрицы
     int rows;
+    // Количество столбцов матрицы
     int cols;
 
 public:
-    // Конструктор по умолчанию
+    // Конструктор по умолчанию (пустая матрица 0x0)
     TMatrix();
 
-    // Конструктор с размерами
+    // Конструктор с размерами (r x c)
     TMatrix(int r, int c);
 
     // Конструктор копирования
@@ -35,15 +46,11 @@ public:
     // Оператор сравнения
     bool operator==(const TMatrix& other) const;
 
-    // Геттеры
-    int getRows() const { return rows; }
-    int getCols() const { return cols; }
-
-    // Методы ввода/вывода
+    // Методы ввода/вывода данных матрицы
     void input();
     void output() const;
 
-    // Перегрузка операторов ввода/вывода
+    // Перегрузки операторов ввода/вывода (обёртка соответствующих методов)
     friend istream& operator>>(istream& is, TMatrix& m) {
         m.input();
         return is;
@@ -54,17 +61,18 @@ public:
         return os;
     }
 
-    // Методы по варианту
+    // Подсчёт элементов > 0 и < среднего по строке
     int countPositiveBelowRowMean() const;
-    T sumOfNegativeElements() const;
+    // Подсчёт суммы отрицательных элементов
+    int sumOfNegativeElements() const;
 
-    // Метод генерации случайных значений
+    // Заполнение матрицы случайными значениями
     void GenerateRandomValues(T min_val, T max_val);
 
-    // Модификация элемента (ввод с консоли)
+    // Модификация элемента матрицы (ввод с консоли)
     void modifyElement(int row, int col);
 
-    // Метод генерации случайного значения для элемента
+    // Модификация элемента матрицы (случайное значение)
     void SetRandomValue(int row, int col, T min_val, T max_val);
 
     // Загрузка из файла
@@ -74,24 +82,47 @@ public:
     void saveToFile(const string& filename) const;
 };
 
-// Реализация методов шаблона в заголовочном файле
+// --- РЕАЛИЗАЦИЯ МЕТОДОВ ШАБЛОНА ---
 
 template<typename T>
 TMatrix<T>::TMatrix() : rows(0), cols(0) {}
 
+/**
+ * @brief Конструктор с параметрами.
+ * Создаёт матрицу размером r x c, заполняя элементы значением по умолчанию T().
+ * 
+ * @param r Количество строк.
+ * @param c Количество столбцов.
+ */
 template<typename T>
 TMatrix<T>::TMatrix(int r, int c) : rows(r), cols(c) {
     data.resize(rows, vector<T>(cols));
 }
 
+/**
+ * @brief Конструктор копирования.
+ * Создаёт новую матрицу, являющуюся копией переданной.
+ * 
+ * @param other Матрица, из которой производится копирование.
+ */
 template<typename T>
 TMatrix<T>::TMatrix(const TMatrix& other) : rows(other.rows), cols(other.cols) {
     data = other.data;
 }
 
+/**
+ * @brief Деструктор.
+ */
 template<typename T>
 TMatrix<T>::~TMatrix() {}
 
+/**
+ * @brief Оператор присваивания.
+ * Присваивает значение полей одной матрицы другой.
+ * 
+ * @param other Правый операнд присваивания.
+ * @return Ссылку на текущий объект (*this).
+ */
 template<typename T>
 TMatrix<T>& TMatrix<T>::operator=(const TMatrix& other) {
     if (this != &other) {
@@ -102,11 +133,23 @@ TMatrix<T>& TMatrix<T>::operator=(const TMatrix& other) {
     return *this;
 }
 
+/**
+ * @brief Оператор сравнения.
+ * Проверяет, равны ли две матрицы (по размеру и содержимому).
+ * 
+ * @param other Матрица для сравнения.
+ * @return true, если матрицы равны, иначе false.
+ */
 template<typename T>
 bool TMatrix<T>::operator==(const TMatrix& other) const {
     return (rows == other.rows && cols == other.cols && data == other.data);
 }
 
+/**
+ * @brief Метод ввода матрицы с консоли.
+ * Сначала запрашивает количество строк и столбцов.
+ * Затем поэлементно запрашивает значения.
+ */
 template<typename T>
 void TMatrix<T>::input() {
     cout << "Enter number of rows: ";
@@ -124,6 +167,10 @@ void TMatrix<T>::input() {
     }
 }
 
+/**
+ * @brief Метод вывода матрицы в консоль.
+ * Выводит элементы по строкам и столбцам в виде матрицы.
+ */
 template<typename T>
 void TMatrix<T>::output() const {
     for (int i = 0; i < rows; ++i) {
@@ -134,6 +181,13 @@ void TMatrix<T>::output() const {
     }
 }
 
+/**
+ * @brief Подсчёт элементов > 0 и < среднего по строке.
+ * Для каждой строки вычисляется среднее арифметическое.
+ * Затем подсчитывается количество элементов в строке, которые удовлетворяют условиям.
+ * 
+ * @return Общее количество таких элементов во всей матрице.
+ */
 template<typename T>
 int TMatrix<T>::countPositiveBelowRowMean() const {
     int count = 0;
@@ -153,8 +207,14 @@ int TMatrix<T>::countPositiveBelowRowMean() const {
     return count;
 }
 
+/**
+ * @brief Расчёт суммы отрицательных элементов.
+ * Перебирает все элементы матрицы и суммирует только те, что < T(0).
+ * 
+ * @return Сумму отрицательных элементов нужного типа данных.
+ */
 template<typename T>
-T TMatrix<T>::sumOfNegativeElements() const {
+int TMatrix<T>::sumOfNegativeElements() const {
     T sum = T(0);
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
@@ -166,63 +226,39 @@ T TMatrix<T>::sumOfNegativeElements() const {
     return sum;
 }
 
-// --- НОВАЯ РЕАЛИЗАЦИЯ GenerateRandomValues ---
+/**
+ * @brief Метод генерации случайных значений.
+ * Заполняет матрицу случайными значениями в диапазоне `[min_val, max_val]`.
+ * Использует линейную интерполяцию: `val = min_val + t * (max_val - min_val)`,
+ * где `t` — случайное число от 0 до 1.
+ * 
+ * @param min_val Минимальное значение для генерации.
+ * @param max_val Максимальное значение для генерации.
+ */
 template<typename T>
 void TMatrix<T>::GenerateRandomValues(T min_val, T max_val) {
     // Используем статическую переменную для инициализации генератора один раз
     static random_device rd;
     static mt19937 gen(rd());
-
-    // Проверяем, поддерживает ли T операции сравнения и генерацию
-    // Если T - пользовательский класс (например, Fraction), ему нужно уметь сравниваться и создаваться из double
-    // uniform_real_distribution<double> dis(min_val.toDouble(), max_val.toDouble()); // <- НЕЛЬЗЯ для любого T
-
-    // Более общий подход - через генерацию double и преобразование в T
-    // Это работает, если T можно создать из double (например, через конструктор или оператор присваивания)
-    // Для float это работает напрямую.
-    // Для Fraction - нужно, чтобы был конструктор из double или int.
-    // Мы модифицируем Fraction, чтобы он мог принимать double и создавать дробь (например, 3.14 -> 314/100)
-
-    // uniform_real_distribution<double> dis(min_val, max_val); // <- НЕЛЬЗЯ, если min_val/max_val не float/double
-
-    // Попробуем общий подход: используем min_val и max_val как T, но генерируем double между ними
-    // Это требует, чтобы T поддерживал арифметику и преобразования.
-
-    // Более надёжный способ - специализировать функцию для конкретных типов.
-    // Но можно сделать общий случай, если T поддерживает арифметику и преобразования.
-
-    // Мы реализуем общий случай, предполагая, что T поддерживает:
-    // - operator- (для разности)
-    // - operator+ (для сложения)
-    // - умножение на double
-    // - static_cast<T> от double
-
-    // Для float/double это работает.
-    // Для Fraction нужно будет добавить конструктор из double или operator= из double
-    // или реализовать специализацию.
-
-    // Пока реализуем общий случай, который будет работать для float/double и Fraction (с доработкой)
-    // Используем генерацию int или double, если T поддерживает это.
-
-    // Упрощённый общий случай: генерируем double, преобразуем в T.
-    // Это не идеально, но работает для базовых типов и может работать для Fraction с правильным конструктором.
-    // В Fraction добавим конструктор из double.
-
     static uniform_real_distribution<double> dis(0.0, 1.0); // Генерим от 0 до 1
 
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
-            double t = dis(gen); // t от 0 до 1
-            // Интерполируем между min_val и max_val
-            // val = min_val + t * (max_val - min_val)
+            double t = dis(gen);
             T range = max_val - min_val;
-            T val = min_val + static_cast<T>(t) * range; // static_cast<T> от double
+            T val = min_val + static_cast<T>(t) * range;
             data[i][j] = val;
         }
     }
 }
-// --- КОНЕЦ НОВОЙ РЕАЛИЗАЦИИ ---
 
+/**
+ * @brief Модификация элемента матрицы вручную.
+ * Запрашивает новое значение для элемента по указанным индексам.
+ * 
+ * @param row Индекс строки.
+ * @param col Индекс столбца.
+ */
 template<typename T>
 void TMatrix<T>::modifyElement(int row, int col) {
     if (row >= 0 && row < rows && col >= 0 && col < cols) {
@@ -233,7 +269,15 @@ void TMatrix<T>::modifyElement(int row, int col) {
     }
 }
 
-// --- НОВАЯ РЕАЛИЗАЦИЯ SetRandomValue ---
+/**
+ * @brief Установка случайного значения для одного элемента.
+ * Аналогично GenerateRandomValues, но только для одного элемента.
+ * 
+ * @param row Индекс строки.
+ * @param col Индекс столбца.
+ * @param min_val Минимальное значение.
+ * @param max_val Максимальное значение.
+ */
 template<typename T>
 void TMatrix<T>::SetRandomValue(int row, int col, T min_val, T max_val) {
     if (row < 0 || row >= rows || col < 0 || col >= cols) {
@@ -241,18 +285,24 @@ void TMatrix<T>::SetRandomValue(int row, int col, T min_val, T max_val) {
         return;
     }
 
-    // Используем тот же подход, что и в GenerateRandomValues
+    // Используем статическую переменную для инициализации генератора один раз
     static random_device rd;
     static mt19937 gen(rd());
-    static uniform_real_distribution<double> dis(0.0, 1.0);
+    static uniform_real_distribution<double> dis(0.0, 1.0); // Генерим от 0 до 1
 
     double t = dis(gen);
     T range = max_val - min_val;
     T val = min_val + static_cast<T>(t) * range;
     data[row][col] = val;
 }
-// --- КОНЕЦ НОВОЙ РЕАЛИЗАЦИИ ---
 
+/**
+ * @brief Загрузка матрицы из файла.
+ * Формат файла: первые два числа — количество строк и столбцов.
+ * Затем идут элементы по строкам.
+ * 
+ * @param filename Имя файла для загрузки.
+ */
 template<typename T>
 void TMatrix<T>::loadFromFile(const string& filename) {
     ifstream file(filename);
@@ -273,6 +323,13 @@ void TMatrix<T>::loadFromFile(const string& filename) {
     cout << "Data loaded from " << filename << endl;
 }
 
+/**
+ * @brief Сохранение матрицы в файл.
+ * Формат файла: первые два числа — количество строк и столбцов.
+ * Затем идут элементы по строкам.
+ * 
+ * @param filename Имя файла для сохранения.
+ */
 template<typename T>
 void TMatrix<T>::saveToFile(const string& filename) const {
     ofstream file(filename);
