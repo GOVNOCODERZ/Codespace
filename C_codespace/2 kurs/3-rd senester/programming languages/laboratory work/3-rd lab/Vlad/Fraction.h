@@ -2,6 +2,7 @@
 #define FRACTION_H
 
 #include <iostream>
+#include <cmath> // для abs
 using namespace std;
 
 class Fraction {
@@ -34,6 +35,7 @@ private:
     }
 
 public:
+    // Конструктор из int (по умолчанию)
     Fraction(int n = 0, int d = 1) : num(n), den(d) {
         if (den == 0) {
             cout << "Error: Denominator cannot be zero!" << endl;
@@ -41,6 +43,18 @@ public:
         }
         normalize();
     }
+
+    // --- НОВЫЙ КОНСТРУКТОР ИЗ DOUBLE ---
+    // Пример: 3.14 -> 314/100
+    Fraction(double d) {
+        const long long scale = 1000000LL; // Масштабируем до 6 знаков после запятой
+        long long scaled_val = static_cast<long long>(d * scale);
+        long long g = gcd(scaled_val, scale);
+        num = scaled_val / g;
+        den = scale / g;
+        normalize();
+    }
+    // --- КОНЕЦ НОВОГО КОНСТРУКТОРА ---
 
     // Геттеры
     int getNum() const { return num; }
@@ -100,7 +114,7 @@ public:
         return num < 0;
     }
 
-    // Преобразование в double для арифметики
+    // Преобразование в double для арифметики (необязательно, но может помочь)
     double toDouble() const {
         return static_cast<double>(num) / den;
     }

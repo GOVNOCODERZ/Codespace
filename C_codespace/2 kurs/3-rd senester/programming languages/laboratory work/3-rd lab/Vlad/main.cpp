@@ -1,27 +1,49 @@
 #include "TMatrix.h"
 #include "Fraction.h"
-#include "TMatrix.cpp"
 #include <iostream>
 using namespace std;
 
-//TODO: СНАЧАЛА МЕНЮ ВЫБОРА ТИПА МАТРИЦЫ ДЛЯ ДЕМОНСТРАЦИИ, ЗАТЕМ ВЫЗЫВАЕТСЯ ФУНКЦИЮ С МЕНЮ НА КАЖДЫЙ Т.Д. (А ПОТОМ ЭТИ ВСЕ КОСТЫЛИ В НЕЙКРОНКУ ДЛЯ ФИКСА ЗАСУНУТЬ)
+int main() {
+    // Объекты для работы с разными типами
+    TMatrix<float> float_matrix;
+    TMatrix<Fraction> fraction_matrix;
 
-template <typename T>
-void demonstrate(const string& type_name) {
-    TMatrix<T> matrix;
+    // Указатели на базовый тип, чтобы можно было переключаться между ними
+    TMatrix<float>* current_float_matrix = nullptr;
+    TMatrix<Fraction>* current_fraction_matrix = nullptr;
+
+    // Переменная для выбора типа матрицы
+    int matrix_type = 0; // 0 - нет, 1 - float, 2 - fraction
+
     bool running = true;
 
     while (running) {
-        cout << "\n--- Menu for \"" << type_name << "\" type matrix ---\n";
-        cout << "1. Create new matrix from input" << endl;
-        cout << "2. Display current matrix" << endl;
-        cout << "3. Count positive elements below row mean" << endl;
-        cout << "4. Sum of negative elements" << endl;
-        cout << "5. Load matrix from file" << endl;
-        cout << "6. Save current matrix to file" << endl;
-        cout << "7. Modify an element (console input)" << endl;
-        cout << "8. Set random value for an element" << endl;
-        cout << "9. Generate random values for the whole matrix" << endl;
+        cout << "\n======================================" << endl;
+        cout << "           TMatrix MENU" << endl;
+        cout << "======================================" << endl;
+        cout << "MATRIX TYPE: ";
+        if (matrix_type == 1) cout << "CURRENTLY WORKING WITH FLOAT MATRIX" << endl;
+        else if (matrix_type == 2) cout << "CURRENTLY WORKING WITH FRACTION MATRIX" << endl;
+        else cout << "NO MATRIX SELECTED" << endl;
+
+        cout << "\n--- MATRIX TYPE SELECTION ---" << endl;
+        cout << "11. Switch to Float Matrix" << endl;
+        cout << "12. Switch to Fraction Matrix" << endl;
+
+        if (matrix_type != 0) {
+            cout << "\n--- OPERATIONS ON CURRENT MATRIX ---" << endl;
+            cout << "1. Create new matrix from input" << endl;
+            cout << "2. Display current matrix" << endl;
+            cout << "3. Count positive elements below row mean" << endl;
+            cout << "4. Sum of negative elements" << endl;
+            cout << "5. Load matrix from file" << endl;
+            cout << "6. Save current matrix to file" << endl;
+            cout << "7. Modify an element (console input)" << endl;
+            cout << "8. Set random value for an element" << endl;
+            cout << "9. Generate random values for the whole matrix" << endl;
+            cout << "10. Compare current matrix with another (not implemented for simplicity)" << endl;
+        }
+
         cout << "0. Exit" << endl;
         cout << "Choose an action: ";
 
@@ -29,38 +51,92 @@ void demonstrate(const string& type_name) {
         cin >> choice;
 
         switch (choice) {
+            case 11: {
+                matrix_type = 1;
+                current_float_matrix = &float_matrix;
+                current_fraction_matrix = nullptr; // Сбрасываем указатель на Fraction
+                cout << "Switched to Float Matrix." << endl;
+                break;
+            }
+            case 12: {
+                matrix_type = 2;
+                current_fraction_matrix = &fraction_matrix;
+                current_float_matrix = nullptr; // Сбрасываем указатель на Float
+                cout << "Switched to Fraction Matrix." << endl;
+                break;
+            }
+
+            
             case 1: {
-                cout << "\n--- Creating new matrix from input ---" << endl;
-                cin >> matrix;
+                if (matrix_type == 1) {
+                    current_float_matrix->input();
+                    cout << "Float matrix created." << endl;
+                } else if (matrix_type == 2) {
+                    current_fraction_matrix->input();
+                    cout << "Fraction matrix created." << endl;
+                } else {
+                    cout << "Please select a matrix type first." << endl;
+                }
                 break;
             }
             case 2: {
-                cout << "\n--- Current Matrix ---" << endl;
-                cout << matrix << endl;
+                if (matrix_type == 1) {
+                    cout << "\n--- Current Float Matrix ---" << endl;
+                    cout << *current_float_matrix << endl;
+                } else if (matrix_type == 2) {
+                    cout << "\n--- Current Fraction Matrix ---" << endl;
+                    cout << *current_fraction_matrix << endl;
+                } else {
+                    cout << "Please select a matrix type first." << endl;
+                }
                 break;
             }
             case 3: {
-                auto count = matrix.countPositiveBelowRowMean();
-                cout << "\nCount of positive elements below row mean: " << count << endl;
+                if (matrix_type == 1) {
+                    cout << "\nCount of positive elements below row mean: " << current_float_matrix->countPositiveBelowRowMean() << endl;
+                } else if (matrix_type == 2) {
+                    cout << "\nCount of positive elements below row mean: " << current_fraction_matrix->countPositiveBelowRowMean() << endl;
+                } else {
+                    cout << "Please select a matrix type first." << endl;
+                }
                 break;
             }
             case 4: {
-                auto sum = matrix.sumOfNegativeElements();
-                cout << "\nSum of negative elements: " << sum << endl;
+                if (matrix_type == 1) {
+                    auto sum = current_float_matrix->sumOfNegativeElements();
+                    cout << "\nSum of negative elements: " << sum << endl;
+                } else if (matrix_type == 2) {
+                    auto sum = current_fraction_matrix->sumOfNegativeElements();
+                    cout << "\nSum of negative elements: " << sum << endl;
+                } else {
+                    cout << "Please select a matrix type first." << endl;
+                }
                 break;
             }
             case 5: {
                 string filename;
                 cout << "Enter filename to load from: ";
                 cin >> filename;
-                matrix.loadFromFile(filename);
+                if (matrix_type == 1) {
+                    current_float_matrix->loadFromFile(filename);
+                } else if (matrix_type == 2) {
+                    current_fraction_matrix->loadFromFile(filename);
+                } else {
+                    cout << "Please select a matrix type first." << endl;
+                }
                 break;
             }
             case 6: {
                 string filename;
                 cout << "Enter filename to save to: ";
                 cin >> filename;
-                matrix.saveToFile(filename);
+                if (matrix_type == 1) {
+                    current_float_matrix->saveToFile(filename);
+                } else if (matrix_type == 2) {
+                    current_fraction_matrix->saveToFile(filename);
+                } else {
+                    cout << "Please select a matrix type first." << endl;
+                }
                 break;
             }
             case 7: {
@@ -69,7 +145,13 @@ void demonstrate(const string& type_name) {
                 cin >> r;
                 cout << "Enter column index: ";
                 cin >> c;
-                matrix.modifyElement(r, c);
+                if (matrix_type == 1) {
+                    current_float_matrix->modifyElement(r, c);
+                } else if (matrix_type == 2) {
+                    current_fraction_matrix->modifyElement(r, c);
+                } else {
+                    cout << "Please select a matrix type first." << endl;
+                }
                 break;
             }
             case 8: {
@@ -78,22 +160,49 @@ void demonstrate(const string& type_name) {
                 cin >> r;
                 cout << "Enter column index: ";
                 cin >> c;
-                T min_val, max_val;
-                cout << "Enter min value for random: ";
-                cin >> min_val;
-                cout << "Enter max value for random: ";
-                cin >> max_val;
-                matrix.SetRandomValue(r, c, min_val, max_val);
+                if (matrix_type == 1) {
+                    float min_val, max_val;
+                    cout << "Enter min value for random: ";
+                    cin >> min_val;
+                    cout << "Enter max value for random: ";
+                    cin >> max_val;
+                    current_float_matrix->SetRandomValue(r, c, min_val, max_val);
+                } else if (matrix_type == 2) {
+                    Fraction min_val, max_val;
+                    cout << "Enter min value for random: ";
+                    cin >> min_val;
+                    cout << "Enter max value for random: ";
+                    cin >> max_val;
+                    current_fraction_matrix->SetRandomValue(r, c, min_val, max_val);
+                } else {
+                    cout << "Please select a matrix type first." << endl;
+                }
                 break;
             }
             case 9: {
-                T min_val, max_val;
-                cout << "Enter min value for random: ";
-                cin >> min_val;
-                cout << "Enter max value for random: ";
-                cin >> max_val;
-                matrix.GenerateRandomValues(min_val, max_val);
-                cout << "Random values generated." << endl;
+                if (matrix_type == 1) {
+                    float min_val, max_val;
+                    cout << "Enter min value for random: ";
+                    cin >> min_val;
+                    cout << "Enter max value for random: ";
+                    cin >> max_val;
+                    current_float_matrix->GenerateRandomValues(min_val, max_val);
+                    cout << "Random values generated for Float Matrix." << endl;
+                } else if (matrix_type == 2) {
+                    Fraction min_val, max_val;
+                    cout << "Enter min value for random: ";
+                    cin >> min_val;
+                    cout << "Enter max value for random: ";
+                    cin >> max_val;
+                    current_fraction_matrix->GenerateRandomValues(min_val, max_val);
+                    cout << "Random values generated for Fraction Matrix." << endl;
+                } else {
+                    cout << "Please select a matrix type first." << endl;
+                }
+                break;
+            }
+            case 10: {
+                cout << "Comparison not implemented for simplicity." << endl;
                 break;
             }
             case 0: {
@@ -106,35 +215,6 @@ void demonstrate(const string& type_name) {
             }
         }
     }
-}
 
-int main() {
-    while (true) {
-        cout << "\n======================================" << endl;
-        cout << "           MAIN MENU" << endl;
-        cout << "========================================" << endl;
-        cout << "Choose data type to work with:\n";
-        cout << "1. Float\n";
-        cout << "2. Fraction\n";
-        cout << "0. Exit\n";
-        cout << "Choose an action: ";
-        int choice;
-        cin >> choice;
-
-        switch (choice) {
-            case 1:
-                demonstrate<float>("Float");
-                break;
-            case 2:
-                demonstrate<Fraction>("Fraction");
-                break;
-            case 0:
-                cout << "Exiting...\n";
-                return 0;
-            default:
-                cout << "Invalid choice. Please try again.\n";
-                break;
-        }
-    }
     return 0;
 }
