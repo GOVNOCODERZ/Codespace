@@ -44,17 +44,30 @@ public:
         normalize();
     }
 
-    // --- НОВЫЙ КОНСТРУКТОР ИЗ DOUBLE ---
-    // Пример: 3.14 -> 314/100
-    Fraction(double d) {
-        const long long scale = 1000000LL; // Масштабируем до 6 знаков после запятой
-        long long scaled_val = static_cast<long long>(d * scale);
-        long long g = gcd(scaled_val, scale);
-        num = scaled_val / g;
-        den = scale / g;
-        normalize();
+    // --- НОВЫЙ КОНСТРУКТОР ИЗ ЧИСЛИТЕЛЯ И ЗНАМЕНАТЕЛЯ ---
+    Fraction(int n, int d, bool dummy) : num(n), den(d) {
+        // Этот конструктор НЕ вызывает normalize, потому что предполагается, что дробь уже сокращена
+        // dummy нужен только для отличия от обычного конструктора
+        if (den == 0) {
+            cout << "Error: Denominator cannot be zero!" << endl;
+            den = 1;
+        }
+        normalize(); // Всё равно нормализуем, чтобы избежать проблем
     }
     // --- КОНЕЦ НОВОГО КОНСТРУКТОРА ---
+
+    // --- КОНСТРУКТОР ИЗ DOUBLE С ОКРУГЛЕНИЕМ ---
+    // Пример: 0.1 -> 1/10
+    Fraction(double d) {
+        const int precision = 100; // Максимальный знаменатель ~100
+        double scaled_val = d * precision;
+        int n = static_cast<int>(round(scaled_val));
+        int g = gcd(n, precision);
+        num = n / g;
+        den = precision / g;
+        normalize();
+    }
+    // --- КОНЕЦ КОНСТРУКТОРА ---
 
     // Геттеры
     int getNum() const { return num; }
@@ -121,21 +134,32 @@ public:
 
     // Ввод/вывод
     friend istream& operator>>(istream& is, Fraction& f) {
-        cout << "Enter numerator: ";
-        is >> f.num;
-        cout << "Enter denominator: ";
-        is >> f.den;
-        if (f.den == 0) {
-            cout << "Error: Denominator cannot be zero! Setting to 1." << endl;
+        string s;
+        is >> s; // Читаем всю строку до пробела
+
+        size_t pos = s.find('/');
+        if (pos == string::npos) {
+            // Если '/' нет — значит, целое число
+            f.num = stoi(s);
             f.den = 1;
+        } else {
+            // Разбиваем строку по '/'
+            string num_str = s.substr(0, pos);
+            string den_str = s.substr(pos + 1);
+            f.num = stoi(num_str);
+            f.den = stoi(den_str);
+            if (f.den == 0) {
+                cout << "Error: Denominator cannot be zero! Setting to 1." << endl;
+                f.den = 1;
+            }
         }
         f.normalize();
         return is;
     }
 
     friend ostream& operator<<(ostream& os, const Fraction& f) {
-        os << f.num;
-        if (f.den != 1) os << "/" << f.den;
+        os << f.num; // Выводим числитель
+        if (f.den != 1) os << "/" << f.den; // Если знаменатель != 1, выводим "/"
         return os;
     }
 };

@@ -41,7 +41,7 @@ int main() {
             cout << "7. Modify an element (console input)" << endl;
             cout << "8. Set random value for an element" << endl;
             cout << "9. Generate random values for the whole matrix" << endl;
-            cout << "10. Compare current matrix with another (not implemented for simplicity)" << endl;
+            cout << "10. Demonstration of copy constructor" << endl;
         }
 
         cout << "0. Exit" << endl;
@@ -66,7 +66,7 @@ int main() {
                 break;
             }
 
-            
+
             case 1: {
                 if (matrix_type == 1) {
                     current_float_matrix->input();
@@ -180,7 +180,9 @@ int main() {
                 break;
             }
             case 9: {
-                if (matrix_type == 1) {
+                switch (matrix_type){
+                case 1:
+                {
                     float min_val, max_val;
                     cout << "Enter min value for random: ";
                     cin >> min_val;
@@ -188,21 +190,50 @@ int main() {
                     cin >> max_val;
                     current_float_matrix->GenerateRandomValues(min_val, max_val);
                     cout << "Random values generated for Float Matrix." << endl;
-                } else if (matrix_type == 2) {
+                    break;
+                }
+                case 2:
+                {
                     Fraction min_val, max_val;
-                    cout << "Enter min value for random: ";
+                    cout << "Enter min value for random (as a/b): ";
                     cin >> min_val;
-                    cout << "Enter max value for random: ";
+                    cout << "Enter max value for random (as a/b): ";
                     cin >> max_val;
                     current_fraction_matrix->GenerateRandomValues(min_val, max_val);
                     cout << "Random values generated for Fraction Matrix." << endl;
-                } else {
+                    break;                    
+                }
+                default:
                     cout << "Please select a matrix type first." << endl;
+                    break;
                 }
                 break;
             }
             case 10: {
-                cout << "Comparison not implemented for simplicity." << endl;
+                cout << "--- Demonstration of copy constructor ---" << endl;
+                switch (matrix_type){
+                case 1:
+                {
+                    cout << "Current Float Matrix" << endl;
+                    cout << *current_float_matrix << endl;
+                    TMatrix<float> temp_copy = *current_float_matrix;
+                    cout << "Copy Of Current Float Matrix" << endl;
+                    cout << temp_copy << endl;
+                    break;
+                }
+                case 2:
+                {
+                    cout << "Current Fracture Matrix" << endl;
+                    cout << *current_fraction_matrix << endl;
+                    TMatrix<Fraction> temp_copy = *current_fraction_matrix;
+                    cout << "Copy Of Current Fraction Matrix" << endl;
+                    cout << temp_copy << endl;
+                    break;
+                }
+                default:
+                    cout << "Please select a matrix type first." << endl;
+                    break;
+                }
                 break;
             }
             case 0: {
