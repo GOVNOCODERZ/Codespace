@@ -64,7 +64,7 @@ public:
     // Подсчёт элементов > 0 и < среднего по строке
     int countPositiveBelowRowMean() const;
     // Подсчёт суммы отрицательных элементов
-    int sumOfNegativeElements() const;
+    T sumOfNegativeElements() const;
 
     // Заполнение матрицы случайными значениями
     void GenerateRandomValues(T min_val, T max_val);
@@ -214,7 +214,7 @@ int TMatrix<T>::countPositiveBelowRowMean() const {
  * @return Сумму отрицательных элементов нужного типа данных.
  */
 template<typename T>
-int TMatrix<T>::sumOfNegativeElements() const {
+T TMatrix<T>::sumOfNegativeElements() const {
     T sum = T(0);
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
