@@ -58,4 +58,4 @@ inline std::ostream& operator<<(std::ostream& os, const Square& s) {
     return os;
 }
 
-#endif // SQUARE_H
+#endif

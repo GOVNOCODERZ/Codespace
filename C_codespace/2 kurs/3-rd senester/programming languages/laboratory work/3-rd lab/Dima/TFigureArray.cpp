@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <vector>
 
-// --- Реализация приватных методов ---
+//  Реализация приватных методов 
 
 template <typename T>
 void TFigureArray<T>::check_index(int index) const {
@@ -28,7 +28,7 @@ void TFigureArray<T>::resize(int new_capacity) {
     capacity = new_capacity;
 }
 
-// --- Конструкторы и деструктор ---
+//  Конструкторы и деструктор 
 
 template <typename T>
 TFigureArray<T>::TFigureArray() : data(nullptr), size(0), capacity(0) {}
@@ -46,7 +46,7 @@ TFigureArray<T>::~TFigureArray() {
     delete[] data;
 }
 
-// --- Операторы ---
+//  Операторы 
 
 template <typename T>
 TFigureArray<T>& TFigureArray<T>::operator=(const TFigureArray<T>& other) {
@@ -92,7 +92,7 @@ const T& TFigureArray<T>::operator[](int index) const {
     return data[index];
 }
 
-// --- Публичные методы ---
+//  Публичные методы 
 
 template <typename T>
 int TFigureArray<T>::GetSize() const {
@@ -134,7 +134,7 @@ void TFigureArray<T>::GenerateRandomValues(int count) {
     }
 }
 
-// --- Методы, специфичные для лабораторной работы ---
+//  Методы, специфичные для лабораторной работы 
 
 template <typename T>
 void TFigureArray<T>::ShellSortByArea() {
@@ -170,7 +170,7 @@ std::vector<T> TFigureArray<T>::FindFiguresWithAreaGreaterThanAverage() const {
     return result;
 }
 
-// --- Реализация дружественных операторов ---
+//  Реализация дружественных операторов 
 
 template <typename U>
 std::ostream& operator<<(std::ostream& os, const TFigureArray<U>& arr) {
@@ -201,9 +201,7 @@ std::istream& operator>>(std::istream& is, TFigureArray<U>& arr) {
     return is;
 }
 
-// --- Явное инстанцирование шаблонов ---
-// Это позволяет компилятору сгенерировать код для указанных типов,
-// несмотря на то, что реализация находится в .cpp файле.
+//  Явное инстанцирование шаблонов 
 
 template class TFigureArray<Square>;
 template std::ostream& operator<<(std::ostream& os, const TFigureArray<Square>& arr);

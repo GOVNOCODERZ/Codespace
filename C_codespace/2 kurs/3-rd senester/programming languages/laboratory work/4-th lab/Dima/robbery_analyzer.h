@@ -39,12 +39,11 @@ private:
     // Вектор для хранения всех записей об ограблениях
     std::vector<RobberyRecord> records;
 
-    // Результаты анализа: для каждого квартала (ключ int) храним отсортированный список
-    // пар (название банка, ущерб)
+    // Результаты анализа: для каждого квартала (ключ int) храним отсортированный список пар (название банка, ущерб)
     std::map<int, std::vector<std::pair<std::string, double>>> topBanksByQuarter;
 
     // Вспомогательная функция для определения квартала по месяцу
     int getQuarter(int month) const;
 };
 
-#endif // ROBBERY_ANALYZER_H
+#endif
