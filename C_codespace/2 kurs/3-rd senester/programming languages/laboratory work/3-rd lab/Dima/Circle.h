@@ -60,4 +60,4 @@ inline std::ostream& operator<<(std::ostream& os, const Circle& c) {
     return os;
 }
 
-#endif // CIRCLE_H
+#endif

@@ -49,8 +49,6 @@ void addDeviceManually(Shop& shop) {
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         std::cout << "Ошибка ввода данных. Устройство не добавлено.\n";
-        // Примечание: в более сложной реализации нужно было бы удалить последний добавленный элемент, если он успел добавиться.
-        // Но здесь ошибка произойдет до создания объекта, так что это безопасно.
     } else {
         std::cout << "Устройство успешно добавлено!\n";
     }
@@ -73,7 +71,6 @@ void displayMenu() {
 int main() {
     Shop myShop;
     
-    // Для примера можно добавить несколько устройств вручную
     myShop.addDevice(std::make_unique<HDD>("Barracuda", "Seagate", 2000, 5500.0, 7200));
     myShop.addDevice(std::make_unique<FlashD>("DataTraveler", "Kingston", 128, 1200.0, "3.1"));
     myShop.addDevice(std::make_unique<HDD>("WD Blue", "WD", 1000, 3800.0, 5400));
