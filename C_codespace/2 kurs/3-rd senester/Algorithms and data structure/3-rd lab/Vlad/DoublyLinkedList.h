@@ -3,68 +3,57 @@
 
 #include <iostream>
 #include <initializer_list> // Для конструктора с параметрами
+using namespace std;
 
-// Узел двусвязного списка
+// Стуктура — узел двусвязного списка
 template <typename T>
 struct Node {
-    T data;           // Данные, хранящиеся в узле
-    Node* prev;       // Указатель на предыдущий узел
-    Node* next;       // Указатель на следующий узел
+    T data; // Данные, хранящиеся в узле
+    Node* prev; // Указатель на предыдущий узел
+    Node* next; // Указатель на следующий узел
 
     // Конструктор для инициализации узла с данными
     Node(const T& value) : data(value), prev(nullptr), next(nullptr) {}
 };
 
-// Шаблон класса для Двусвязного Списка
+// Шаблон класса для двусвязного списка
 template <typename T>
 class DoublyLinkedList {
 private:
-    Node<T>* head;    // Указатель на первый узел (голову) списка
-    Node<T>* tail;    // Указатель на последний узел (хвост) списка
-    int size;         // Количество узлов в списке
+    Node<T>* head; // Указатель на первый узел (голову) списка
+    Node<T>* tail; // Указатель на последний узел (хвост) списка
+    int size; // Количество узлов в списке
 
 public:
-    // 1. Конструктор по умолчанию: инициализирует пустой список
+    // Конструктор по умолчанию — пустой список
     DoublyLinkedList() : head(nullptr), tail(nullptr), size(0) {}
 
-    // 2. Конструктор с параметрами (std::initializer_list): создает список с заданными элементами
-    DoublyLinkedList(std::initializer_list<T> init_list) : head(nullptr), tail(nullptr), size(0) {
+    // Конструктор с параметрами — список с заданными элементами
+    DoublyLinkedList(initializer_list<T> init_list) : head(nullptr), tail(nullptr), size(0) {
         for (const auto& item : init_list) {
             InsertEnd(item);
         }
     }
 
-    // 3. Конструктор копирования: создает новый список как копию другого списка
+    // Конструктор копирования: создает новый список как копию другого списка
     DoublyLinkedList(const DoublyLinkedList& other) : head(nullptr), tail(nullptr), size(0) {
         Node<T>* current = other.head;
-        while (current) {
+        while (current) { // Поэлементно вносим узлы входящего списка в данные создаваемого
             InsertEnd(current->data);
             current = current->next;
         }
     }
 
-    // Оператор присваивания (не строго требуемый, но полезный)
-    DoublyLinkedList& operator=(const DoublyLinkedList& other) {
-        if (this != &other) { // Проверка на самоприсваивание
-            Clear(); // Очистить текущий список
-            Node<T>* current = other.head;
-            while (current) {
-                InsertEnd(current->data);
-                current = current->next;
-            }
-        }
-        return *this;
-    }
-
-    // Деструктор: очищает все узлы в списке
+    // Деструктор — удаление всех узлов списка
     ~DoublyLinkedList() {
         Clear();
     }
 
-    // Метод для добавления элемента в начало списка
+    /// @brief Добавление элемента в начало списка
+    /// @param value значение добавлямого узла
     void InsertBegin(const T& value) {
         Node<T>* newNode = new Node<T>(value);
-        if (!head) { // Если список пуст
+        if (!head) { // Нет начального узла => список пуст
             head = tail = newNode;
         } else { // Список не пуст
             newNode->next = head;
@@ -74,10 +63,11 @@ public:
         size++;
     }
 
-    // Метод для добавления элемента в конец списка
+    /// @brief Добавление элемента в конец списка
+    /// @param value значение добавлямого узла
     void InsertEnd(const T& value) {
         Node<T>* newNode = new Node<T>(value);
-        if (!tail) { // Если список пуст
+        if (!tail) { // Нет конечного узла => список пуст
             head = tail = newNode;
         } else { // Список не пуст
             tail->next = newNode;
@@ -87,10 +77,12 @@ public:
         size++;
     }
 
-    // Метод для добавления элемента в конкретную позицию (индекс) в списке
+    /// @brief Добавление элемента в конкретную позицию
+    /// @param pos индекс позиции
+    /// @param value значение добавлямого узла
     void InsertAt(int pos, const T& value) {
-        if (pos < 0 || pos > size) {
-            std::cout << "Invalid position for insertion." << std::endl;
+        if (pos < 0 || pos > size) { // Нужный индекс не найден
+            cout << "ERROR: Invalid position for insertion." << endl;
             return;
         }
         if (pos == 0) {
@@ -102,13 +94,13 @@ public:
             return;
         }
 
-        Node<T>* newNode = new Node<T>(value);
-        Node<T>* current = head;
-        for (int i = 0; i < pos; ++i) {
+        Node<T>* newNode = new Node<T>(value); // Создаём добавляемый узел
+        Node<T>* current = head; // Узел списка, который станет следующим для добавляемого
+        for (int i = 0; i < pos; ++i) { // Перемещаем указатель до нужного индекса
             current = current->next;
         }
 
-        // Настроить указатели для вставки нового узла
+        // Обновляем ссылки соседних узлов ("вставляем" нужный узел "между ними")
         newNode->next = current;
         newNode->prev = current->prev;
         current->prev->next = newNode;
@@ -116,10 +108,10 @@ public:
         size++;
     }
 
-    // Метод для удаления элемента из начала списка
+    /// @brief Удаление начального узла
     void DeleteBegin() {
-        if (!head) { // Если список пуст
-            std::cout << "List is empty, cannot delete." << std::endl;
+        if (!head) { // Нет начального узла => список пуст
+            cout << "ERROR: List is empty, cannot delete." << endl;
             return;
         }
         Node<T>* oldHead = head;
@@ -129,14 +121,14 @@ public:
             head = head->next;
             head->prev = nullptr;
         }
-        delete oldHead; // Освободить память
+        delete oldHead; // Удаляем узел из памяти
         size--;
     }
 
-    // Метод для удаления элемента из конца списка
+    /// @brief Удаление конечного узла
     void DeleteEnd() {
-        if (!tail) { // Если список пуст
-            std::cout << "List is empty, cannot delete." << std::endl;
+        if (!tail) { // Нет конечного узла => список пуст
+            cout << "ERROR: List is empty, cannot delete." << endl;
             return;
         }
         Node<T>* oldTail = tail;
@@ -146,14 +138,17 @@ public:
             tail = tail->prev;
             tail->next = nullptr;
         }
-        delete oldTail; // Освободить память
+        delete oldTail; // Удаляем узел из памяти
         size--;
     }
 
     // Метод для удаления элемента в конкретной позиции (индексе) в списке
+
+    /// @brief Удаление узла с конкретным индексом
+    /// @param pos индекс узла
     void DeleteAt(int pos) {
         if (pos < 0 || pos >= size) {
-            std::cout << "Invalid position for deletion." << std::endl;
+            cout << "ERROR: Invalid position for deletion." << endl;
             return;
         }
         if (pos == 0) {
@@ -170,110 +165,115 @@ public:
             current = current->next;
         }
 
-        // Настроить указатели для удаления текущего узла
+        // Обновляем ссылки для соседних узлов
         current->prev->next = current->next;
         current->next->prev = current->prev;
-        delete current; // Освободить память
+        delete current; // Удаляем узел из памяти
         size--;
     }
-
-    // Метод для поиска значения в списке и возврата его индекса
+    /// @brief Поиск узла по его значению
+    /// @param value искомое значение
+    /// @return индекс узла
     int SearchByValue(const T& value) const {
         Node<T>* current = head;
         int index = 0;
-        while (current) {
+        while (current) { // Проходимся по списку, сравниваем значения с искомым
             if (current->data == value) {
-                return index; // Вернуть индекс, если найдено
+                return index; // Узел найден
             }
             current = current->next;
             index++;
         }
-        return -1; // Вернуть -1 если не найдено
+        return -1; // Узел не найден
     }
 
-    // Метод для поиска элемента по индексу и возврата его значения
+    /// @brief Поиск узла по его индексу
+    /// @param value искомый индекс
+    /// @return значение узла
     T SearchByIndex(int pos) const {
-        if (pos < 0 || pos >= size) {
-            std::cout << "Invalid position for search." << std::endl;
-            return T{}; // Вернуть значение по умолчанию для типа T
-        }
         Node<T>* current = head;
-        for (int i = 0; i < pos; ++i) {
+        for (int i = 0; i < pos; ++i) { // Перемещаем указатель на искомый узел
             current = current->next;
         }
-        return current->data;
+        return current->data; // Узел найден
     }
 
     // Метод для вывода всех элементов списка в консоль
+
+    /// @brief Вывод всех узлов списка
     void Display() const {
-        if (!head) { // Если список пуст
-            std::cout << "List is empty." << std::endl;
+        if (!head) { // Нет начального узла => список пуст
+            cout << "ERROR: List is empty." << endl;
             return;
         }
         Node<T>* current = head;
-        while (current) {
-            std::cout << current->data << " ";
+        while (current) { // Поочерёдно выводим каждый элемент
+            cout << current->data << " ";
             current = current->next;
         }
-        std::cout << std::endl;
+        cout << endl;
     }
-
-    // Метод для удаления всех элементов из списка
+    /// @brief Удаление всех элементов списка
     void Clear() {
-        while (head) {
+        while (head) { // Проходимся по списку, удаляем каждый узел из памяти
             Node<T>* temp = head;
             head = head->next;
-            delete temp; // Освободить память для каждого узла
+            delete temp;
         }
-        tail = nullptr; // Сбросить указатели на голову и хвост
-        size = 0;       // Сбросить размер
+        tail = nullptr; // Сбрасываем указатель на конец
+        size = 0; // Сбрасываем значение размера списка
     }
 
-    // Метод для получения количества элементов в списке
-    int Size() const {
+
+    /// @brief Геттер для количества элементов списка
+    /// @return размер списка
+    int GetSize() const {
         return size;
     }
 
     // Метод для Лабораторной Работы 3, Вариант 5: Удалить все узлы, содержащие максимальное значение
-    void RemoveMaxElements() {
-        if (!head) return; // Если список пуст, ничего не делать
 
-        // Шаг 1: Найти максимальное значение в списке
+    /// @brief Удаление всех узлов, имеющих максимальное значение в списке
+    void RemoveMaxElements() {
+        if (!head)
+            return; // Нет начального узла => список пуст
+
+        // Поиск максимального значения
         T maxValue = head->data;
         Node<T>* current = head;
-        while (current) {
+        while (current) { // Проходимся по каждому узлу, сравниваем значения
             if (current->data > maxValue) {
                 maxValue = current->data;
             }
             current = current->next;
         }
 
-        // Шаг 2: Удалить все узлы, которые имеют максимальное значение
+        // Удаляем все узлы с максимальным значением
         current = head;
-        while (current) {
-            if (current->data == maxValue) {
+        while (current) { // Проходимся по всему списку, ищем нужные узлы
+            if (current->data == maxValue) { // В случае совпадения обновим ссылки соседних узлов
                 Node<T>* nodeToDelete = current;
-                current = current->next; // Переместить указатель current перед удалением
+                current = current->next;
 
                 if (nodeToDelete->prev) {
                     nodeToDelete->prev->next = nodeToDelete->next;
                 } else {
-                    head = nodeToDelete->next; // Обновить голову, если удаляется первый узел
+                    head = nodeToDelete->next; // Обновляем ссылку на начало, если удаляем первый узел
                 }
 
                 if (nodeToDelete->next) {
                     nodeToDelete->next->prev = nodeToDelete->prev;
                 } else {
-                    tail = nodeToDelete->prev; // Обновить хвост, если удаляется последний узел
+                    tail = nodeToDelete->prev; // Обновляем ссылку на конец, если удаляем последний узел
                 }
 
-                delete nodeToDelete; // Освободить память
+                delete nodeToDelete; // Удаляем узел из памяти
                 size--;
             } else {
-                current = current->next; // Перейти к следующему узлу только если мы не удаляли
+                current = current->next; // Совпадения нет, начинаем цикл снова
             }
         }
     }
 };
 
-#endif // DOUBLYLINKEDLIST_H
+#endif
