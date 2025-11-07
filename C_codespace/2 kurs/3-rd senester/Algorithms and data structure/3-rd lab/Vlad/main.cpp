@@ -1,128 +1,149 @@
-#include "DoubleLinkedList.h" // Подключаем заголовочный файл
+#include "DoublyLinkedList.h" // Подключить заголовочный файл для Двусвязного Списка
 #include <iostream>
 #include <limits> // Для std::numeric_limits
 
 int main() {
-    setlocale(LC_ALL, "Russian");
-    DoublyLinkedList<int> list;
-    int choice, value, pos;
-    int inputChoice;
+    DoublyLinkedList<int> list; // Создать экземпляр двусвязного списка (конструктор по умолчанию)
+    DoublyLinkedList<int> listInit = {1, 2, 3, 4, 5}; // Создать список с начальными значениями (конструктор с параметрами)
+    DoublyLinkedList<int> listCopy; // Создать пустой список для копирования
 
+    int choice, value, pos;     // Переменные для ввода пользователя: выбор меню, значение, позиция
+
+    // Основной цикл программы с меню
     while (true) {
-        std::cout << "\n--- Меню ---" << std::endl;
-        std::cout << "1. Ввести последовательность вручную" << std::endl;
-        std::cout << "2. Загрузить последовательность из потока (введите числа до EOF - Ctrl+Z или Ctrl+D)" << std::endl;
-        std::cout << "3. Вывести список" << std::endl;
-        std::cout << "4. Добавить элемент в начало" << std::endl;
-        std::cout << "5. Добавить элемент в конец" << std::endl;
-        std::cout << "6. Добавить элемент по индексу" << std::endl;
-        std::cout << "7. Удалить элемент из начала" << std::endl;
-        std::cout << "8. Удалить элемент из конца" << std::endl;
-        std::cout << "9. Удалить элемент по индексу" << std::endl;
-        std::cout << "10. Найти элемент по значению" << std::endl;
-        std::cout << "11. Найти элемент по индексу" << std::endl;
-        std::cout << "12. Вариант 5: Удалить максимальные элементы" << std::endl;
-        std::cout << "0. Выход" << std::endl;
-        std::cout << "Выберите действие: ";
+        std::cout << "\n--- Menu ---" << std::endl;
+        std::cout << "1. Enter sequence manually (0 to stop)" << std::endl; // Только этот пункт ввода
+        std::cout << "2. Display default constructed list" << std::endl;
+        std::cout << "3. Display list created with initializer list" << std::endl;
+        std::cout << "4. Copy list created with initializer list" << std::endl;
+        std::cout << "5. Display copied list" << std::endl;
+        std::cout << "6. Display list" << std::endl;
+        std::cout << "7. Add element to the beginning" << std::endl;
+        std::cout << "8. Add element to the end" << std::endl;
+        std::cout << "9. Add element at index" << std::endl;
+        std::cout << "10. Delete element from the beginning" << std::endl;
+        std::cout << "11. Delete element from the end" << std::endl;
+        std::cout << "12. Delete element at index" << std::endl;
+        std::cout << "13. Search element by value" << std::endl;
+        std::cout << "14. Search element by index" << std::endl;
+        std::cout << "15. Variant 5: Remove maximum elements" << std::endl;
+        std::cout << "0. Exit" << std::endl;
+        std::cout << "Choose an action: ";
         std::cin >> choice;
 
         switch (choice) {
-            case 1:
-            case 2:
-                list.Clear(); // Очищаем текущий список перед новым вводом
-                std::cout << "Введите целые числа (введите 0 для завершения ввода вручную или EOF для потока): ";
-                if (choice == 1) {
-                    while (true) {
-                        std::cin >> value;
-                        if (std::cin.fail() || value == 0) { // Проверка на EOF или 0 для ручного ввода
-                             if (value == 0) std::cin.clear(); // Сброс флага ошибки, если ввели 0
-                             break;
-                        }
-                        list.InsertEnd(value);
+            case 1: // Ввести последовательность вручную
+                list.Clear(); // Очистить текущий список перед новым вводом
+                std::cout << "Enter integers (enter 0 to stop): ";
+                // Бесконечный цикл для ввода чисел
+                while (true) {
+                    std::cin >> value;
+                    // Проверить на '0' для остановки ввода
+                    if (value == 0) {
+                        // Не добавляем '0' в список, просто выходим из цикла ввода
+                        break;
                     }
-                } else { // choice == 2
-                    while (std::cin >> value) {
-                        list.InsertEnd(value);
+                    // Если ввод не число, обработать ошибку
+                    if (std::cin.fail()) {
+                        std::cin.clear(); // Очистить флаг ошибки
+                        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Пропустить неверный ввод
+                        std::cout << "Invalid input. Please enter an integer or 0 to stop." << std::endl;
+                        continue; // Продолжить цикл ввода
                     }
-                    std::cin.clear(); // Сброс флага ошибки после EOF
-                    // Очищаем буфер ввода после EOF
-                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                    list.InsertEnd(value); // Добавить значение в конец списка
                 }
-                std::cout << "Список после ввода: ";
+                std::cout << "List after input: ";
+                list.Display(); // Показать вновь созданный список
+                break;
+            case 2: // Вывести список, созданный конструктором по умолчанию
+                std::cout << "Default constructed list: ";
                 list.Display();
                 break;
-            case 3:
-                std::cout << "Список: ";
+            case 3: // Вывести список, созданный с помощью initializer_list
+                std::cout << "List created with initializer list: ";
+                listInit.Display();
+                break;
+            case 4: // Скопировать один список в другой (используя конструктор копирования)
+                listCopy = DoublyLinkedList<int>(listInit); // Создаём временный объект с помощью конструктора копирования и присваиваем
+                // Или можно просто: listCopy = listInit; // Используя оператор присваивания, который также вызывает копирование
+                std::cout << "List copied from initializer list list." << std::endl;
+                break;
+            case 5: // Вывести скопированный список
+                std::cout << "Copied list: ";
+                listCopy.Display();
+                break;
+            case 6: // Вывести основной список
+                std::cout << "Main list: ";
                 list.Display();
                 break;
-            case 4:
-                std::cout << "Введите значение: ";
+            case 7: // Добавить элемент в начало
+                std::cout << "Enter value: ";
                 std::cin >> value;
                 list.InsertBegin(value);
-                std::cout << "Элемент добавлен." << std::endl;
+                std::cout << "Element added to the beginning." << std::endl;
                 break;
-            case 5:
-                std::cout << "Введите значение: ";
+            case 8: // Добавить элемент в конец
+                std::cout << "Enter value: ";
                 std::cin >> value;
                 list.InsertEnd(value);
-                std::cout << "Элемент добавлен." << std::endl;
+                std::cout << "Element added to the end." << std::endl;
                 break;
-            case 6:
-                std::cout << "Введите индекс: ";
+            case 9: // Добавить элемент по конкретному индексу
+                std::cout << "Enter index: ";
                 std::cin >> pos;
-                std::cout << "Введите значение: ";
+                std::cout << "Enter value: ";
                 std::cin >> value;
                 list.InsertAt(pos, value);
-                std::cout << "Элемент добавлен." << std::endl;
+                std::cout << "Element added at index " << pos << "." << std::endl;
                 break;
-            case 7:
-                list.DeleteBegin();
-                std::cout << "Элемент удален из начала." << std::endl;
+            case 10: // Удалить элемент из начала
+                list.DeleteBegin(); // Вызвать метод в классе списка
+                std::cout << "Element deleted from the beginning." << std::endl;
                 break;
-            case 8:
-                list.DeleteEnd();
-                std::cout << "Элемент удален из конца." << std::endl;
+            case 11: // Удалить элемент из конца
+                list.DeleteEnd(); // Вызвать метод в классе списка
+                std::cout << "Element deleted from the end." << std::endl;
                 break;
-            case 9:
-                std::cout << "Введите индекс: ";
+            case 12: // Удалить элемент по конкретному индексу
+                std::cout << "Enter index: ";
                 std::cin >> pos;
-                list.DeleteAt(pos);
-                std::cout << "Элемент удален." << std::endl;
+                list.DeleteAt(pos); // Вызвать метод в классе списка
+                std::cout << "Element deleted at index " << pos << "." << std::endl;
                 break;
-            case 10:
-                std::cout << "Введите значение: ";
+            case 13: // Найти элемент по значению
+                std::cout << "Enter value: ";
                 std::cin >> value;
-                pos = list.SearchByValue(value);
+                pos = list.SearchByValue(value); // Вызвать метод в классе списка
                 if (pos != -1) {
-                    std::cout << "Элемент " << value << " найден на позиции " << pos << "." << std::endl;
+                    std::cout << "Element " << value << " found at position " << pos << "." << std::endl;
                 } else {
-                    std::cout << "Элемент " << value << " не найден." << std::endl;
+                    std::cout << "Element " << value << " not found." << std::endl;
                 }
                 break;
-            case 11:
-                std::cout << "Введите индекс: ";
+            case 14: // Найти элемент по индексу
+                std::cout << "Enter index: ";
                 std::cin >> pos;
-                if (pos >= 0 && pos < list.Size()) {
-                    value = list.SearchByIndex(pos);
-                    std::cout << "Элемент на позиции " << pos << " равен " << value << "." << std::endl;
+                if (pos >= 0 && pos < list.Size()) { // Проверить допустимость индекса
+                    value = list.SearchByIndex(pos); // Вызвать метод в классе списка
+                    std::cout << "Element at index " << pos << " is " << value << "." << std::endl;
                 } else {
-                    std::cout << "Неверный индекс." << std::endl;
+                    std::cout << "Invalid index." << std::endl;
                 }
                 break;
-            case 12:
-                std::cout << "Список до удаления максимальных: ";
-                list.Display();
-                list.RemoveMaxElements();
-                std::cout << "Список после удаления максимальных: ";
-                list.Display();
+            case 15: // Выполнить задачу по Варианту 5
+                std::cout << "List before removing maximums: ";
+                list.Display(); // Вывести список до изменений
+                list.RemoveMaxElements(); // Вызвать специфичный метод для варианта 5
+                std::cout << "List after removing maximums: ";
+                list.Display(); // Вывести список после изменений
                 break;
-            case 0:
-                std::cout << "Выход из программы." << std::endl;
+            case 0: // Выйти из программы
+                std::cout << "Exiting program." << std::endl;
                 return 0;
-            default:
-                std::cout << "Неверный выбор. Попробуйте снова." << std::endl;
+            default: // Обработать некорректный выбор в меню
+                std::cout << "Invalid choice. Please try again." << std::endl;
         }
     }
 
-    return 0;
+    return 0; // Эта строка теоретически недостижима из-за цикла while(true)
 }
