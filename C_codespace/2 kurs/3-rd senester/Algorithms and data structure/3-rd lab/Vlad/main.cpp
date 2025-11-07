@@ -11,7 +11,7 @@ int main() {
     int choice, value, pos; // Переменные для выбора опции меню, значения и индекса узла пользователем
 
     while (true) {
-        cout << "\n===== Laboratory Word #3 =====\n\n";
+        cout << "\n===== Laboratory Work #3 =====\n\n";
 
         cout << "============= MENU =============" << endl;
         cout << "1. Enter sequence manually (0 to stop)" << endl;
