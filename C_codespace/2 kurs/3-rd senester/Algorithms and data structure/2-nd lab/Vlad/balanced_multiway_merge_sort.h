@@ -61,16 +61,18 @@ SortStats balancedMultiwayMergeSort(const string& filename, int m) {
 
     // Создаём начальные серии и распределяем исходные данные по m файлам поочерёдно
     
-    ifstream source(filename);
-    vector<ofstream> dests;
-    for (int i = 0; i < m; ++i) {
-        dests.emplace_back(files1[i]);
-    }
-    int file_index = 0;
-    while (source >> temp) {
-        dests[file_index] << temp << " ";
-        stats.swaps++; // Увеличиваем счетчик перестановок
-        file_index = (file_index + 1) % m; // Переход к следующему файлу
+    {
+        ifstream source(filename);
+        vector<ofstream> dests;
+        for (int i = 0; i < m; ++i) {
+            dests.emplace_back(files1[i]);
+        }
+        int file_index = 0;
+        while (source >> temp) {
+            dests[file_index] << temp << " ";
+            stats.swaps++; // Увеличиваем счетчик перестановок
+            file_index = (file_index + 1) % m; // Переход к следующему файлу
+        }
     }
 
     // Инициализируем размер серий и указатели на используемые файлы

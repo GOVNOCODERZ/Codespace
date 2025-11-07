@@ -208,29 +208,35 @@ void statisticsMode() {
 
 
 int main() {
-    int choice;
+    int mode;
     do {
-        cout << "\n--- Menu ---\n";
-        cout << "1. Sort a data file (random values)\n";
-        cout << "2. Statistics accumulation mode\n";
-        cout << "0. Exit\n";
-        cout << "Your choice: ";
-        cin >> choice;
+        cout << "\n===== Laboratory Word #2 =====\n";
+        cout << "Goal: Comparative analysis of external memory sorting algorithmes efficiency.\n";
+        cout << "Level 'Good': Direct merge sorting, balanced multiway merge sorting.\n\n";
 
-        switch (choice) {
+        cout << "============= MENU =============\n";        
+        cout << "1. Sort a single data file\n";
+        cout << "2. Statistical data collection mode\n";
+        cout << "3. Close the program\n";
+        cout << "Choose execution mode: ";
+
+        cin >> mode;
+
+        switch (mode) {
             case 1:
                 singleSortMode();
                 break;
             case 2:
                 statisticsMode();
                 break;
-            case 0:
+            case 3:
                 cout << "Exiting the program..." << endl;
                 break;
             default:
-                cout << "ERROR: Invalid choice. Please try again." << endl;
+                cout << "ERROR: Invalid choice." << endl;
         }
-    } while (choice != 0);
+
+    } while (mode != 3);
 
     return 0;
 }
