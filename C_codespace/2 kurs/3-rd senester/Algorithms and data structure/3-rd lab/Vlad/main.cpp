@@ -1,14 +1,16 @@
 #include "DoublyLinkedList.h"
 #include <iostream>
 #include <limits>
+#include <vector>
 using namespace std;
 
 int main() {
-    DoublyLinkedList<int> list; // Основной используемый список — Конструктор по умолчанию
+    DoublyLinkedList<int> list; // Основной используемый список - Конструктор по умолчанию
     DoublyLinkedList<int> listInit = {1, 2, 3, 4, 5}; // Список для демонстрации Конструктора с параметрами
     DoublyLinkedList<int> listToCopy; // Список для демонстрации Конструктора копирования
 
     int choice, value, pos; // Переменные для выбора опции меню, значения и индекса узла пользователем
+    vector<int> posList; // Динамический массив индексов для функции поиска по значению
 
     while (true) {
         cout << "\n===== Laboratory Work #3 =====\n\n";
@@ -16,8 +18,8 @@ int main() {
         cout << "============= MENU =============" << endl;
         cout << "1. Enter sequence manually (0 to stop)" << endl;
         cout << "2. Display current list" << endl;
-        cout << "3. Display list — Default constructor" << endl;
-        cout << "4. Display copied list — Copy constructor" << endl;
+        cout << "3. Display list - Default constructor" << endl;
+        cout << "4. Display copied list - Copy constructor" << endl;
         cout << "5. Add element to the beginning" << endl;
         cout << "6. Add element to the end" << endl;
         cout << "7. Add element at index" << endl;
@@ -37,7 +39,7 @@ int main() {
                 cout << "Enter integers (enter 0 to stop): ";
                 while (true) {
                     cin >> value;
-                    if (value == 0) { // Введён "0" как отдельный элемент — ввод прекращается
+                    if (value == 0) { // Введён "0" как отдельный элемент - ввод прекращается
                         break;
                     }
                     if (cin.fail()) { // Ошибка: введено не число
@@ -61,7 +63,7 @@ int main() {
                 break;
             case 4: // Копирование списка из конструктора по умолчанию и вывод списка
                 listToCopy = DoublyLinkedList<int>(listInit);
-                cout << "Copy of Default constructor list (Copy constructor): " << endl;
+                cout << "Copy of Default constructor list (Copy constructor): ";
                 listToCopy.Display();
                 break;
             case 5: // Добавление элемента в начало
@@ -99,15 +101,24 @@ int main() {
                 cout << "Element deleted at index \"" << pos << "\"." << endl;
                 break;
             case 11: // Поиск элемента по значению
+            {
                 cout << "Enter value: ";
                 cin >> value;
-                pos = list.SearchByValue(value);
-                if (pos != -1) { // -1 => элемент не был найден
-                    cout << "Element \"" << value << "\" found at index \"" << pos << "\"." << endl;
+                vector<int> posList = list.SearchByValue(value);
+                if (!posList.empty()) {
+                    cout << "Element \"" << value << "\" found at positions: ";
+                    for (size_t i = 0; i < posList.size(); ++i) {
+                        cout << posList[i];
+                        if (i < posList.size() - 1) {
+                            cout << ", ";
+                        }
+                    }
+                    cout << endl;
                 } else {
                     cout << "Element \"" << value << "\" not found." << endl;
                 }
                 break;
+            }
             case 12: // Поиск элемента по индексу
                 cout << "Enter index: ";
                 cin >> pos;

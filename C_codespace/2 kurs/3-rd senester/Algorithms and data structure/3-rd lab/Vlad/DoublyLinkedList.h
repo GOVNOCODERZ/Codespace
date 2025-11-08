@@ -2,7 +2,8 @@
 #define DOUBLYLINKEDLIST_H
 
 #include <iostream>
-#include <initializer_list> // Для конструктора с параметрами
+#include <initializer_list>
+#include <vector>
 using namespace std;
 
 // Стуктура — узел двусвязного списка
@@ -171,20 +172,22 @@ public:
         delete current; // Удаляем узел из памяти
         size--;
     }
+
     /// @brief Поиск узла по его значению
     /// @param value искомое значение
-    /// @return индекс узла
-    int SearchByValue(const T& value) const {
+    /// @return динамический массив индексов
+    vector<int> SearchByValue(const T& value) const {
+        vector<int> index_list; // Массив для хранения найденных индексов
         Node<T>* current = head;
         int index = 0;
         while (current) { // Проходимся по списку, сравниваем значения с искомым
             if (current->data == value) {
-                return index; // Узел найден
+                index_list.push_back(index); // Узел найден, добавляем индекс
             }
             current = current->next;
             index++;
         }
-        return -1; // Узел не найден
+        return index_list; // Возвращаем массив индексов. Если ничего не найдено, массив будет пустым.
     }
 
     /// @brief Поиск узла по его индексу
