@@ -190,13 +190,13 @@ void TMatrix<T>::output() const {
  */
 template<typename T>
 int TMatrix<T>::countPositiveBelowRowMean() const {
-    int count = 0;
+    int count = 0; // Количество нужных элементов
     for (int i = 0; i < rows; ++i) {
-        T sum = T(0);
+        T sum = T(0); // Сумма элементов строки
         for (int j = 0; j < cols; ++j) {
-            sum = sum + data[i][j];
+            sum += data[i][j];
         }
-        T mean = sum / static_cast<T>(cols);
+        T mean = sum / static_cast<T>(cols); // Среднее арифметическое по строке
 
         for (int j = 0; j < cols; ++j) {
             if (data[i][j] > T(0) && data[i][j] < mean) {
@@ -215,11 +215,12 @@ int TMatrix<T>::countPositiveBelowRowMean() const {
  */
 template<typename T>
 T TMatrix<T>::sumOfNegativeElements() const {
-    T sum = T(0);
+    T sum = T(0); // Сумма подходящих элементов
+    /// Проходимся по каждому элементу и прибавляем значение к сумме, если меньше нуля
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
             if (data[i][j] < T(0)) {
-                sum = sum + data[i][j];
+                sum += data[i][j];
             }
         }
     }
@@ -265,7 +266,7 @@ void TMatrix<T>::modifyElement(int row, int col) {
         cout << "Enter new value for [" << row << "][" << col << "]: ";
         cin >> data[row][col];
     } else {
-        cout << "Error: Index out of bounds!" << endl;
+        cout << "ERROR: Index out of bounds!" << endl;
     }
 }
 
@@ -281,7 +282,7 @@ void TMatrix<T>::modifyElement(int row, int col) {
 template<typename T>
 void TMatrix<T>::SetRandomValue(int row, int col, T min_val, T max_val) {
     if (row < 0 || row >= rows || col < 0 || col >= cols) {
-        cout << "Error: Index out of bounds!" << endl;
+        cout << "ERROR: Index out of bounds!" << endl;
         return;
     }
 
@@ -307,7 +308,7 @@ template<typename T>
 void TMatrix<T>::loadFromFile(const string& filename) {
     ifstream file(filename);
     if (!file.is_open()) {
-        cout << "Error: Cannot open file " << filename << endl;
+        cout << "ERROR: Cannot open file " << filename << endl;
         return;
     }
 
@@ -334,7 +335,7 @@ template<typename T>
 void TMatrix<T>::saveToFile(const string& filename) const {
     ofstream file(filename);
     if (!file.is_open()) {
-        cout << "Error: Cannot open file " << filename << endl;
+        cout << "ERROR: Cannot open file " << filename << endl;
         return;
     }
 

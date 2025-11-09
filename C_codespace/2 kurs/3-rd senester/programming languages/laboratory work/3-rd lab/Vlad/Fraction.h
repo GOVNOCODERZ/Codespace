@@ -60,7 +60,7 @@ public:
      */
     Fraction(int n = 0, int d = 1) : num(n), den(d) {
         if (den == 0) { // Защита от деления на ноль
-            cout << "Error: Denominator cannot be zero!" << endl;
+            cout << "ERROR: Denominator cannot be zero!" << endl;
             den = 1; // Устанавливаем в 1, чтобы избежать сбоя
         }
         normalize(); // Приводим к каноническому виду
@@ -77,7 +77,7 @@ public:
      */
     Fraction(int n, int d, bool dummy) : num(n), den(d) {
         if (den == 0) {
-            cout << "Error: Denominator cannot be zero!" << endl;
+            cout << "ERROR: Denominator cannot be zero!" << endl;
             den = 1;
         }
         normalize(); // Всё равно нормализуем, чтобы избежать проблем
@@ -210,7 +210,7 @@ public:
      */
     Fraction operator/(const Fraction& other) const {
         if (other.num == 0) { // Проверка деления на ноль
-            cout << "Error: Division by zero!" << endl;
+            cout << "ERROR: Division by zero!" << endl;
             return Fraction(0, 1); // Возвращаем ноль
         }
         return Fraction(num * other.den, den * other.num);
@@ -253,7 +253,7 @@ public:
             f.num = stoi(num_str);
             f.den = stoi(den_str);
             if (f.den == 0) { // Проверка на деление на ноль
-                cout << "Error: Denominator cannot be zero! Setting to 1." << endl;
+                cout << "ERROR: Denominator cannot be zero! Setting to 1." << endl;
                 f.den = 1;
             }
         }
