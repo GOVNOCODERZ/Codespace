@@ -134,7 +134,7 @@ void demonstrate(const std::string& type_name) {
                     // Записываем сначала размер, потом сами элементы
                     outfile << figures.GetSize() << std::endl;
                     for(int i = 0; i < figures.GetSize(); ++i) {
-                        outfile << figures[i] << std::endl; // Предполагается, что оператор << для T не добавляет \n
+                        outfile << figures[i] << std::endl;
                     }
                     std::cout << "Массив успешно записан в файл " << filename << std::endl;
                     break;

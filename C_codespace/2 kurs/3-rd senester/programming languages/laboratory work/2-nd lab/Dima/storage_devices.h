@@ -43,7 +43,6 @@ public:
 std::ostream& operator<<(std::ostream& os, const StorageDev& dev);
 std::istream& operator>>(std::istream& is, StorageDev& dev);
 
-// Класс "Жесткий диск" (HDD)
 class HDD : public StorageDev {
 private:
     int rpm; // Скорость вращения шпинделя
@@ -58,7 +57,6 @@ public:
     std::unique_ptr<StorageDev> clone() const override;
 };
 
-// Класс "Флеш-накопитель"
 class FlashD : public StorageDev {
 private:
     std::string usb_type;
@@ -73,7 +71,6 @@ public:
     std::unique_ptr<StorageDev> clone() const override;
 };
 
-// Класс "Магазин", управляющий коллекцией накопителей
 class Shop {
 private:
     std::vector<std::unique_ptr<StorageDev>> devices;
