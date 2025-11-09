@@ -51,14 +51,14 @@ int main() {
         cin >> choice;
 
         switch (choice) {
-            case 11: {
+            case 11: { // Переключение на матрицу вещественных чисел
                 matrix_type = 1;
                 current_float_matrix = &float_matrix;
                 current_fraction_matrix = nullptr; // Сбрасываем указатель на Fraction
                 cout << "Switched to Float Matrix." << endl;
                 break;
             }
-            case 12: {
+            case 12: { // Переключение на матрицу дробей
                 matrix_type = 2;
                 current_fraction_matrix = &fraction_matrix;
                 current_float_matrix = nullptr; // Сбрасываем указатель на Float
@@ -67,7 +67,7 @@ int main() {
             }
 
 
-            case 1: {
+            case 1: { // Ввод матрицы
                 if (matrix_type == 1) {
                     current_float_matrix->input();
                     cout << "Float matrix created." << endl;
@@ -79,7 +79,7 @@ int main() {
                 }
                 break;
             }
-            case 2: {
+            case 2: { // Вывод матрицы
                 if (matrix_type == 1) {
                     cout << "\n--- Current Float Matrix ---" << endl;
                     cout << *current_float_matrix << endl;
@@ -91,7 +91,7 @@ int main() {
                 }
                 break;
             }
-            case 3: {
+            case 3: { // Счёт положительных элементов > среднего значения
                 if (matrix_type == 1) {
                     cout << "\nCount of positive elements below row mean: " << current_float_matrix->countPositiveBelowRowMean() << endl;
                 } else if (matrix_type == 2) {
@@ -101,7 +101,7 @@ int main() {
                 }
                 break;
             }
-            case 4: {
+            case 4: { // Сумма отрицательных элементов
                 if (matrix_type == 1) {
                     auto sum = current_float_matrix->sumOfNegativeElements();
                     cout << "\nSum of negative elements: " << sum << endl;
@@ -113,7 +113,7 @@ int main() {
                 }
                 break;
             }
-            case 5: {
+            case 5: { // Загрузка матрицы из файла
                 string filename;
                 cout << "Enter filename to load from: ";
                 cin >> filename;
@@ -126,7 +126,7 @@ int main() {
                 }
                 break;
             }
-            case 6: {
+            case 6: { // Выгрузка матрицы в файл
                 string filename;
                 cout << "Enter filename to save to: ";
                 cin >> filename;
@@ -139,7 +139,7 @@ int main() {
                 }
                 break;
             }
-            case 7: {
+            case 7: { // Модификация элемента
                 int r, c;
                 cout << "Enter row index: ";
                 cin >> r;
@@ -154,7 +154,7 @@ int main() {
                 }
                 break;
             }
-            case 8: {
+            case 8: { // Задать случайное значение элементу
                 int r, c;
                 cout << "Enter row index: ";
                 cin >> r;
@@ -179,7 +179,7 @@ int main() {
                 }
                 break;
             }
-            case 9: {
+            case 9: { // Сгенерировать случайные значения всем элементам матрицы
                 switch (matrix_type){
                 case 1:
                 {
@@ -209,7 +209,7 @@ int main() {
                 }
                 break;
             }
-            case 10: {
+            case 10: { // Демонстрация конструктора копирования
                 cout << "--- Demonstration of copy constructor ---" << endl;
                 switch (matrix_type){
                 case 1:
@@ -236,12 +236,12 @@ int main() {
                 }
                 break;
             }
-            case 0: {
+            case 0: { // Выход из программы
                 running = false;
                 cout << "Exiting..." << endl;
                 break;
             }
-            default: {
+            default: { // Неверный ввод
                 cout << "Invalid choice. Please try again." << endl;
             }
         }
