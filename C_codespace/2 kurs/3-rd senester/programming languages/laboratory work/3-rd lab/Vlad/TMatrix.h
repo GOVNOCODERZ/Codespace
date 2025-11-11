@@ -194,7 +194,7 @@ int TMatrix<T>::countPositiveBelowRowMean() const {
     for (int i = 0; i < rows; ++i) {
         T sum = T(0); // Сумма элементов строки
         for (int j = 0; j < cols; ++j) {
-            sum += data[i][j];
+            sum = sum + data[i][j];
         }
         T mean = sum / static_cast<T>(cols); // Среднее арифметическое по строке
 
@@ -220,7 +220,7 @@ T TMatrix<T>::sumOfNegativeElements() const {
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
             if (data[i][j] < T(0)) {
-                sum += data[i][j];
+                sum = sum + data[i][j];
             }
         }
     }
