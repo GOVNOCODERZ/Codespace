@@ -12,10 +12,9 @@ int main() {
         cout << "======================================" << endl;
         cout << "1. Load text from file" << endl;
         cout << "2. Save text to file" << endl;
-        cout << "3. Enter text manually" << endl;
-        cout << "4. Display original text" << endl;
-        cout << "5. Display sentences" << endl;
-        cout << "6. Find most frequent letter in each sentence" << endl;
+        cout << "3. Display original text" << endl;
+        cout << "4. Display sentences" << endl;
+        cout << "5. Find most frequent letter in each sentence" << endl;
         cout << "0. Exit" << endl;
         cout << "Choose an action: ";
 
@@ -39,24 +38,14 @@ int main() {
                 break;
             }
             case 3: {
-                cout << "Enter text (end with an empty line):" << endl;
-                string line, full_text;
-                while (getline(cin, line) && !line.empty()) {
-                    full_text += line + " ";
-                }
-                processor.setText(full_text);
-                cout << "Text entered." << endl;
-                break;
-            }
-            case 4: {
                 processor.displayText();
                 break;
             }
-            case 5: {
+            case 4: {
                 processor.displaySentences();
                 break;
             }
-            case 6: {
+            case 5: {
                 processor.findMostFrequentLetterInEachSentence();
                 break;
             }
