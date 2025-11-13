@@ -26,7 +26,7 @@ void runMatrixMenu(string datatype_name) {
         cout << "8. Set random value for an element" << endl;
         cout << "9. Generate random values for the whole matrix" << endl;
         cout << "10. Demonstration of copy constructor" << endl;
-        cout << "0. Go back to type selection" << endl; // Позволяет вернуться к выбору типа
+        cout << "0. Go back to type selection" << endl;
         cout << "Choose an action: ";
 
         int choice;

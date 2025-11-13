@@ -2,7 +2,7 @@
 #define FRACTION_H
 
 #include <iostream>
-#include <cmath> // для abs
+#include <cmath>
 using namespace std;
 
 /**
