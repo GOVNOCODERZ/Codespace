@@ -1,0 +1,4 @@
+HDD Seagate BarraCuda 4500 1000 7200
+Flash Kingston DataTraveler 600 64 150
+HDD COOLHDD Seagate 10000 1000 7200
+Flash COOLFLASH EasyFlash 5000 500 100
