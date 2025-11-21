@@ -2,12 +2,26 @@
 #include <iostream>
 #include <vector>
 #include <limits>
+
 using namespace std;
 
+/**
+ * @brief Главная функция программы — консольный интерфейс для тестирования аллокатора.
+ * 
+ * Программа позволяет:
+ * 
+ - выделять блоки заданного размера,
+ * 
+ - освобождать их по индексу из списка,
+ * 
+ - просматривать статистику кучи.
+ * 
+ * Все выделенные указатели хранятся в векторе `allocatedBlocks` для удобства освобождения.
+ */
 int main() {
-    constexpr size_t HEAP_SIZE = 65536;
-    MemoryAllocator allocator(HEAP_SIZE);
-    vector<void*> allocatedBlocks;
+    constexpr size_t HEAP_SIZE = 65536; // Размер эмулируемой кучи — 64 КБ
+    MemoryAllocator allocator(HEAP_SIZE); // Инициализируем аллокатор
+    vector<void*> allocatedBlocks; // Хранит указатели на все выделенные блоки
 
     int choice;
     size_t size;
@@ -23,6 +37,7 @@ int main() {
 
         cin >> choice;
 
+        // Обработка некорректного ввода (не число)
         if (cin.fail()) {
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -31,7 +46,7 @@ int main() {
         }
 
         switch (choice) {
-            case 1: {
+            case 1: { // Выделение блока памяти
                 cout << "Enter block size (bytes): ";
                 cin >> size;
                 if (cin.fail() || size == 0) {
@@ -48,7 +63,7 @@ int main() {
                 break;
             }
 
-            case 2: {
+            case 2: { // Освобождение блока памяти по индексу
                 if (allocatedBlocks.empty()) {
                     cout << "No allocated blocks available for deallocation.\n";
                     break;
@@ -72,12 +87,12 @@ int main() {
                 break;
             }
 
-            case 3: {
+            case 3: { // Вывод статуса кучи
                 allocator.printStatus();
                 break;
             }
 
-            case 0: {
+            case 0: { // Завершение программы
                 cout << "Exiting the program...\n";
                 return 0;
             }
