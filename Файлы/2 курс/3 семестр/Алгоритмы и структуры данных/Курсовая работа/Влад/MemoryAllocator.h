@@ -2,27 +2,26 @@
 #define MEMORY_ALLOCATOR_H
 
 #include <cstddef>
-#include <cstdint>
 #include <iostream>
 
+// Заголовок блока — теперь глобальный тип
 struct BlockHeader {
-    size_t size;               // Общий размер блока (включая заголовок), в байтах
-    bool isAllocated;          // true — занят, false — свободен
-    BlockHeader* nextFree;     // Только для свободных блоков
+    size_t size;          // Размер всего блока (включая заголовок)
+    bool isAllocated;     // true — занят, false — свободен
+    BlockHeader* nextFree; // Только для свободных блоков
 };
 
 class MemoryAllocator {
 public:
-    explicit MemoryAllocator(size_t heapSize = 65536); // 64 КБ по умолчанию
+    explicit MemoryAllocator(size_t heapSize = 65536);
     ~MemoryAllocator();
 
-    void* allocate(size_t size);
+    void* allocate(size_t userSize);
     void deallocate(void* ptr);
     void printStatus() const;
     double getFragmentation() const;
 
 private:
-
     static constexpr size_t ALIGNMENT = 8;
     static constexpr size_t HEADER_SIZE = sizeof(BlockHeader);
 
@@ -30,12 +29,12 @@ private:
     size_t heapSize;
     BlockHeader* freeList;
 
-    size_t alignSize(size_t size) const;
-    BlockHeader* findBlock(size_t requiredSize);
-    void mergeFreeBlocks();
-    BlockHeader* blockFromPtr(void* ptr) const;
-    void* ptrFromBlock(BlockHeader* block) const;
-    bool isValidPointer(void* ptr) const;
+    size_t alignUp(size_t value, size_t alignment) const;
+    BlockHeader* findSuitableBlock(size_t totalSize);
+    void rebuildFreeList();
+    bool isValidPtr(void* ptr) const;
+    BlockHeader* headerFromPtr(void* ptr) const;
+    void* ptrFromHeader(BlockHeader* header) const;
 };
 
 #endif // MEMORY_ALLOCATOR_H

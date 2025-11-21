@@ -1,4 +1,3 @@
-#include "MemoryAllocator.h"
 #include "MemoryAllocator.cpp"
 #include <iostream>
 #include <vector>
@@ -6,13 +5,12 @@
 using namespace std;
 
 int main() {
-    constexpr size_t HEAP_SIZE = 65536; // 64 KB
+    constexpr size_t HEAP_SIZE = 65536;
     MemoryAllocator allocator(HEAP_SIZE);
-    vector<void*> allocatedBlocks; // Хранение адресов выделенных блоков
+    vector<void*> allocatedBlocks;
 
     int choice;
     size_t size;
-    void* ptr;
 
     while (true) {
         cout << "\n===== RAM Management Model =====\n\n";
@@ -22,7 +20,7 @@ int main() {
         cout << "3. Display heap status" << endl;
         cout << "0. Exit" << endl;
         cout << "Choose an action: ";
-        
+
         cin >> choice;
 
         if (cin.fail()) {
@@ -33,23 +31,24 @@ int main() {
         }
 
         switch (choice) {
-            case 1: // Allocate memory
+            case 1: {
                 cout << "Enter block size (bytes): ";
                 cin >> size;
-                if (cin.fail()) {
+                if (cin.fail() || size == 0) {
                     cin.clear();
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                    cout << "ERROR: Invalid size. Please enter a positive integer.\n";
+                    cout << "ERROR: Invalid size.\n";
                     break;
                 }
-                ptr = allocator.allocate(size);
+                void* ptr = allocator.allocate(size);
                 if (ptr) {
                     allocatedBlocks.push_back(ptr);
                     cout << "Allocated at: " << ptr << endl;
                 }
                 break;
+            }
 
-            case 2: // Deallocate memory
+            case 2: {
                 if (allocatedBlocks.empty()) {
                     cout << "No allocated blocks available for deallocation.\n";
                     break;
@@ -59,31 +58,33 @@ int main() {
                     cout << i << ": " << allocatedBlocks[i] << endl;
                 }
                 cout << "Enter index to deallocate: ";
-                int index;
-                cin >> index;
-                if (cin.fail() || index < 0 || static_cast<size_t>(index) >= allocatedBlocks.size()) {
+                int idx;
+                cin >> idx;
+                if (cin.fail() || idx < 0 || static_cast<size_t>(idx) >= allocatedBlocks.size()) {
                     cin.clear();
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
                     cout << "ERROR: Invalid index.\n";
                     break;
                 }
-                allocator.deallocate(allocatedBlocks[index]);
-                allocatedBlocks.erase(allocatedBlocks.begin() + index);
+                allocator.deallocate(allocatedBlocks[idx]);
+                allocatedBlocks.erase(allocatedBlocks.begin() + idx);
                 cout << "Block deallocated successfully.\n";
                 break;
+            }
 
-            case 3: // Display heap status
+            case 3: {
                 allocator.printStatus();
                 break;
+            }
 
-            case 0: // Exit
+            case 0: {
                 cout << "Exiting the program...\n";
                 return 0;
+            }
 
-            default:
+            default: {
                 cout << "ERROR: Invalid choice. Please select an option from the menu.\n";
+            }
         }
     }
-
-    return 0;
 }

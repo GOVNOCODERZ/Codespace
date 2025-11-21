@@ -1,89 +1,92 @@
 #include "MemoryAllocator.h"
 #include <cstring>
 #include <algorithm>
-#include <cmath>
+#include <iostream>
 
 MemoryAllocator::MemoryAllocator(size_t heapSize)
     : heapSize(heapSize), freeList(nullptr) {
     heapStart = new char[heapSize];
-    BlockHeader* firstBlock = reinterpret_cast<BlockHeader*>(heapStart);
-    firstBlock->size = heapSize;
-    firstBlock->isAllocated = false;
-    firstBlock->nextFree = nullptr;
-    freeList = firstBlock;
+    BlockHeader* first = reinterpret_cast<BlockHeader*>(heapStart);
+    first->size = heapSize;
+    first->isAllocated = false;
+    first->nextFree = nullptr;
+    freeList = first;
 }
 
 MemoryAllocator::~MemoryAllocator() {
     delete[] heapStart;
 }
 
-size_t MemoryAllocator::alignSize(size_t size) const {
-    size_t remainder = size % ALIGNMENT;
-    if (remainder == 0) return size;
-    return size + (ALIGNMENT - remainder);
+size_t MemoryAllocator::alignUp(size_t value, size_t alignment) const {
+    return (value + alignment - 1) & ~(alignment - 1);
 }
 
 void* MemoryAllocator::allocate(size_t userSize) {
     if (userSize == 0) return nullptr;
 
-    size_t totalSize = alignSize(userSize + HEADER_SIZE);
-    BlockHeader* block = findBlock(totalSize);
+    size_t totalSize = alignUp(userSize + HEADER_SIZE, ALIGNMENT);
+    BlockHeader* block = findSuitableBlock(totalSize);
 
     if (!block) {
         std::cout << "Error: insufficient memory to allocate " << userSize << " bytes.\n";
         return nullptr;
     }
 
-    // Разделение блока, если он значительно больше
-    if (block->size >= totalSize + alignSize(HEADER_SIZE + 1)) {
-        size_t remaining = block->size - totalSize;
-        BlockHeader* newBlock = reinterpret_cast<BlockHeader*>(
-            reinterpret_cast<char*>(block) + totalSize
-        );
-        newBlock->size = remaining;
-        newBlock->isAllocated = false;
-
-        // Вставить новый свободный блок в список
-        newBlock->nextFree = block->nextFree;
-        if (freeList == block) {
-            freeList = newBlock;
-        } else {
-            BlockHeader* curr = freeList;
-            while (curr && curr->nextFree != block) {
-                curr = curr->nextFree;
-            }
-            if (curr) curr->nextFree = newBlock;
-        }
-
-        block->size = totalSize;
-        block->nextFree = nullptr;
-    } else {
-        // Удалить блок из списка свободных
+    // Если остаток достаточно велик — делим
+    size_t minFreeSize = alignUp(HEADER_SIZE, ALIGNMENT);
+    if (block->size > totalSize + minFreeSize) {
+        // Удалить текущий блок из freeList
         if (freeList == block) {
             freeList = block->nextFree;
         } else {
             BlockHeader* curr = freeList;
-            while (curr && curr->nextFree != block) {
+            while (curr && curr->nextFree != block)
                 curr = curr->nextFree;
-            }
             if (curr) curr->nextFree = block->nextFree;
         }
+
+        // Создать новый свободный блок
+        BlockHeader* newFree = reinterpret_cast<BlockHeader*>(
+            reinterpret_cast<char*>(block) + totalSize
+        );
+        newFree->size = block->size - totalSize;
+        newFree->isAllocated = false;
+
+        // Добавить новый блок в начало freeList
+        newFree->nextFree = freeList;
+        freeList = newFree;
+
+        // Установить размер текущего блока
+        block->size = totalSize;
         block->nextFree = nullptr;
+        block->isAllocated = true;
+    } else {
+        // Удалить из freeList
+        if (freeList == block) {
+            freeList = block->nextFree;
+        } else {
+            BlockHeader* curr = freeList;
+            while (curr && curr->nextFree != block)
+                curr = curr->nextFree;
+            if (curr) curr->nextFree = block->nextFree;
+        }
+
+        block->size = totalSize;
+        block->nextFree = nullptr;
+        block->isAllocated = true;
     }
 
-    block->isAllocated = true;
-    return ptrFromBlock(block);
+    return ptrFromHeader(block);
 }
 
 void MemoryAllocator::deallocate(void* ptr) {
-    if (!ptr) return;
-    if (!isValidPointer(ptr)) {
-        std::cout << "Error: attempt to deallocate invalid address.\n";
+    if (!ptr || !isValidPtr(ptr)) {
+        std::cout << "Error: invalid pointer for deallocation.\n";
         return;
     }
 
-    BlockHeader* block = blockFromPtr(ptr);
-    if (block->isAllocated == false) {
+    BlockHeader* block = headerFromPtr(ptr);
+    if (!block->isAllocated) {
         std::cout << "Error: block is already free.\n";
         return;
     }
@@ -92,16 +95,16 @@ void MemoryAllocator::deallocate(void* ptr) {
     block->nextFree = freeList;
     freeList = block;
 
-    mergeFreeBlocks();
+    // Перестроить список и слить соседей
+    rebuildFreeList();
 }
 
-BlockHeader* MemoryAllocator::findBlock(size_t requiredSize) {
+BlockHeader* MemoryAllocator::findSuitableBlock(size_t totalSize) {
     BlockHeader* prev = nullptr;
     BlockHeader* curr = freeList;
 
     while (curr) {
-        if (curr->size >= requiredSize) {
-            // Удалить из списка
+        if (curr->size >= totalSize) {
             if (prev) {
                 prev->nextFree = curr->nextFree;
             } else {
@@ -115,29 +118,10 @@ BlockHeader* MemoryAllocator::findBlock(size_t requiredSize) {
     return nullptr;
 }
 
-void MemoryAllocator::mergeFreeBlocks() {
-    BlockHeader* curr = reinterpret_cast<BlockHeader*>(heapStart);
-    while (curr < reinterpret_cast<BlockHeader*>(heapStart + heapSize)) {
-        if (!curr->isAllocated) {
-            BlockHeader* next = reinterpret_cast<BlockHeader*>(
-                reinterpret_cast<char*>(curr) + curr->size
-            );
-            while (next < reinterpret_cast<BlockHeader*>(heapStart + heapSize) &&
-                   !next->isAllocated) {
-                curr->size += next->size;
-                next = reinterpret_cast<BlockHeader*>(
-                    reinterpret_cast<char*>(next) + next->size
-                );
-            }
-        }
-        curr = reinterpret_cast<BlockHeader*>(
-            reinterpret_cast<char*>(curr) + curr->size
-        );
-    }
-
-    // Перестроить freeList
+void MemoryAllocator::rebuildFreeList() {
+    // Проходим по куче и собираем все свободные блоки
     freeList = nullptr;
-    curr = reinterpret_cast<BlockHeader*>(heapStart);
+    BlockHeader* curr = reinterpret_cast<BlockHeader*>(heapStart);
     while (curr < reinterpret_cast<BlockHeader*>(heapStart + heapSize)) {
         if (!curr->isAllocated) {
             curr->nextFree = freeList;
@@ -149,18 +133,22 @@ void MemoryAllocator::mergeFreeBlocks() {
     }
 }
 
-BlockHeader* MemoryAllocator::blockFromPtr(void* ptr) const {
-    return reinterpret_cast<BlockHeader*>(static_cast<char*>(ptr) - HEADER_SIZE);
-}
-
-void* MemoryAllocator::ptrFromBlock(BlockHeader* block) const {
-    return static_cast<void*>(reinterpret_cast<char*>(block) + HEADER_SIZE);
-}
-
-bool MemoryAllocator::isValidPointer(void* ptr) const {
+bool MemoryAllocator::isValidPtr(void* ptr) const {
     if (ptr < reinterpret_cast<void*>(heapStart + HEADER_SIZE)) return false;
     if (ptr >= reinterpret_cast<void*>(heapStart + heapSize)) return false;
     return true;
+}
+
+BlockHeader* MemoryAllocator::headerFromPtr(void* ptr) const {
+    return reinterpret_cast<BlockHeader*>(
+        static_cast<char*>(ptr) - HEADER_SIZE
+    );
+}
+
+void* MemoryAllocator::ptrFromHeader(BlockHeader* header) const {
+    return static_cast<void*>(
+        reinterpret_cast<char*>(header) + HEADER_SIZE
+    );
 }
 
 void MemoryAllocator::printStatus() const {
@@ -193,8 +181,7 @@ void MemoryAllocator::printStatus() const {
               << (100.0 * totalFree / heapSize) << "%)\n";
     std::cout << "Free blocks: " << freeBlocks << "\n";
     std::cout << "Allocated blocks: " << allocatedBlocks << "\n";
-    std::cout << "External fragmentation: " 
-              << (frag * 100) << "%\n";
+    std::cout << "External fragmentation: " << (frag * 100) << "%\n";
 }
 
 double MemoryAllocator::getFragmentation() const {
