@@ -20,7 +20,7 @@ using namespace std;
 SortStats balancedMultiwayMergeSort(const string& filename, int m) {
     // Проверка корректности параметра m (количество путей)
     if (m < 2) {
-        cerr << "ERROR: Number of ways must be >2." << endl;
+        cerr << "ERROR: Number of ways must be >= 2." << endl;
         return {};
     }
 
@@ -92,30 +92,44 @@ SortStats balancedMultiwayMergeSort(const string& filename, int m) {
             dests.emplace_back((*to_files)[i]);
         }
 
-        int dest_index = 0; // Индекс файла назначения для записи
-        
+        // Массив для отслеживания количества элементов, уже прочитанных из каждого исходного файла в этой фазе
+        vector<long long> elements_read_from_source(m, 0);
+
+        int dest_index = 0; // Индекс файла назначения для записи новой серии
+
         // Цикл объединения серий
         while (true) {
             // Очередь с приоритетом для нахождения минимального элемента среди всех файлов
+            // Хранит пары {значение, индекс_файла_источника}
             priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
-            
-            // Массив для отслеживания количества элементов в текущей серии
-            vector<int> current_run_counts(m, 0);
 
-            // Читаем первый элемент из каждого файла в очередь
+            // Флаг, чтобы определить, есть ли ещё элементы для обработки
+            bool elements_remaining = false;
+
+            // Инициализируем очередь первыми элементами из каждой серии (по `run_size` элементов из каждого файла)
             for (int i = 0; i < m; ++i) {
-                if (sources[i] >> temp) {
-                    pq.push({temp, i}); // Пары {значение, индекс файла}
+                // Проверяем, не исчерпаны ли элементы из этого файла в этой фазе
+                // и можно ли начать новую серию длиной run_size
+                if (elements_read_from_source[i] < n && elements_read_from_source[i] % run_size == 0) {
+                    // Пытаемся прочитать первый элемент новой серии из файла i
+                    if (sources[i] >> temp) {
+                        elements_remaining = true; // Найден элемент, продолжаем
+                        elements_read_from_source[i]++;
+                        pq.push({temp, i}); // Пары {значение, индекс файла}
+                    }
                 }
             }
 
-            // Если очередь пуста, все элементы обработаны
-            if (pq.empty()) {
+            // Если очередь пуста, все элементы обработаны в этой фазе
+            if (!elements_remaining) {
                 break;
             }
 
-            // Извлекаем элементы из очереди в отсортированном порядке
-            while (!pq.empty()) {
+            // Извлекаем элементы из очереди в отсортированном порядке для одной новой серии
+            int elements_in_current_output_run = 0;
+            const int expected_elements_in_run = m * run_size; // Ожидаемое количество элементов в одной новой серии
+
+            while (!pq.empty() && elements_in_current_output_run < expected_elements_in_run) {
                 pair<int, int> min_pair = pq.top();
                 pq.pop();
 
@@ -124,23 +138,27 @@ SortStats balancedMultiwayMergeSort(const string& filename, int m) {
 
                 // Записываем минимальный элемент в текущий файл назначения
                 dests[dest_index] << value << " ";
-                stats.swaps++; // Увеличиваем счетчик перестановок
+                stats.swaps++; // Увеличиваем счетчик перестановок (или записей?)
+                elements_in_current_output_run++;
 
-                // Увеличиваем счетчик элементов в текущей серии для этого файла
-                current_run_counts[file_idx]++;
+                // Проверяем, не исчерпаны ли элементы из источника file_idx для текущей серии
+                // (т.е. не прочитано ли уже `run_size` элементов из этой серии)
+                long long series_start_index = (elements_read_from_source[file_idx] / run_size) * run_size;
+                long long elements_read_in_current_series = elements_read_from_source[file_idx] - series_start_index;
 
-                // Если текущая серия еще не закончилась, читаем следующий элемент из этого файла
-                if (current_run_counts[file_idx] < run_size) {
+                if (elements_read_in_current_series < run_size) {
                     if (sources[file_idx] >> temp) {
-                        stats.comparisons++; // Увеличиваем счетчик сравнений
+                        stats.comparisons++;
+                        elements_read_from_source[file_idx]++;
                         pq.push({temp, file_idx});
                     }
                 }
             }
-            // Переходим к следующему файлу назначения для равномерного распределения
+
+            // Переходим к следующему файлу назначения для равномерного распределения новой серии
             dest_index = (dest_index + 1) % m;
         }
-        
+
         // Увеличиваем размер серий в m раз
         run_size *= m;
         // Меняем местами файлы чтения и записи для следующей итерации
