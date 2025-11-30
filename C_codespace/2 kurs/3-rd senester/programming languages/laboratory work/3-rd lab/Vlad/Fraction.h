@@ -3,7 +3,21 @@
 
 #include <iostream>
 #include <cmath>
+#include <stdexcept>
+#include <string>
+#include <sstream>
 using namespace std;
+
+/// @brief Класс исключения для дробей, унаследован от `std::exception`
+class FractionException : public exception {
+private:
+    string msg;
+public:
+    explicit FractionException(const string& message) : msg(message) {}
+    const char* what() const noexcept override {
+        return msg.c_str();
+    }
+};
 
 /**
  * @brief Дробное число, состоящее из числителя и знаменателя.
@@ -57,11 +71,11 @@ public:
      * 
      * @param n Числитель. По умолчанию 0.
      * @param d Знаменатель. По умолчанию 1.
+     * @throws FractionException если d == 0.
      */
     Fraction(int n = 0, int d = 1) : num(n), den(d) {
-        if (den == 0) { // Защита от деления на ноль
-            cout << "ERROR: Denominator cannot be zero!" << endl;
-            den = 1; // Устанавливаем в 1, чтобы избежать сбоя
+        if (den == 0) {
+            throw FractionException("Fraction Constructor: Denominator cannot be zero!");
         }
         normalize(); // Приводим к каноническому виду
     }
@@ -185,16 +199,16 @@ public:
 
     /**
      * @brief Оператор деления.
-     * Делит: a/b / c/d = (a*d) / (b*c).
+     * Делит: `a/b / c/d = (a*d) / (b*c)`.
      * Проверяет деление на ноль.
      * 
      * @param other Дробь-делитель.
      * @return Новую дробь, равную частному.
+     * @throws `FractionException` если `other.num == 0`.
      */
     Fraction operator/(const Fraction& other) const {
-        if (other.num == 0) { // Проверка деления на ноль
-            cout << "ERROR: Division by zero!" << endl;
-            return Fraction(0, 1); // Возвращаем ноль
+        if (other.num == 0) {
+            throw FractionException("Fraction Division: Division by zero!");
         }
         return Fraction(num * other.den, den * other.num);
     }
@@ -218,9 +232,10 @@ public:
      * @brief Оператор ввода из потока.
      * Читает дробь в формате "num/den" или "num" (если знаменатель 1).
      * 
-     * @param is Входной поток (например, cin или ifstream).
+     * @param is Входной поток (например, `cin` или `ifstream`).
      * @param f Объект дроби для заполнения.
      * @return Ссылку на входной поток.
+     * @throws `invalid_argument`, `out_of_range`, `FractionException`
      */
     friend istream& operator>>(istream& is, Fraction& f) {
         string s;
@@ -228,16 +243,39 @@ public:
 
         size_t pos = s.find('/'); // Ищем символ '/'
         if (pos == string::npos) { // Если '/' нет — это целое число
-            f.num = stoi(s);
+            try { // stoi (строка в целое) может выбросить invalid_argument или out_of_range
+                f.num = stoi(s);
+            }
+            catch (const invalid_argument& e) {
+                throw invalid_argument("Fraction Input: Cannot convert string to integer for numerator - " + s);
+            }
+            catch (const out_of_range& e) {
+                throw out_of_range("Fraction Input: Integer out of range for numerator - " + s);
+            }
             f.den = 1;
         } else { // Если '/' есть — разбиваем строку
             string num_str = s.substr(0, pos); // До '/'
             string den_str = s.substr(pos + 1); // После '/'
-            f.num = stoi(num_str);
-            f.den = stoi(den_str);
-            if (f.den == 0) { // Проверка на деление на ноль
-                cout << "ERROR: Denominator cannot be zero! Setting to 1." << endl;
-                f.den = 1;
+            try {
+                f.num = stoi(num_str);
+            }
+            catch (const invalid_argument& e) {
+                throw invalid_argument("Fraction Input: Cannot convert string to integer for numerator - " + num_str);
+            }
+            catch (const out_of_range& e) {
+                throw out_of_range("Fraction Input: Integer out of range for numerator - " + num_str);
+            }
+            try {
+                f.den = stoi(den_str);
+            }
+            catch (const invalid_argument& e) {
+                throw invalid_argument("Fraction Input: Cannot convert string to integer for denominator - " + den_str);
+            }
+            catch (const out_of_range& e) {
+                throw out_of_range("Fraction Input: Integer out of range for denominator - " + den_str);
+            }
+            if (f.den == 0) {
+                throw FractionException("Fraction Input: Denominator cannot be zero!");
             }
         }
         f.normalize(); // Нормализуем дробь после ввода
