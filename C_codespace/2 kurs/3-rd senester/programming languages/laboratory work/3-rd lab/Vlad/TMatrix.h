@@ -63,7 +63,7 @@ public:
         if (is.fail()) {
             throw runtime_error("TMatrix Output: Failed to write dimensions to stream.");
         }          
-        m.input();
+        m.input(is);
         return is;
     }
 
@@ -233,6 +233,7 @@ bool TMatrix<T>::operator==(const TMatrix& other) const {
  */
 template<typename T>
 void TMatrix<T>::input(istream& is) {
+    cout << "Enter number of rows: ";
     is >> rows;
     if (is.fail()) {
         throw runtime_error("TMatrix Input: Failed to read number of rows from stream.");
@@ -240,6 +241,7 @@ void TMatrix<T>::input(istream& is) {
     if (rows < 0) {
         throw invalid_argument("TMatrix Input: Number of rows cannot be negative!");
     }
+    cout << "Enter number of columns: ";
     is >> cols;
     if (is.fail()) {
         throw runtime_error("TMatrix Input: Failed to read number of columns from stream.");
@@ -257,6 +259,7 @@ void TMatrix<T>::input(istream& is) {
 
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
+            cout << "Enter element [" << i << "][" << j << "]: ";
             is >> data[i][j];
             if (is.fail()) {
                 throw runtime_error("TMatrix Input: Failed to read element [" + to_string(i) + "][" + to_string(j) + "] from stream.");
@@ -335,8 +338,6 @@ T TMatrix<T>::sumOfNegativeElements() const {
 /**
  * @brief Метод генерации случайных значений.
  * Заполняет матрицу случайными значениями в диапазоне `[min_val, max_val]`.
- * Использует линейную интерполяцию: `val = min_val + t * (max_val - min_val)`,
- * где `t` — случайное число от 0 до 1.
  * 
  * @param min_val Минимальное значение для генерации.
  * @param max_val Максимальное значение для генерации.
@@ -473,7 +474,6 @@ void TMatrix<T>::saveToFile(const string& filename) const {
 
 template<typename T>
 const T& TMatrix<T>::at(int row, int col) const {
-    // vector::at бросает std::out_of_range при выходе за границы
     return data.at(row).at(col);
 }
 

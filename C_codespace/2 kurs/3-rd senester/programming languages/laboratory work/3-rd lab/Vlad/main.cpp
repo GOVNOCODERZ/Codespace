@@ -37,7 +37,7 @@ void runMatrixMenu(string datatype_name) {
         try {
             switch (choice) {
                 case 1: { // Ввод матрицы
-                    matrix.input();
+                    cin >> matrix;
                     cout << "Matrix created." << endl;
                     break;
                 }
@@ -115,13 +115,13 @@ void runMatrixMenu(string datatype_name) {
                     cout << "--- Demonstration of move constructor ---" << endl;
                     cout << "Current Matrix" << endl;
                     cout << matrix << endl;
-                    TMatrix<T> temp_moved = std::move(matrix);
+                    TMatrix<T> temp_moved = move(matrix);
                     cout << "Matrix after move (should be empty)" << endl;
                     cout << matrix << endl;
                     cout << "Moved Matrix" << endl;
                     cout << temp_moved << endl;
                     // Восстанавливаем оригинальную матрицу для дальнейшей работы
-                    matrix = std::move(temp_moved);
+                    matrix = move(temp_moved);
                     cout << "Original matrix restored." << endl;
                     break;
                 }
@@ -138,19 +138,19 @@ void runMatrixMenu(string datatype_name) {
         catch (const FractionException& e) {
             cout << "Fraction Error: " << e.what() << endl;
         }
-        catch (const std::invalid_argument& e) {
+        catch (const invalid_argument& e) {
             cout << "Invalid Argument Error: " << e.what() << endl;
         }
-        catch (const std::runtime_error& e) {
+        catch (const runtime_error& e) {
             cout << "Runtime Error: " << e.what() << endl;
         }
-        catch (const std::out_of_range& e) {
+        catch (const out_of_range& e) {
             cout << "Out of Range Error: " << e.what() << endl;
         }
-        catch (const std::length_error& e) {
+        catch (const length_error& e) {
             cout << "Length Error (overflow): " << e.what() << endl;
         }
-        catch (const std::bad_alloc& e) {
+        catch (const bad_alloc& e) {
             cout << "Memory Allocation Error: " << e.what() << endl;
         }
         catch (...) {
@@ -198,7 +198,7 @@ int main() {
             }
         }
     }
-    catch (const std::exception& e) {
+    catch (const exception& e) {
         // Перехватываем любые стандартные исключения, вышедшие из основного цикла (т. е. критические)
         cout << "A critical error occurred in the main application: " << e.what() << endl;
         cout << "Application will be terminated." << endl;
