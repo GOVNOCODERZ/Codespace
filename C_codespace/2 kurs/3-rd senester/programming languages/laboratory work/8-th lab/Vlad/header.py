@@ -38,73 +38,39 @@ class House:
         Метод ввода данных с клавиатуры.
         """
         print(prompt)
-        try:
-            address = input("Адрес: ")
-            building_type = input("Тип здания: ")
-            floor = int(input("Этаж: "))
-            rooms = int(input("Количество комнат: "))
-            area = float(input("Площадь (кв. м.): "))
+        address = input("Адрес: ")
+        building_type = input("Тип здания: ")
+        floor = int(input("Этаж: "))
+        rooms = int(input("Количество комнат: "))
+        area = float(input("Площадь (кв. м.): "))
 
-             # Присваиваем значения с предварительной проверкой
-            if not isinstance(address, str) or not address.strip():
-                raise ValueError("Адрес должен быть непустой строкой.")
-            if not isinstance(building_type, str) or not building_type.strip():
-                raise ValueError("Тип здания должен быть непустой строкой.")
-            if not isinstance(floor, int) or floor <= 0:
-                raise ValueError("Этаж должен быть положительным целым числом.")
-            if not isinstance(rooms, int) or rooms <= 0:
-                raise ValueError("Количество комнат должно быть положительным целым числом.")
-            if not isinstance(area, (int, float)) or area <= 0:
-                raise ValueError("Площадь должна быть положительным числом.")
-
-            self.__address = address.strip()
-            self.__building_type = building_type.strip()
-            self.__floor = floor
-            self.__rooms = rooms
-            self.__area = float(area)
-
-        except ValueError as e:
-            print(f"Неверный ввод: {e}")
-            raise
+        self.__address = address.strip()
+        self.__building_type = building_type.strip()
+        self.__floor = floor
+        self.__rooms = rooms
+        self.__area = float(area)
 
     def input_from_file(self, file_data):
         """
         Метод ввода данных из файла.
         """
-        try:
-            # Читаем строку и делим на 5 подстрок
-            parts = file_data.strip().split(',')
-            if len(parts) != 5:
-                raise ValueError("Строка не содержит 5 значений, разделённых запятыми.")
+        # Читаем строку и делим на 5 подстрок
+        parts = file_data.strip().split(',')
+        if len(parts) != 5:
+            raise ValueError("Строка не содержит 5 значений, разделённых запятыми.")
 
-            
-            address = parts[0]
-            building_type = parts[1]
-            floor = int(parts[2])
-            rooms = int(parts[3])
-            area = float(parts[4])
+        
+        address = parts[0]
+        building_type = parts[1]
+        floor = int(parts[2])
+        rooms = int(parts[3])
+        area = float(parts[4])
 
-            # Присваиваем значения с предварительной проверкой
-            if not isinstance(address, str) or not address.strip():
-                raise ValueError("Адрес должен быть непустой строкой.")
-            if not isinstance(building_type, str) or not building_type.strip():
-                raise ValueError("Тип здания должен быть непустой строкой.")
-            if not isinstance(floor, int) or floor <= 0:
-                raise ValueError("Этаж должен быть положительным целым числом.")
-            if not isinstance(rooms, int) or rooms <= 0:
-                raise ValueError("Количество комнат должно быть положительным целым числом.")
-            if not isinstance(area, (int, float)) or area <= 0:
-                raise ValueError("Площадь должна быть положительным числом.")
-
-            self.__address = address.strip()
-            self.__building_type = building_type.strip()
-            self.__floor = floor
-            self.__rooms = rooms
-            self.__area = float(area)
-
-        except (ValueError, IndexError) as e:
-            print(f"Ошибка при чтении данных из файла в строке: {file_data}. Ошибка: {e}")
-            raise
+        self.__address = address.strip()
+        self.__building_type = building_type.strip()
+        self.__floor = floor
+        self.__rooms = rooms
+        self.__area = float(area)
 
     def output(self):
         """
@@ -141,25 +107,16 @@ class Ms:
 
     def add_house(self, house):
         """Добавляет квартиру в список."""
-        if not isinstance(house, House):
-            raise TypeError("В список можно добавлять только объекты класса \"House\".")
         self.houses.append(house)
 
     def input_houses_from_console(self):
         """Ввод квартир с консоли."""
-        try:
-            n = int(input("Сколько квартир добавить? "))
-            if n <= 0:
-                raise ValueError("Неверное количество квартир для ввода.")
-            for _ in range(n):
-                h = House() # Создаём с пустыми значениями по умолчанию
-                h.input_data()
-                self.add_house(h)
-                print("Квартира добавлена.")
-                
-        except ValueError as e:
-            print(f"Неверный ввод: {e}")
-            raise
+        n = int(input("Сколько квартир добавить? "))
+        for _ in range(n):
+            h = House() # Создаём с пустыми значениями по умолчанию
+            h.input_data()
+            self.add_house(h)
+            print("Квартира добавлена.")
         
 
 
@@ -168,35 +125,25 @@ class Ms:
         Загружает список квартир из текстового файла.
         Формат: Address,Type,Floor,Rooms,Area
         """
-        try:
-            with open(filename, 'r', encoding='utf-8') as f:
-                lines = f.readlines()
-            self.houses = [] # Очищаем список квартир перед чтением
-            for line in lines:
-                if line.strip(): # Не будет считывать пустые строки
-                    h = House()
-                    h.input_from_file(line)
-                    self.add_house(h)
-            print(f"Данные загружены из {filename}")
-        except FileNotFoundError:
-            print(f"Файл {filename} не найден.")
-        except ValueError as e: # Ловим из метода `input_from_file`
-            print(f"Ошибка при обработке данных из {filename}: {e}")
-        except Exception as e:
-            print(f"Непредвиденная ошибка при загрузке данных из {filename}: {e}")
+        with open(filename, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+        self.houses = [] # Очищаем список квартир перед чтением
+        for line in lines:
+            if line.strip(): # Не будет считывать пустые строки
+                h = House()
+                h.input_from_file(line)
+                self.add_house(h)
+        print(f"Данные загружены из {filename}")
 
     def save_to_file(self, filename):
         """
         Сохраняет список квартир в текстовый файл.
         Формат: Address,Type,Floor,Rooms,Area
         """
-        try:
-            with open(filename, 'w', encoding='utf-8') as f:
-                for house in self.houses:
-                    f.write(house.to_line() + "\n")
-            print(f"Данные сохранены в {filename}")
-        except Exception as e:
-            print(f"Ошибка при сохранении данных в {filename}: {e}")
+        with open(filename, 'w', encoding='utf-8') as f:
+            for house in self.houses:
+                f.write(house.to_line() + "\n")
+        print(f"Данные сохранены в {filename}")
 
     def display_houses(self):
         """Выводит все квартиры на экран."""
