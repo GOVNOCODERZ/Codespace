@@ -55,7 +55,7 @@ int main() {
                     cout << "ERROR: Invalid size.\n";
                     break;
                 }
-                void* ptr = allocator.allocate(size);
+                void* ptr = allocator.allocate(size - 16);
                 if (ptr) {
                     allocatedBlocks.push_back(ptr);
                     cout << "Allocated at: " << ptr << endl;
@@ -70,7 +70,8 @@ int main() {
                 }
                 cout << "Allocated blocks:" << endl;
                 for (size_t i = 0; i < allocatedBlocks.size(); ++i) {
-                    cout << i << ": " << allocatedBlocks[i] << endl;
+                    BlockHeader* block = allocator.headerFromPtr(allocatedBlocks[i]);
+                    cout << i << ": " << block << " (" << block->size << " bytes)" << endl;
                 }
                 cout << "Enter index to deallocate: ";
                 int idx;
