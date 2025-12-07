@@ -1,60 +1,45 @@
-from media_module import Ms # Импортируем класс-контейнер из модуля
+from header import Shop
 
-def main():
-    container = Ms()
-    filename = "storage_devices.txt"
+# Инициализируем список накопителей
+container = Shop()
+# Файл для записи/чтения
+filename = "E:/Codespace/C_codespace/2 kurs/3-rd senester/Programming languages/laboratory work/9-th lab/Vlad/storage_devices.txt"
 
-    while True:
-        print("\n--- База данных магазина накопителей ---")
-        print("1. Добавить накопители с консоли")
-        print("2. Загрузить накопители из файла")
-        print("3. Сохранить накопители в файл")
-        print("4. Показать все накопители")
-        print("5. Выбрать накопители по ёмкости (диапазон)")
-        print("6. Выбрать накопители по типу")
-        print("7. Показать статистику по типам")
-        print("8. Отсортировать накопители по ёмкости")
-        print("0. Выйти")
-        choice = input("Выберите действие: ")
-
-        if choice == '1':
-            container.input_devices_from_console()
-        elif choice == '2':
+while True:
+    print("\n--- База данных магазина накопителей ---")
+    print("1. Загрузить накопители из файла")
+    print("2. Сохранить накопители в файл")
+    print("3. Показать все накопители")
+    print("4. Выбрать накопители по ёмкости в диапазоне")
+    print("5. Показать статистику по типам накопителей")
+    print("6. Отсортировать список накопителей по цене")
+    print("0. Выйти")
+    choice = input("Выберите действие: ")
+    match choice:
+        case '1':
             container.load_from_file(filename)
-        elif choice == '3':
+        case '2':
             container.save_to_file(filename)
-        elif choice == '4':
+        case '3':
             container.display_devices()
-        elif choice == '5':
-            try:
-                min_c = int(input("Введите минимальную ёмкость: "))
-                max_c = int(input("Введите максимальную ёмкость: "))
-                selected = container.select_by_capacity_range(min_c, max_c)
-                print(f"\n--- Накопители с ёмкостью от {min_c} до {max_c} Гб ---")
-                for d in selected:
-                    d.output()
-            except ValueError:
-                print("Неверный ввод для ёмкости.")
-        elif choice == '6':
-            device_type = input("Введите тип накопителя (HDD или FlashD): ").strip()
-            if device_type not in ["HDD", "FlashD"]:
-                print("Неверный тип. Введите HDD или FlashD.")
-                continue
-            selected = container.select_by_type(device_type)
-            print(f"\n--- Накопители типа {device_type} ---")
+        case '4':
+            min_c = int(input("Введите минимальную ёмкость: "))
+            max_c = int(input("Введите максимальную ёмкость: "))
+            selected = container.select_by_capacity_range(min_c, max_c)
+            print(f"\n--- Накопители с ёмкостью от {min_c} до {max_c} Гб ---")
             for d in selected:
-                d.output()
-        elif choice == '7':
+                print("----------")
+                print(d.data_output())
+        case '5':
             stats = container.get_stats_by_type()
+            if(not stats):
+                continue
             print(stats)
-        elif choice == '8':
-            container.sort_by_capacity()
-            print("Накопители отсортированы по ёмкости.")
-        elif choice == '0':
-            print("Выход...")
-            break
-        else:
+        case '6':
+            container.sort_by_price()
+            print("Список накопителей отсортирован по цене.") 
+        case '0':
+            print("Выход из программы...")
+            break   
+        case _:
             print("Неверный выбор. Пожалуйста, попробуйте снова.")
-
-if __name__ == "__main__":
-    main()

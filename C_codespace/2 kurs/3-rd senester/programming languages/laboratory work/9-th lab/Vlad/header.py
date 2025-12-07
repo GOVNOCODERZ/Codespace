@@ -10,9 +10,9 @@ class MediaStorage(ABC):
     - `manufacturer (str)`: Производитель.
     - `price (float)`: Цена.
     """
-    def __init__(self, name="", capacity=0, manufacturer="", price=0.0):
+    def __init__(self, name="", capacity=0.0, manufacturer="", price=0.0):
         self._name = name.strip()
-        self._capacity = capacity
+        self._capacity = float(capacity)
         self._manufacturer = manufacturer.strip()
         self._price = float(price)
 
@@ -31,10 +31,10 @@ class MediaStorage(ABC):
         pass
     
     def data_output(self):
-        return (f"Тип: {self.my_name()}, "
-                f"Название: {self._name}, "
-                f"Ёмкость: {self._capacity} ГБ, "
-                f"Производитель: {self._manufacturer}, "
+        return (f"Тип: {self.my_name()},\n"
+                f"Название: {self._name},\n"
+                f"Ёмкость: {self._capacity} ГБ,\n"
+                f"Производитель: {self._manufacturer},\n"
                 f"Цена: {self._price:.2f}, руб.")
         
 class PortableHDD(MediaStorage):
@@ -43,15 +43,15 @@ class PortableHDD(MediaStorage):
     Дополнительные поля:
     - `rpm (int)`: RPM (обороты в минуту).
     """
-    def __init__(self, name="", capacity=0, manufacturer="", price=0.0, rpm=0):
+    def __init__(self, name="", capacity=0.0, manufacturer="", price=0.0, rpm=0):
         super().__init__(name, capacity, manufacturer, price)
-        self.__rpm = rpm
+        self.__rpm = int(rpm)
 
     def get_rpm(self): return self.__rpm
 
     def data_output(self):
-        return (f"{super().data_output()}, "
-                f"RPM: {self.__rpm}, ")
+        return (f"{super().data_output()},\n"
+                f"RPM: {self.__rpm}.")
 
     def stats_to_line(self):
         return f"{self._name},{self._capacity},{self._manufacturer},{self._price:.2f},{self.__rpm}"
@@ -63,15 +63,15 @@ class DVD(MediaStorage):
     Дополнительные поля:
     - `type_dvd (str)`: Тип DVD (например, DVD-R, DVD+R, DVD-RW).
     """
-    def __init__(self, name="", capacity=0, manufacturer="", price=0.0, type_dvd="DVD-R"):
+    def __init__(self, name="", capacity=0.0, manufacturer="", price=0.0, type_dvd="DVD-R"):
         super().__init__(name, capacity, manufacturer, price)
         self.__type_dvd = type_dvd.strip()
 
     def get_type_dvd(self): return self.__type_dvd
 
     def data_output(self):
-        return (f"{super().data_output()}, "
-                f"Тип: {self.__type_dvd}, ")
+        return (f"{super().data_output()},\n"
+                f"Тип: {self.__type_dvd}.")
 
     def stats_to_line(self):
         return f"{self._name},{self._capacity},{self._manufacturer},{self._price:.2f},{self.__type_dvd}"
@@ -109,6 +109,9 @@ class Shop:
         print(f"Данные загружены из {filename}.")
 
     def save_to_file(self, filename):
+        if not self.__storage_devices:
+            print("Список накопителей пуст.")
+            return
         with open(filename, 'w', encoding='utf-8') as f:
             for device in self.__storage_devices:
                 f.write(device.my_name() + ',' + device.stats_to_line() + "\n")
@@ -120,7 +123,7 @@ class Shop:
             return
         for i, device in enumerate(self.__storage_devices):
             print(f"--- Накопитель {i+1} ---")
-            device.data_output()
+            print(device.data_output())
             
     # Выборка по ёмкости в диапазоне
     def select_by_capacity_range(self, min_cap, max_cap):
@@ -128,6 +131,9 @@ class Shop:
 
     # Вывод статистической сводки
     def get_stats_by_type(self):
+        if not self.__storage_devices:
+            print("Список накопителей пуст.")
+            return        
         stats = {}
         # Собираем статистику
         for device in self.__storage_devices:
@@ -140,6 +146,7 @@ class Shop:
         result_str = "\n--- Статистическая сводка ---\n"
         for device_type, data in stats.items():
             avg_price = data['total_price'] / data['count']
+            print("----------")
             result_str += f"Тип: {device_type}\n"
             result_str += f"Количество: {data['count']}\n"
             result_str += f"Общая цена: {data['total_price']:.2f}\n"
