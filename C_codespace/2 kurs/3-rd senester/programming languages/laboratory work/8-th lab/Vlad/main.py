@@ -2,7 +2,7 @@ from header import Ms
 
 def main():
     container = Ms()
-    filename = "C_codespace/2 kurs/3-rd senester/Programming languages/laboratory work/8-th lab/Vlad/apartments.txt"
+    filename = "apartments.txt"
 
     while True:
         print("\n--- Система управления квартирами ---")

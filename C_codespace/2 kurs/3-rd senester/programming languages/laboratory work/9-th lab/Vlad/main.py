@@ -3,7 +3,7 @@ from header import Shop
 # Инициализируем список накопителей
 container = Shop()
 # Файл для записи/чтения
-filename = "E:/Codespace/C_codespace/2 kurs/3-rd senester/Programming languages/laboratory work/9-th lab/Vlad/storage_devices.txt"
+filename = "C:/Codespace/C_codespace/2 kurs/3-rd senester/Programming languages/laboratory work/9-th lab/Vlad/storage_devices.txt"
 
 # Заполняем список начальными данными
 with open(filename, "w", encoding='utf-8') as f:

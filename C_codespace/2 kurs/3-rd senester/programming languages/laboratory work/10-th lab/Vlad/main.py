@@ -88,7 +88,6 @@ result_label = tk.Label(
 	text = "Результат:",
 	justify = tk.LEFT,
 	anchor = "w", # Якорь по левому краю
-	wraplength = 550 # Максимальная ширина строки перед переносом
 )
 result_label.pack(pady = 10, padx = 10, anchor = "w")
 
