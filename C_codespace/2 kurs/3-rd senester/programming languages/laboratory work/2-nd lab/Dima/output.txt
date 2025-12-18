@@ -1,4 +1,0 @@
-HDD Barracuda 2000 5500 
-FlashD DataTraveler 128 1200 
-HDD WD Blue 1000 3800 
-FlashD Ultra Flair 256 2100 
