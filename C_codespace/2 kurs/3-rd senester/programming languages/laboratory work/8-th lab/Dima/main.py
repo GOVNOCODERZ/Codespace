@@ -1,46 +1,78 @@
-from modulee import Tour, TourManager # Импортируем классы из файла models.py
-
-def demonstrate():
-    """Функция для демонстрации работы с турами."""
+from modulee import Tour, TourManager, process_search_result
+def main():
     manager = TourManager()
+    
+    while True:
+        print("\n" + "="*30)
+        print(" МЕНЮ ТУРАГЕНТСТВА ")
+        print("="*30)
+        print("1. Загрузить данные из файла")
+        print("2. Добавить туры вручную")
+        print("3. Показать весь список")
+        print("4. Сортировать весь список по длительности")
+        print("5. Сохранить весь список в файл")
+        print("-" * 20)
+        print("6. Найти: по длительности (> дней)")
+        print("7. Найти: Агентство + Длительность")
+        print("8. Найти: Страна + Цена (от и до)")
+        print("-" * 20)
+        print("0. Выход")
+        
+        choice = input("\nКоманда: ")
 
-    # Демонстрация 1: Загрузка из файла (если он существует) или создание вручную
-    filename = "tours_all.csv"
-    try:
-        manager.load_file(filename)
-        if not manager._TourManager__tours: # Проверка, что список не пуст
-            raise FileNotFoundError # Если файл пуст, переходим к созданию вручную
-    except FileNotFoundError:
-        print(f"Файл '{filename}' не найден или пуст. Предлагается создать туры вручную.")
-        manager.add(Tour("Pegas", "Солнечная Анталья", "Турция", 8, 75000))
-        manager.add(Tour("Anex", "Древний Каир", "Египет", 12, 98000))
-        manager.add(Tour("Pegas", "Все включено в Кемере", "Турция", 14, 120000))
+        if choice == "1":
+            fname = input("Имя файла (Enter = tours.csv): ") or "tours.csv"
+            manager.load_file(fname)
 
-    print("\n--- Исходный список туров ---")
-    manager.display()
+        elif choice == "2":
+            try:
+                count = int(input("Сколько туров добавить? "))
+                manager.fill_keyboard(count)
+            except ValueError:
+                print("Нужно ввести число.")
 
-    # Демонстрация 2: Сохранение исходного списка в файл
-    manager.save_file(filename)
+        elif choice == "3":
+            manager.display()
 
-    # Демонстрация 3: Выборки
-    print("\n--- Фильтр: туры с длительностью более 10 дней ---")
-    long_tours = manager.filter_duration(10)
-    manager.display(long_tours)
-    manager.save_file("tours_long.csv", long_tours)
+        elif choice == "4":
+            manager.sort_duration()
 
-    print("\n--- Фильтр: туры от агентства 'Pegas' с длительностью более 7 дней ---")
-    pegas_tours = manager.filter_agency_duration("Pegas", 7)
-    manager.display(pegas_tours)
+        elif choice == "5":
+            fname = input("Имя файла (Enter = saved.csv): ") or "saved.csv"
+            manager.save_file(fname)
 
-    print("\n--- Фильтр: туры в Турцию стоимостью от 50000 до 100000 ---")
-    turkey_tours = manager.filter_country_price("Турция", 50000, 100000)
-    manager.display(turkey_tours)
-    manager.save_file("tours_turkey_price.csv", turkey_tours)
+        elif choice == "6":
+            try:
+                days = int(input("Длительность больше (дней): "))
+                found = manager.filter_duration(days)
+                process_search_result(found)
+            except ValueError:
+                print("Ошибка: введите число.")
 
-    # Демонстрация 4: Сортировка
-    manager.sort_duration()
-    manager.display()
+        elif choice == "7":
+            try:
+                agency = input("Агентство: ")
+                days = int(input("Длительность больше (дней): "))
+                found = manager.filter_agency_duration(agency, days)
+                process_search_result(found)
+            except ValueError:
+                print("Ошибка ввода.")
 
+        elif choice == "8":
+            try:
+                country = input("Страна: ")
+                min_p = float(input("Цена от: "))
+                max_p = float(input("Цена до: "))
+                found = manager.filter_country_price(country, min_p, max_p)
+                process_search_result(found)
+            except ValueError:
+                print("Ошибка ввода чисел.")
+
+        elif choice == "0":
+            print("Выход.")
+            break
+        else:
+            print("Неизвестная команда.")
 
 if __name__ == "__main__":
-    demonstrate()
+    main()
