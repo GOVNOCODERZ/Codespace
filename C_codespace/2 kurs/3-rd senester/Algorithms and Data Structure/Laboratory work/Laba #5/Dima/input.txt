@@ -1,0 +1,15 @@
+int
+float
+double
+void
+return
+if
+else
+while
+for
+break
+continue
+class
+struct
+public
+private

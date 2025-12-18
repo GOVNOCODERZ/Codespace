@@ -5,22 +5,16 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 import matplotlib.pyplot as plt
 
-# ==========================================
-# 1. НАСТРОЙКИ
-# ==========================================
 NUM_GENERATIONS = 50
 SOL_PER_POP = 10
 NUM_PARENTS_MATING = 4
 MUTATION_PERCENT = 15
 
-# Архитектура сети
 INPUT_SIZE = 4      # 4 признака у ирисов
 HIDDEN_SIZE = 8     # Скрытый слой
 OUTPUT_SIZE = 3     # 3 класса ирисов
 
-# ==========================================
 # 2. ДАННЫЕ
-# ==========================================
 iris = load_iris()
 X = iris.data
 y = iris.target.reshape(-1, 1)
@@ -34,9 +28,7 @@ scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
-# ==========================================
 # 3. НЕЙРОСЕТЬ НА NUMPY (Вместо Keras)
-# ==========================================
 def relu(x):
     return np.maximum(0, x)
 
@@ -65,7 +57,6 @@ def predict(X, weights_vector):
     b2_end = w2_end + OUTPUT_SIZE
     b2 = weights_vector[w2_end:b2_end].reshape((1, OUTPUT_SIZE))
     
-    # --- Вычисления ---
     # Слой 1
     z1 = np.dot(X, W1) + b1
     a1 = relu(z1) # Функция активации
@@ -76,9 +67,7 @@ def predict(X, weights_vector):
     
     return a2
 
-# ==========================================
 # 4. ГЕНЕТИЧЕСКИЙ АЛГОРИТМ
-# ==========================================
 def fitness_func(ga_instance, solution, solution_idx):
     # Делаем предсказание с текущими генами (весами)
     predictions = predict(X_train, solution)
@@ -115,9 +104,7 @@ ga_instance = pygad.GA(
 # Запуск
 ga_instance.run()
 
-# ==========================================
 # 5. РЕЗУЛЬТАТЫ
-# ==========================================
 ga_instance.plot_fitness(title="Обучение нейросети (NumPy + PyGAD)", ylabel="Точность")
 
 solution, solution_fitness, _ = ga_instance.best_solution()
