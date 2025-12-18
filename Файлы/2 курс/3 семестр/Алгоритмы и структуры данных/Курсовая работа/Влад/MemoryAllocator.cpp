@@ -23,7 +23,6 @@ size_t MemoryAllocator::alignUp(size_t value, size_t alignment) const {
     return (value + alignment - 1) & ~(alignment - 1);
 }
 
-// Слияние смежных свободных блоков (вызывается только для анализа)
 void MemoryAllocator::coalesceHeap() {
     BlockHeader* curr = reinterpret_cast<BlockHeader*>(heapStart);
     while (curr < reinterpret_cast<BlockHeader*>(heapStart + heapSize)) {
@@ -54,13 +53,10 @@ void* MemoryAllocator::allocate(size_t userSize) {
     size_t totalSize = alignUp(userSize + HEADER_SIZE, ALIGNMENT);
     BlockHeader* curr = reinterpret_cast<BlockHeader*>(heapStart);
 
-    // Линейный поиск ПЕРВОГО подходящего блока по АДРЕСУ (настоящий first-fit)
     while (curr < reinterpret_cast<BlockHeader*>(heapStart + heapSize)) {
         if (!curr->isAllocated && curr->size >= totalSize) {
-            // Найден подходящий блок
             size_t minSplitSize = alignUp(HEADER_SIZE, ALIGNMENT);
             if (curr->size >= totalSize + minSplitSize) {
-                // Делим блок
                 BlockHeader* newBlock = reinterpret_cast<BlockHeader*>(
                     reinterpret_cast<char*>(curr) + totalSize
                 );
@@ -94,7 +90,6 @@ void MemoryAllocator::deallocate(void* ptr) {
     }
 
     block->isAllocated = false;
-    // Слияние соседей произойдёт при следующем allocate или при анализе
 }
 
 // === Вспомогательные утилиты ===
