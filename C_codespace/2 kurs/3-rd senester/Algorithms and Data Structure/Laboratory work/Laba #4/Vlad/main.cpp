@@ -4,23 +4,6 @@
 
 using namespace std;
 
-// Функция для вывода меню
-void showMenu() {
-    cout << "\n============== MENU ==============\n";
-    cout << "1. Add node (keyboard input)\n";
-    cout << "2. Remove node\n";
-    cout << "3. Search node\n";
-    cout << "4. Display tree (visual)\n";
-    cout << "5. Tree traversals (PreOrder, InOrder, PostOrder)\n";
-    cout << "6. Execute Variant 5 Task\n";
-    cout << "7. Save to file\n";
-    cout << "8. Load from file\n";
-    cout << "9. Test operators (= and ==)\n";
-    cout << "0. Exit\n";
-    cout << "==================================\n";
-    cout << "Your choice: ";
-}
-
 int main() {
     // Используем AVL<double> согласно варианту с вещественными числами
     AVL<double> tree;
@@ -32,7 +15,20 @@ int main() {
     AVL<double> testTree; 
 
     while (true) {
-        showMenu();
+        cout << "\n============== MENU ==============\n";
+        cout << "1. Add node (keyboard input)\n";
+        cout << "2. Remove node\n";
+        cout << "3. Search node\n";
+        cout << "4. Display tree (visual)\n";
+        cout << "5. Tree traversals (PreOrder, InOrder, PostOrder)\n";
+        cout << "6. Execute Variant 5 Task\n";
+        cout << "7. Save to file\n";
+        cout << "8. Load from file\n";
+        cout << "9. Test operators (= and ==)\n";
+        cout << "0. Exit\n";
+        cout << "==================================\n";
+        cout << "Your choice: ";
+        
         cin >> choice;
 
         if (cin.fail()) {
@@ -52,13 +48,15 @@ int main() {
             cout << "Enter value to remove: ";
             cin >> val;
             tree.removeValue(val);
-            cout << "Remove command executed (if node existed).\n";
+            cout << "Remove command executed.\n";
             break;
         case 3:
             cout << "Enter value to search: ";
             cin >> val;
-            if (tree.searchValue(val)) cout << "Node FOUND.\n";
-            else cout << "Node NOT found.\n";
+            if (tree.searchValue(val))
+                cout << "Node FOUND.\n";
+            else
+                cout << "Node NOT found.\n";
             break;
         case 4:
             cout << "\n--- Current Tree (operator<<) ---\n";
