@@ -38,19 +38,19 @@ int main() {
         }
 
         switch (choice) {
-        case 1:
+        case 1: // Добавить узел
             cout << "Enter value (double): ";
             cin >> val;
             tree.addValue(val);
             cout << "Node added.\n";
             break;
-        case 2:
+        case 2: // Удалить узел
             cout << "Enter value to remove: ";
             cin >> val;
             tree.removeValue(val);
             cout << "Remove command executed.\n";
             break;
-        case 3:
+        case 3: // Найти узел
             cout << "Enter value to search: ";
             cin >> val;
             if (tree.searchValue(val))
@@ -58,11 +58,11 @@ int main() {
             else
                 cout << "Node NOT found.\n";
             break;
-        case 4:
+        case 4: // Отобразить дерево
             cout << "\n--- Current Tree (operator<<) ---\n";
             cout << tree; // Использование перегруженного оператора <<
             break;
-        case 5:
+        case 5: // Обходы дерева
             cout << "PreOrder traversal: "; tree.preOrder();
             cout << "InOrder traversal: "; tree.inOrder();
             cout << "PostOrder traversal: "; tree.postOrder();

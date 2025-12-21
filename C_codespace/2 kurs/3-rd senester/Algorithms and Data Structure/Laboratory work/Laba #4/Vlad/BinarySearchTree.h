@@ -108,6 +108,7 @@ protected:
     // Обходы дерева
 
     // Прямой (префиксный) обход дерева
+    // Корень, левое поддерево, правое поддерево
     void pre(Node<T>* node) const {
         if (!node)
             return;
@@ -116,7 +117,8 @@ protected:
         pre(node->right);
     }
 
-    // Обратный (инфиксный) обход дерева.
+    // Обратный (инфиксный) обход дерева
+    // Левое поддерево, корень, правое поддерево
     void in(Node<T>* node) const {
         if (!node)
             return;
@@ -125,7 +127,8 @@ protected:
         in(node->right);
     }
 
-    // Концевой (постфиксный) обход дерева.
+    // Концевой (постфиксный) обход дерева
+    // Левое поддерево, правое поддерево, корень
     void post(Node<T>* node) const {
         if (!node)
             return;
@@ -244,13 +247,15 @@ public:
         return is;
     }
 
-    // Основные методы
+    // Добавить узел
     void addValue(T key) {
         root = add(root, key);
     }
+    // Удалить узел
     void removeValue(T key) {
         root = remove(root, key);
     }
+    // Найти узел
     bool searchValue(T key) const {
         return search(root, key) != nullptr;
     }
@@ -260,9 +265,14 @@ public:
         print(root, 0, cout);
     }
 
-    // Обходы
+    // Прямой (префиксный) обход дерева
+    // Корень, левое поддерево, правое поддерево
     void preOrder() const { pre(root); cout << endl; }
+    // Обратный (инфиксный) обход дерева
+    // Левое поддерево, корень, правое поддерево
     void inOrder() const { in(root); cout << endl; }
+    // Концевой (постфиксный) обход дерева
+    // Левое поддерево, правое поддерево, корень
     void postOrder() const { post(root); cout << endl; }
 
     // Загрузка в файл
