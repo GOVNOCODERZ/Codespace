@@ -336,9 +336,12 @@ template <typename T>
 class AVL : public Tree<T> {
     using Tree<T>::root; // Доступ к root из базового класса
 
-    // Вспомогательные функции для AVL
+    // Получение высоты узла
     int height(Node<T>* node) {
         return node ? node->height : 0; }
+        
+    // Вычисление фактора баланса узла
+    // (Разность высот левого и правого поддеревьев)
     int balance(Node<T>* node) {
         return node ? height(node->left) - height(node->right) : 0; }
 
@@ -364,7 +367,7 @@ class AVL : public Tree<T> {
         return y;
     }
 
-    // Рекурсивная вставка с балансировкой
+    // Рекурсивная вставка узла с балансировкой
     Node<T>* addAVL(Node<T>* node, T key) {
         // Стандартная вставка BST
         if (!node)
@@ -379,18 +382,18 @@ class AVL : public Tree<T> {
         int bf = balance(node);
 
         // Случаи вращения
-        // Left Left
+        // Лево/лево
         if (bf > 1 && key < node->left->key) 
             return rotateRight(node);
-        // Right Right
+        // Право/право
         if (bf < -1 && key > node->right->key) 
             return rotateLeft(node);
-        // Left Right
+        // Лево/право
         if (bf > 1 && key > node->left->key) { 
             node->left = rotateLeft(node->left); 
             return rotateRight(node);
         }
-        // Right Left
+        // Право/лево
         if (bf < -1 && key < node->right->key) { 
             node->right = rotateRight(node->right); 
             return rotateLeft(node);
