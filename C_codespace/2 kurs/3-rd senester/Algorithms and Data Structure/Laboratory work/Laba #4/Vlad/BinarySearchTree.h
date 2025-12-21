@@ -339,7 +339,7 @@ class AVL : public Tree<T> {
     // Получение высоты узла
     int height(Node<T>* node) {
         return node ? node->height : 0; }
-        
+
     // Вычисление фактора баланса узла
     // (Разность высот левого и правого поддеревьев)
     int balance(Node<T>* node) {
@@ -347,10 +347,12 @@ class AVL : public Tree<T> {
 
     // Правый поворот
     Node<T>* rotateRight(Node<T>* y) {
+        // Меняем местами узлы
         Node<T>* x = y->left;
         Node<T>* T2 = x->right;
         x->right = y;
         y->left = T2;
+        // Пересчитываем высоты
         y->height = max(height(y->left), height(y->right)) + 1;
         x->height = max(height(x->left), height(x->right)) + 1;
         return x;
@@ -358,10 +360,12 @@ class AVL : public Tree<T> {
 
     // Левый поворот
     Node<T>* rotateLeft(Node<T>* x) {
+        // Меняем местами узлы
         Node<T>* y = x->right;
         Node<T>* T2 = y->left;
         y->left = x;
         x->right = T2;
+        // Пересчитываем высоты
         x->height = max(height(x->left), height(x->right)) + 1;
         y->height = max(height(y->left), height(y->right)) + 1;
         return y;
@@ -369,11 +373,13 @@ class AVL : public Tree<T> {
 
     // Рекурсивная вставка узла с балансировкой
     Node<T>* addAVL(Node<T>* node, T key) {
-        // Стандартная вставка BST
+        // Стандартная вставка BST  
         if (!node)
             return new Node<T>(key);
-        if (key < node->key) node->left = addAVL(node->left, key);
-        else node->right = addAVL(node->right, key);
+        if (key < node->key)
+            node->left = addAVL(node->left, key);
+        else
+            node->right = addAVL(node->right, key);
 
         // Обновление высоты
         node->height = max(height(node->left), height(node->right)) + 1;
@@ -382,10 +388,12 @@ class AVL : public Tree<T> {
         int bf = balance(node);
 
         // Случаи вращения
-        // Лево/лево
+        // Проверка на границы уровня баланса и сравнение значений ключей узлов
+
+        // Лево
         if (bf > 1 && key < node->left->key) 
             return rotateRight(node);
-        // Право/право
+        // Право
         if (bf < -1 && key > node->right->key) 
             return rotateLeft(node);
         // Лево/право
