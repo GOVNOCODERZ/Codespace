@@ -5,7 +5,7 @@
 using namespace std;
 
 int main() {
-    // Используем AVL<double> согласно варианту с вещественными числами
+    // Используем вещественные числа согласно варианту
     AVL<double> tree;
     int choice;
     double val;
