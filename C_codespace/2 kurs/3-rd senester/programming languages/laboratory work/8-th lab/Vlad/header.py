@@ -102,11 +102,11 @@ class Ms:
 	Класс-контейнер для списка квартир (экземпляров класса House).
 	"""
 	def __init__(self):
-		self.houses = []
+		self.__houses = []
 
 	def add_house(self, house):
 		"""Добавляет квартиру в список."""
-		self.houses.append(house)
+		self.__houses.append(house)
 
 	def input_houses_from_console(self):
 		"""Ввод квартир с консоли."""
@@ -124,7 +124,7 @@ class Ms:
 		"""
 		with open(filename, 'r', encoding='utf-8') as f:
 			lines = f.readlines()
-		self.houses = [] # Очищаем список квартир перед чтением
+		self.__houses = [] # Очищаем список квартир перед чтением
 		for line in lines:
 			if line.strip(): # Не будет считывать пустые строки
 				h = House()
@@ -138,33 +138,33 @@ class Ms:
 		Формат: Address,Type,Floor,Rooms,Area
 		"""
 		with open(filename, 'w', encoding='utf-8') as f:
-			for house in self.houses:
+			for house in self.__houses:
 				f.write(house.to_line() + "\n")
 		print(f"Данные сохранены в {filename}")
 
 	def display_houses(self):
 		"""Выводит все квартиры на экран."""
-		if not self.houses:
+		if not self.__houses:
 			print("Список квартир пуст.")
 			return
-		for i, house in enumerate(self.houses):
+		for i, house in enumerate(self.__houses):
 			print(f"--- Квартира №{i+1} ---")
 			house.output()
 
 	# Выборки данных
 	def select_by_rooms(self, n):
 		"""Список квартир с заданным числом комнат."""
-		return [h for h in self.houses if h.has_n_rooms(n)]
+		return [h for h in self.__houses if h.has_n_rooms(n)]
 
 	def select_by_rooms_and_floor_range(self, n, min_floor, max_floor):
 		"""Список квартир с заданным числом комнат и в диапазоне этажей."""
-		return [h for h in self.houses if h.has_n_rooms(n) and h.is_on_floor_range(min_floor, max_floor)]
+		return [h for h in self.__houses if h.has_n_rooms(n) and h.is_on_floor_range(min_floor, max_floor)]
 
 	def select_by_area_greater_than(self, min_area):
 		"""Список квартир с площадью больше заданной."""
-		return [h for h in self.houses if h.area_greater_than(min_area)]
+		return [h for h in self.__houses if h.area_greater_than(min_area)]
 
 	# Сортировка данных
 	def sort_by_area(self):
 		"""Сортирует квартиры по площади."""
-		self.houses.sort(key=lambda h: h.get_area())
+		self.__houses.sort(key=lambda h: h.get_area())
