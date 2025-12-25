@@ -166,12 +166,13 @@ public:
         return {most_frequent_letter, max_freq};
     }
 
-    // Методы для меню
+    /// @brief Вывод текста их процессора
     void displayText() const {
         cout << "\n--- Original Text ---" << endl;
         cout << text << endl;
     }
 
+    /// @brief Вывод массива предложений из процессора
     void displaySentences() const {
         cout << "\n--- Sentences ---" << endl;
         for (size_t i = 0; i < sentences.size(); ++i) {
