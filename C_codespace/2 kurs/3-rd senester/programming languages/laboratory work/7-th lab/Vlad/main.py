@@ -1,8 +1,8 @@
 import header
 
 # Пути к файлам
-input_file = "D:/Codespace/C_codespace/2 kurs/3-rd senester/Programming languages/laboratory work/7-th lab/Vlad/input.txt"
-output_file = "D:/Codespace/C_codespace/2 kurs/3-rd senester/Programming languages/laboratory work/7-th lab/Vlad/output.txt"
+input_file = "input.txt"
+output_file = "output.txt"
 
 print(f"Чтение данных из {input_file}...")
 data = header.read_data_from_file(input_file)
