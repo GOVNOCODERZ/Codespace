@@ -1,14 +1,9 @@
 #include "storage.h"
 
-StorageDev::StorageDev() 
-    : name("None"), manufacturer("None"), price(0), capacity(0) {}
-
+// --- StorageDev ---
+StorageDev::StorageDev() : name("None"), manufacturer("None"), price(0), capacity(0) {}
 StorageDev::StorageDev(string n, string m, double p, int c) 
     : name(n), manufacturer(m), price(p), capacity(c) {}
-
-StorageDev::StorageDev(const StorageDev& other) 
-    : name(other.name), manufacturer(other.manufacturer), price(other.price), capacity(other.capacity) {}
-
 StorageDev::~StorageDev() {}
 
 void StorageDev::input(istream& is) {
@@ -23,10 +18,13 @@ void StorageDev::input(istream& is) {
 }
 
 void StorageDev::print(ostream& os) const {
-    os << "Фирма: " << manufacturer 
-       << " | Название: " << name 
-       << " | Цена: " << price 
-       << " | Объем: " << capacity;
+    if (&os == &cout) {
+        os << "Фирма: " << manufacturer << " | Название: " << name 
+           << " | Цена: " << price << " | Объем: " << capacity;
+    } else {
+        // Формат для файла: Название Фирма Цена Емкость (без меток)
+        os << name << " " << manufacturer << " " << price << " " << capacity;
+    }
 }
 
 ostream& operator<<(ostream& os, const StorageDev& obj) {
@@ -40,15 +38,7 @@ istream& operator>>(istream& is, StorageDev& obj) {
 }
 
 HDD::HDD() : StorageDev(), rpm(5400) {}
-
-HDD::HDD(string n, string m, double p, int c, int r) 
-    : StorageDev(n, m, p, c), rpm(r) {}
-
-HDD::HDD(const HDD& other) : StorageDev(other), rpm(other.rpm) {}
-
-HDD::~HDD() {}
-
-string HDD::myName() const { return "HDD"; }
+HDD::HDD(string n, string m, double p, int c, int r) : StorageDev(n, m, p, c), rpm(r) {}
 
 void HDD::input(istream& is) {
     StorageDev::input(is);
@@ -57,21 +47,20 @@ void HDD::input(istream& is) {
 }
 
 void HDD::print(ostream& os) const {
-    os << "[HDD] ";
-    StorageDev::print(os);
-    os << " | RPM: " << rpm;
+    if (&os == &cout) {
+        os << "[HDD] ";
+        StorageDev::print(os);
+        os << " | RPM: " << rpm;
+    } else {
+        // В файл сначала пишем тип, потом базовые поля, потом специфичное поле
+        os << "HDD ";
+        StorageDev::print(os);
+        os << " " << rpm;
+    }
 }
 
 FlashD::FlashD() : StorageDev(), usbSpeed(100) {}
-
-FlashD::FlashD(string n, string m, double p, int c, int u) 
-    : StorageDev(n, m, p, c), usbSpeed(u) {}
-
-FlashD::FlashD(const FlashD& other) : StorageDev(other), usbSpeed(other.usbSpeed) {}
-
-FlashD::~FlashD() {}
-
-string FlashD::myName() const { return "Flash"; }
+FlashD::FlashD(string n, string m, double p, int c, int u) : StorageDev(n, m, p, c), usbSpeed(u) {}
 
 void FlashD::input(istream& is) {
     StorageDev::input(is);
@@ -80,16 +69,20 @@ void FlashD::input(istream& is) {
 }
 
 void FlashD::print(ostream& os) const {
-    os << "[Flash] ";
-    StorageDev::print(os);
-    os << " | Скорость: " << usbSpeed;
+    if (&os == &cout) {
+        os << "[Flash] ";
+        StorageDev::print(os);
+        os << " | Скорость: " << usbSpeed;
+    } else {
+        os << "Flash ";
+        StorageDev::print(os);
+        os << " " << usbSpeed;
+    }
 }
 
 Shop::Shop() {}
-
 Shop::~Shop() {
     for (auto p : list) delete p;
-    list.clear();
 }
 
 void Shop::addDevice(StorageDev* dev) {
@@ -97,123 +90,63 @@ void Shop::addDevice(StorageDev* dev) {
 }
 
 void Shop::showAll() const {
-    if (list.empty()) {
-        cout << "Список пуст." << endl;
-        return;
-    }
-    cout << "--- Список устройств ---" << endl;
-    for (const auto& dev : list) {
-        cout << *dev << endl;
-    }
+    if (list.empty()) { cout << "Список пуст." << endl; return; }
+    for (const auto& dev : list) cout << *dev << endl;
 }
 
 void Shop::showByCapacityRange(int min, int max) const {
-    cout << "--- Фильтр: Емкость от " << min << " до " << max << " ---" << endl;
-    bool found = false;
     for (const auto& dev : list) {
-        if (dev->getCapacity() >= min && dev->getCapacity() <= max) {
-            cout << *dev << endl;
-            found = true;
-        }
+        if (dev->getCapacity() >= min && dev->getCapacity() <= max) cout << *dev << endl;
     }
-    if (!found) cout << "Устройства не найдены." << endl;
 }
 
 void Shop::showStats() const {
     if (list.empty()) return;
-    double minRatio = -1, maxRatio = -1;
-    StorageDev* minObj = nullptr;
-    StorageDev* maxObj = nullptr;
-
-    for (const auto& dev : list) {
-        if (dev->getPrice() <= 0) continue;
-        double ratio = (double)dev->getCapacity() / dev->getPrice();
-
-        if (minObj == nullptr || ratio < minRatio) {
-            minRatio = ratio;
-            minObj = dev;
-        }
-        if (maxObj == nullptr || ratio > maxRatio) {
-            maxRatio = ratio;
-            maxObj = dev;
+    StorageDev *minObj = list[0], *maxObj = list[0];
+    for (auto dev : list) {
+        if (dev->getPrice() > 0) {
+            double ratio = dev->getCapacity() / dev->getPrice();
+            if (ratio < (minObj->getCapacity() / minObj->getPrice())) minObj = dev;
+            if (ratio > (maxObj->getCapacity() / maxObj->getPrice())) maxObj = dev;
         }
     }
-    cout << "--- Статистика (Емкость / Цена) ---" << endl;
-    if (minObj) cout << "Минимум (" << minRatio << "): " << minObj->getName() << endl;
-    if (maxObj) cout << "Максимум (" << maxRatio << "): " << maxObj->getName() << endl;
+    cout << "Лучшая цена/объем: " << maxObj->getName() << endl;
+    cout << "Худшая цена/объем: " << minObj->getName() << endl;
 }
 
 void Shop::sortByCapacity() {
     sort(list.begin(), list.end(), [](StorageDev* a, StorageDev* b) {
         return a->getCapacity() < b->getCapacity();
     });
-    cout << "Список отсортирован." << endl;
 }
 
 void Shop::saveToFile(const string& filename) {
     ofstream fout(filename);
-    if (!fout.is_open()) {
-        cout << "Ошибка открытия файла!" << endl;
-        return;
-    }
-
+    if (!fout) return;
     for (const auto& dev : list) {
-        // Определяем тип и пишем метку
-        // Используем dynamic_cast для доступа к специфичным геттерам
-        if (HDD* h = dynamic_cast<HDD*>(dev)) {
-            fout << "HDD " 
-                 << h->getName() << " " 
-                 << h->getManufacturer() << " " 
-                 << h->getPrice() << " " 
-                 << h->getCapacity() << " " 
-                 << h->getRPM() << endl; // Пишем RPM
-        } 
-        else if (FlashD* f = dynamic_cast<FlashD*>(dev)) {
-            fout << "Flash " 
-                 << f->getName() << " " 
-                 << f->getManufacturer() << " " 
-                 << f->getPrice() << " " 
-                 << f->getCapacity() << " " 
-                 << f->getUsbSpeed() << endl; // Пишем скорость USB
-        }
+        fout << *dev << endl; // Использует перегрузку << и логику print для файла
     }
     fout.close();
-    cout << "Данные успешно сохранены в " << filename << endl;
+    cout << "Данные сохранены." << endl;
 }
 
 void Shop::loadFromFile(const string& filename) {
     ifstream fin(filename);
-    if (!fin.is_open()) {
-        cout << "Файл не найден." << endl;
-        return;
-    }
-
-    // Очищаем текущий список перед загрузкой
+    if (!fin) return;
     for (auto p : list) delete p;
     list.clear();
 
-    string type, name, manuf;
-    double price;
-    int cap, specParam; // specParam будет или RPM, или Speed
+    string type;
+    while (fin >> type) {
+        StorageDev* dev = nullptr;
+        if (type == "HDD") dev = new HDD();
+        else if (type == "Flash") dev = new FlashD();
 
-    // Читаем в том же порядке, в котором писали
-    while (fin >> type >> name >> manuf >> price >> cap >> specParam) {
-        StorageDev* newDev = nullptr;
-        
-        if (type == "HDD") {
-            // Создаем HDD, используя прочитанные данные (specParam = rpm)
-            newDev = new HDD(name, manuf, price, cap, specParam);
-        } 
-        else if (type == "Flash") {
-            // Создаем FlashD (specParam = usbSpeed)
-            newDev = new FlashD(name, manuf, price, cap, specParam);
-        }
-
-        if (newDev) {
-            list.push_back(newDev);
+        if (dev) {
+            fin >> *dev; // Использует перегрузку >> и логику input для файла
+            list.push_back(dev);
         }
     }
-
     fin.close();
-    cout << "Данные загружены из файла." << endl;
+    cout << "Данные загружены." << endl;
 }

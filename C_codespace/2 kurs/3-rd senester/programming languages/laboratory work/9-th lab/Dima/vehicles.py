@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 class Vehicle(ABC):
     """
-    Абстрактный базовый класс Транспортное средство (Ab).
+    Абстрактный базовый класс Транспортное средство.
     """
     def __init__(self, name, capacity, volume, delivery_time):
         self._name = name
@@ -22,17 +22,33 @@ class Vehicle(ABC):
 
     @abstractmethod
     def my_name(self):
-        """Абстрактный метод, возвращает имя класса."""
+        """Возвращает строковое имя типа транспортного средства."""
         pass
 
     @abstractmethod
-    def __str__(self):
-        """Абстрактный метод строкового представления."""
+    def _get_specific_str(self):
+        """Возвращает строку со специфичными параметрами для вывода."""
         pass
     
-    # Виртуальный метод для ввода базовых данных (используется в наследниках)
+    @abstractmethod
+    def _get_specific_data(self):
+        """Возвращает список специфичных полей для сохранения в файл."""
+        pass
+
+    def __str__(self):
+        base_info = (f"[{self.my_name()}] {self._name}: "
+                     f"Груз {self._capacity}т / {self._volume}м3, "
+                     f"Время: {self._delivery_time}ч")
+        return base_info + self._get_specific_str()
+
+    def get_record(self):
+        """Формирует список данных для записи в CSV."""
+        return [self.my_name(), self._name, self._capacity, 
+                self._volume, self._delivery_time] + self._get_specific_data()
+
     @staticmethod
     def _get_base_input():
+        """Вспомогательный метод для ввода общих данных."""
         name = input("Название транспорта: ")
         while True:
             try:
@@ -41,62 +57,51 @@ class Vehicle(ABC):
                 time = int(input("Срок доставки (ч): "))
                 return name, cap, vol, time
             except ValueError:
-                print("Ошибка: введите числовые значения.")
+                print("Ошибка: введите корректные числовые значения.")
 
 
 class Train(Vehicle):
-    """
-    Производный класс Поезд.
-    """
+    """Класс Поезд."""
     def __init__(self, name, capacity, volume, delivery_time, wagons):
-        # Вызов конструктора базового класса
         super().__init__(name, capacity, volume, delivery_time)
-        self.__wagons = int(wagons) # Специфичное поле: кол-во вагонов
-
-    @property
-    def wagons(self): return self.__wagons
+        self.__wagons = int(wagons)
 
     def my_name(self):
         return "Train"
-    
-# Сделать один вывод для наследников
 
-    def __str__(self):
-        return (f"[{self.my_name()}] {self.name}: Груз {self.capacity}т / {self.volume}м3, "
-                f"Время: {self.delivery_time}ч, Вагонов: {self.wagons}")
+    def _get_specific_str(self):
+        return f", Вагонов: {self.__wagons}"
+
+    def _get_specific_data(self):
+        return [self.__wagons]
 
     @classmethod
     def from_keyboard(cls):
         print("\n--- Добавление Поезда ---")
-        base_data = cls._get_base_input() # Получаем данные для родителя
+        base_data = cls._get_base_input()
         while True:
             try:
                 wagons = int(input("Количество вагонов: "))
                 break
             except ValueError:
                 print("Введите целое число.")
-        # Распаковываем base_data и добавляем специфичные данные
         return cls(*base_data, wagons)
 
 
 class Airplane(Vehicle):
-    """
-    Производный класс Самолет.
-    Поля должны быть закрытыми (__private).
-    """
+    """Класс Самолет."""
     def __init__(self, name, capacity, volume, delivery_time, max_altitude):
         super().__init__(name, capacity, volume, delivery_time)
-        self.__max_altitude = int(max_altitude) # Специфичное поле: высота полета
-
-    @property
-    def max_altitude(self): return self.__max_altitude
+        self.__max_altitude = int(max_altitude)
 
     def my_name(self):
         return "Airplane"
 
-    def __str__(self):
-        return (f"[{self.my_name()}] {self.name}: Груз {self.capacity}т / {self.volume}м3, "
-                f"Время: {self.delivery_time}ч, Высота: {self.max_altitude}м")
+    def _get_specific_str(self):
+        return f", Высота: {self.__max_altitude}м"
+
+    def _get_specific_data(self):
+        return [self.__max_altitude]
 
     @classmethod
     def from_keyboard(cls):
@@ -110,12 +115,11 @@ class Airplane(Vehicle):
                 print("Введите целое число.")
         return cls(*base_data, alt)
 
+
 class TransportCompany:
-    """
-    Класс Ms (Container). Управляет списком транспортных средств.
-    """
+    """Класс-контейнер для управления парком техники."""
     def __init__(self):
-        self.__vehicles = [] # Список полиморфных объектов
+        self.__vehicles = [] 
 
     def add(self, vehicle):
         if isinstance(vehicle, Vehicle):
@@ -133,32 +137,28 @@ class TransportCompany:
             print(f"{i}. {v}")
 
     def save_file(self, filename):
+        if self.is_empty():
+            print("Нечего сохранять.")
+            return
         try:
             with open(filename, 'w', encoding='utf-8', newline='') as f:
                 writer = csv.writer(f)
                 for v in self.__vehicles:
-                    # Сохраняем тип класса первым полем, чтобы знать, как загружать
-                    if isinstance(v, Train):
-                        
-                        # Сделать отдельный метод в базовом классе. Убрать проверку
-
-                        writer.writerow(["Train", v.name, v.capacity, v.volume, v.delivery_time, v.wagons])
-                    elif isinstance(v, Airplane):
-                        writer.writerow(["Airplane", v.name, v.capacity, v.volume, v.delivery_time, v.max_altitude])
-            print(f"Данные сохранены в '{filename}'.")
+                    writer.writerow(v.get_record())
+            print(f"Данные успешно сохранены в '{filename}'.")
         except Exception as e:
             print(f"Ошибка сохранения: {e}")
 
     def load_file(self, filename):
         try:
-            self.__vehicles = []
             with open(filename, 'r', encoding='utf-8') as f:
                 reader = csv.reader(f)
                 count = 0
+                self.__vehicles = []
                 for row in reader:
                     if not row: continue
                     type_obj = row[0]
-                    args = row[1:] # Остальные параметры
+                    args = row[1:]
                     
                     if type_obj == "Train":
                         self.add(Train(*args))
@@ -172,45 +172,22 @@ class TransportCompany:
         except Exception as e:
             print(f"Ошибка загрузки: {e}")
 
-    # 1. Вывод транспорта, срок доставки которого НИЖЕ заданного
     def filter_time_below(self, limit_time):
+        """Возвращает новый объект TransportCompany с техникой, срок доставки которой ниже лимита."""
         res = TransportCompany()
-        # Доступ к приватному полю возможен внутри класса
-        res.__vehicles = [v for v in self.__vehicles if v.delivery_time < limit_time]
+        # Прямой доступ к списку внутри класса допустим
+        res._TransportCompany__vehicles = [v for v in self.__vehicles if v.delivery_time < limit_time]
         return res
 
-    # 2. Вывод транспорта с грузоподъемностью ВЫШЕ заданной
     def filter_capacity_above(self, limit_cap):
+        """Возвращает новый объект TransportCompany с техникой, грузоподъемность которой выше лимита."""
         res = TransportCompany()
-        res.__vehicles = [v for v in self.__vehicles if v.capacity > limit_cap]
+        res._TransportCompany__vehicles = [v for v in self.__vehicles if v.capacity > limit_cap]
         return res
 
-    # 3. Сортировка массива по УВЕЛИЧЕНИЮ объема груза
     def sort_by_volume(self):
-        # Сортировка текущего списка in-place
         self.__vehicles.sort(key=lambda v: v.volume)
         print("Список отсортирован по возрастанию объема груза.")
-
-def process_search_result(manager):
-    """Меню действий с найденными результатами."""
-    if manager.is_empty():
-        print("Ничего не найдено по вашему запросу.")
-        return
-
-    print(f"Найдено записей: {len(manager._TransportCompany__vehicles)}")
-    while True:
-        print("\n[Результаты поиска]")
-        print("1. Показать на экране")
-        print("2. Сохранить в файл")
-        print("0. Вернуться назад")
-        choice = input("Выбор: ")
-        
-        if choice == "1":
-            manager.display()
-        elif choice == "2":
-            fname = input("Имя файла: ")
-            manager.save_file(fname)
-        elif choice == "0":
-            break
-        else:
-            print("Неверный ввод.")
+    
+    def get_count(self):
+        return len(self.__vehicles)
