@@ -6,60 +6,51 @@
 #include <vector>
 #include <algorithm>
 #include <fstream>
-#include <iomanip>
 
 using namespace std;
 
-// Базовый абстрактный класс (Накопитель)
+// Базовый абстрактный класс
 class StorageDev {
 protected:
-    // Поля protected для прямого доступа в наследниках
-    string name;          // Название
-    string manufacturer;  // Фирма
-    double price;         // Цена
-    int capacity;         // Емкость
+    string name;
+    string manufacturer;
+    double price;
+    int capacity;
 
 public:
-    // Конструкторы
     StorageDev();
     StorageDev(string n, string m, double p, int c);
-    StorageDev(const StorageDev& other); // Конструктор копирования
-    // Виртуальный деструктор
     virtual ~StorageDev();
-    // Чистый виртуальный метод
+
     virtual string myName() const = 0;
-    // Виртуальные методы ввода-вывода
+    
+    // Полиморфные методы ввода/вывода
     virtual void input(istream& is);
     virtual void print(ostream& os) const;
-    // Геттеры
+
     int getCapacity() const { return capacity; }
     double getPrice() const { return price; }
     string getName() const { return name; }
-    string getManufacturer() const { return manufacturer; }
-    // Перегрузка операторов
+
     friend ostream& operator<<(ostream& os, const StorageDev& obj);
     friend istream& operator>>(istream& is, StorageDev& obj);
 };
 
- 
-// Класс HDD (Жесткий диск)
+// Класс HDD
 class HDD : public StorageDev {
 private:
-    int rpm; // Скорость вращения
+    int rpm;
 
 public:
     HDD();
     HDD(string n, string m, double p, int c, int r);
-    HDD(const HDD& other); // Конструктор копирования
-    ~HDD() override;
-
-    string myName() const override;
+    
+    string myName() const override { return "HDD"; }
     void input(istream& is) override;
     void print(ostream& os) const override;
-
-    int getRPM() const { return rpm; }
 };
- 
+
+// Класс Flash-диск
 class FlashD : public StorageDev {
 private:
     int usbSpeed;
@@ -67,20 +58,16 @@ private:
 public:
     FlashD();
     FlashD(string n, string m, double p, int c, int u);
-    FlashD(const FlashD& other); // Конструктор копирования
-    ~FlashD() override;
 
-    string myName() const override;
+    string myName() const override { return "Flash"; }
     void input(istream& is) override;
     void print(ostream& os) const override;
-
-    int getUsbSpeed() const { return usbSpeed; }
 };
 
-// Класс-контейнер Shop (Магазин)
+// Контейнер Shop
 class Shop {
 private:
-    vector<StorageDev*> list; // Массив указателей на абстрактный класс
+    vector<StorageDev*> list;
 
 public:
     Shop();
@@ -88,10 +75,9 @@ public:
 
     void addDevice(StorageDev* dev);
     void showAll() const;
-
-    void showByCapacityRange(int min, int max) const; // Поиск по диапазону
-    void showStats() const;                           // Статистика (емкость/цена)
-    void sortByCapacity();                            // Сортировка по объему
+    void showByCapacityRange(int min, int max) const;
+    void showStats() const;
+    void sortByCapacity();
 
     void saveToFile(const string& filename);
     void loadFromFile(const string& filename);
