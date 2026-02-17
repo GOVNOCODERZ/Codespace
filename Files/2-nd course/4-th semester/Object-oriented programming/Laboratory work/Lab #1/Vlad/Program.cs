@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -25,7 +25,7 @@ namespace LabWork1
             Console.WriteLine("=== Исходный текст ===");
             Console.WriteLine(OriginalText);
 
-            Console.WriteLine("=== Обработанный текст ===");
+            Console.WriteLine("\n=== Обработанный текст ===");
             Console.WriteLine(ProcessText(OriginalText));
 
         }
