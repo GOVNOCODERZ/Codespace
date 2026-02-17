@@ -32,8 +32,7 @@ namespace LabWork1
 
             for (int i = 0; i < Lines.Length; i++)
             {
-                var temp = Lines[i];
-                Lines[i] = SwapAdjacentWords(temp);
+                Lines[i] = SwapAdjacentWords(Lines[i]);
             }            
 
             return string.Join("\n", Lines);
@@ -46,13 +45,11 @@ namespace LabWork1
         /// <returns> Модифицированная строка </returns>
         static string SwapAdjacentWords(string line)
         {
-            string [] Words = line.Split(new[] {" ", ", "}, StringSplitOptions.RemoveEmptyEntries);
+            string [] Words = line.Split(new[] {" ", ", ", ","}, StringSplitOptions.RemoveEmptyEntries);
 
             for (int i = 0; i < Words.Length - 1; i += 2)
             {
-                string TempWord = Words[i];
-                Words[i] = Words[i + 1];
-                Words[i + 1] = TempWord;
+                (Words[i], Words[i + 1]) = (Words[i + 1], Words[i]);
             }
             return string.Join(" ", Words);
         }
