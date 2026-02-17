@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
+
 namespace LabWork1
 {
     class Textprocessor
@@ -16,8 +18,27 @@ namespace LabWork1
 
             Console.WriteLine("\n=== Обработанный текст ===");
             Console.WriteLine(ProcessText(OriginalText));
-
         }
+
+        /// <summary>
+        /// Обрабатывает входящий текст,
+        /// построчно преобразую каждую строку.
+        /// </summary>
+        /// <param name="text"> Входящий текст </param>
+        /// <returns> Обработанный текст </returns>
+        static string ProcessText(string text)
+        {
+            string [] Lines = text.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
+
+            for (int i = 0; i < Lines.Length; i++)
+            {
+                var temp = Lines[i];
+                Lines[i] = SwapAdjacentWords(temp);
+            }            
+
+            return string.Join("\n", Lines);
+        }
+                
         /// <summary>
         /// Меняет местами два соседних слова в строке.
         /// </summary>
@@ -47,23 +68,6 @@ namespace LabWork1
             return f.ReadToEnd();
         }
 
-        /// <summary>
-        /// Обрабатывает входящий текст,
-        /// построчно преобразую каждую строку.
-        /// </summary>
-        /// <param name="text"> Входящий текст </param>
-        /// <returns> Обработанный текст </returns>
-        static string ProcessText(string text)
-        {
-            string [] Lines = text.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
 
-            for (int i = 0; i < Lines.Length; i++)
-            {
-                var temp = Lines[i];
-                Lines[i] = SwapAdjacentWords(temp);
-            }            
-
-            return string.Join("\n", Lines);
-        }
     }
 }
