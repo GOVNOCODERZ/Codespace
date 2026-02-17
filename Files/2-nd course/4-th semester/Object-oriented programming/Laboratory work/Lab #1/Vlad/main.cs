@@ -8,21 +8,10 @@ namespace LabWork1
     {
         static void Main(string[ ] args)
         {
-            string OriginalText =
-            """
-            Что не убивает меня, то делает меня сильнее.
-            Мудрость приходит слишком поздно.
-            Истина — это женщина.
-            Бог мёртв.
-            В человеке есть нечто, что хочет превзойти себя.
-            Нравственность — это предрассудок.
-            Сила воли — основа бытия.
-            Мир — это хаос.
-            Я мыслю, следовательно, я существую — это ошибка.
-            Жизнь — это борьба.
-            """;
+            
+            string OriginalText = ReadFromFile("input.txt");
 
-            Console.WriteLine("=== Исходный текст ===");
+            Console.WriteLine("=== Исходный текст из файла ===");
             Console.WriteLine(OriginalText);
 
             Console.WriteLine("\n=== Обработанный текст ===");
@@ -45,6 +34,17 @@ namespace LabWork1
                 Words[i + 1] = TempWord;
             }
             return string.Join(" ", Words);
+        }
+
+        /// <summary>
+        /// Считывает текст из файла.
+        /// </summary>
+        /// <param name="filename"> Название файла </param>
+        /// <returns> Строка с содержимым файла </returns>
+        static string ReadFromFile(string filename)
+        {
+            StreamReader f = new StreamReader(filename);
+            return f.ReadToEnd();
         }
 
         /// <summary>
