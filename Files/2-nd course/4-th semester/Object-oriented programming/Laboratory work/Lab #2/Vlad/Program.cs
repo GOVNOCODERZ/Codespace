@@ -8,19 +8,19 @@
         /// <summary>
         /// Количество комнат.
         /// </summary>
-        public int rooms;
+        public int Rooms;
         /// <summary>
         /// Номер этажа.
         /// </summary>
-        public int floor;
+        public int Floor;
         /// <summary>
         /// Стоимость квартиры.
         /// </summary>
-        public double price;
+        public double Price;
         /// <summary>
         /// Район.
         /// </summary>
-        public string cityArea;
+        public string СityArea;
 
 
         /// <summary>
@@ -28,33 +28,33 @@
         /// </summary>
         public Appartment()
         {
-            rooms = 0;
-            floor = 0;
-            price = 0;
-            cityArea = "TEMPLATE";
+            Rooms = 0;
+            Floor = 0;
+            Price = 0;
+            СityArea = string.Empty;
         }
 
         /// <summary>
         /// Конструктор с параметрами.
         /// </summary>
-        public Appartment(int rooms, int floor, double price, string cityArea)
+        public Appartment(int rooms, int floor, double price, string сityArea)
         {
-            this.rooms = rooms;
-            this.floor = floor;
-            this.price = price;
-            this.cityArea = cityArea;
+            Rooms = rooms;
+            Floor = floor;
+            Price = price;
+            СityArea = сityArea;
         }
 
         /// <summary>
         /// Проверяет район на соответствие данному.
         /// </summary>
-        /// <param name="cityAreaName">
+        /// <param name="сityAreaName">
         /// Данный район.
         /// </param>
         /// <returns>
         /// Булевое значение.
         /// </returns>
-        public bool IsCorrectCityArea(string cityAreaName) => cityArea == cityAreaName;
+        public bool IsCorrectСityArea(string сityAreaName) => СityArea == сityAreaName;
 
         /// <summary>
         /// Проверяет количество комнат на соответствие данному.
@@ -65,7 +65,7 @@
         /// <returns>
         /// Булевое значение.
         /// </returns>
-        public bool HasNRooms(int roomsNumber) => rooms == roomsNumber;
+        public bool HasNRooms(int roomsNumber) => Rooms == roomsNumber;
 
         /// <summary>
         /// Пробразует данные о квартире в строку для удобства вывода.
@@ -75,7 +75,7 @@
         /// </returns>
         public string DataToString()
         {
-            return $"{rooms} комнат, {floor} этаж, стоимостью {price} тыс. руб., в районе {cityArea}";
+            return $"{Rooms} комнат, {Floor} этаж, стоимостью {Price} тыс. руб., в районе {СityArea}";
         }
 
     }
@@ -90,8 +90,14 @@
         /// </summary>
         public Appartment[] appartments_list;
 
+        /// <summary>
+        /// Текущее количество квартир в массиве.
+        /// </summary>
         public int appartments_number = 0;
         
+        /// <summary>
+        /// Максимальный размер массива.
+        /// </summary>
         public const int MAX_APPARTMENTS_NUMBER = 10;
 
         /// <summary>
@@ -110,8 +116,8 @@
         /// </param>
         public void InputFromFile(string filename)
         {
-            StreamReader f = new StreamReader(filename);
-            string s;
+            using StreamReader f = new StreamReader(filename);
+            string? s;
             int index = 0;
 
             while ((s = f.ReadLine()) != null)
@@ -144,14 +150,14 @@
         /// <summary>
         /// Вывод в консоль всех квартир, соответствующих данному району и количеству комнат.
         /// </summary>
-        /// <param name="cityAreaName"> Название района. </param>
+        /// <param name="сityAreaName"> Название района. </param>
         /// <param name="roomsNumber"> Количество комнат. </param>
-        public void FilterByCityAreaAndRooms(string cityAreaName, int roomsNumber)
+        public void FilterByСityAreaAndRooms(string сityAreaName, int roomsNumber)
         {
             for(int i = 0; i < appartments_number; i++)
             {
                 Appartment current_appartment = appartments_list[i];
-                if (current_appartment.IsCorrectCityArea(cityAreaName) && current_appartment.HasNRooms(roomsNumber))
+                if (current_appartment.IsCorrectСityArea(сityAreaName) && current_appartment.HasNRooms(roomsNumber))
                 {
                     Console.WriteLine($"Квартира №{i + 1}: {current_appartment.DataToString()}");
                 }
@@ -174,7 +180,7 @@
                 Console.WriteLine("3. Фильтрация списка по району и количеству комнат");
                 Console.WriteLine("0. Выход");
 
-                string choice = Console.ReadLine();
+                string? choice = Console.ReadLine();
 
                 switch (choice)
                 {
@@ -188,11 +194,11 @@
                         break;
                     case "3":
                         Console.WriteLine("Введите название района для фильтрации:");
-                        string cityAreaName = Console.ReadLine();
+                        string? сityAreaName = Console.ReadLine();
                         Console.WriteLine("Введите количество комнат для фильтрации:");
                         int roomsNumber = int.Parse(Console.ReadLine());
-                        Console.WriteLine($"=== Квартиры в районе {cityAreaName} с количеством комнат {roomsNumber} ===");
-                        manager.FilterByCityAreaAndRooms(cityAreaName, roomsNumber);
+                        Console.WriteLine($"=== Квартиры в районе {сityAreaName} с количеством комнат {roomsNumber} ===");
+                        manager.FilterByСityAreaAndRooms(сityAreaName, roomsNumber);
                         break;
                     case "0":
                         Console.WriteLine("Завершение работы...");
