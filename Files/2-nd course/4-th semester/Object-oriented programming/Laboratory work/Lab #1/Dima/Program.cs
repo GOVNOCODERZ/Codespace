@@ -1,32 +1,37 @@
 ﻿namespace Lab1;
 class Program{
     static void Main(string[] args){
-        string FilePath = "input.txt";
-        string OriginalText = ReadFromFile(FilePath);
+        string filePath = "input.txt";
+        string originalText = ReadFromFile(filePath);
         Console.WriteLine("=== Исходный текст из файла ===");
-        Console.WriteLine(OriginalText);
+        Console.WriteLine(originalText);
         Console.WriteLine("\n=== Обработанный текст ===");
-        Console.WriteLine(ProcessText(OriginalText));
+        Console.WriteLine(ProcessText(originalText));
     }
-    static string ProcessText(string text){
-        string newtext = " ";
-        for (int i = 0; i < text.Length; i++){
-            if (text[i] == ' ' && text[i + 1] == '-'){
-                while (text[i] != '.' && text[i] != '!' && text[i] != '?'){
-                    newtext += text[i];
-                    i++;
-                }
-            }
-        }
-        return newtext;
-    }
+    static string ProcessText(string text)  
+    {  
+        var resultBuilder = new System.Text.StringBuilder();  
+        for (int i = 0; i < text.Length - 1; i++)  
+        {  
+            if (text[i] == ' ' && text[i + 1] == '-')  
+            {  
+                int startIndex = i;  
+                int endIndex = i;  
+                while (endIndex < text.Length && text[endIndex] != '.' && text[endIndex] != '!' && text[endIndex] != '?')  
+                {  
+                    endIndex++;  
+                }  
+
+                resultBuilder.Append(text, startIndex, endIndex - startIndex);  
+                i = endIndex - 1;
+            }  
+        }  
+        return " " + resultBuilder.ToString();  
+    }  
         
 
     static string ReadFromFile(string filepath)
     {
-        StreamReader reader = new StreamReader(filepath);
-        string content = reader.ReadToEnd(); 
-        reader.Close();
-        return content;
+        return File.ReadAllText(filepath);  
     }
 }
