@@ -15,9 +15,11 @@ def main():
 
         if choice == "1":
             filename = input("Введите название файла для анализа (Enter - 'input.txt'): ").strip() or "input.txt"
-            analyzer.load_file(filename)
+            if(analyzer.load_file(filename)):
+                print(f"Файл {filename} был успешно загружен.")
         elif choice == "2":
-            analyzer.analyze()
+            if(analyzer.analyze()):
+                print("Анализ файла завершён.")
         elif choice == "3":
             analyzer.print_report()
         elif choice == "4":
