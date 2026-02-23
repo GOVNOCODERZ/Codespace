@@ -23,7 +23,7 @@ class TextEntropyAnalyzer:
             filepath (string): Название файла
 
         Returns:
-            boolean: Результат загрузки
+            bool: Результат загрузки
         """
         try:
             with open(filepath, 'r', encoding='utf-8') as file:
@@ -43,11 +43,10 @@ class TextEntropyAnalyzer:
         вероятность каждого символа и их общее количество.
 
         Returns:
-            boolean: Результат обработки
+            bool: Результат анализа
         """
         if not self._text:
-            print("ОШИБКА: Входной текст пуст или файл не загружен.")
-            return False
+            raise ValueError("Входной текст пуст или файл не загружен.")
         
         # Обработка текста
         clear_text = self._text.lower()
@@ -65,6 +64,7 @@ class TextEntropyAnalyzer:
         
         self._entropy = entropy_sum
         self._is_analyzed = True
+        return True
 
     def print_probability_table(self, limit=None):
         """Форматированный вывод таблицы вероятностей в консоль.
@@ -74,8 +74,7 @@ class TextEntropyAnalyzer:
         """
         
         if not self._is_analyzed:
-            print("ОШИБКА: Текст ещё не проанализирован!")
-            return
+            raise RuntimeError("Текст ещё не проанализирован!")
 
         # Сортировка: по убыванию вероятности (-item[1]), затем по алфавиту (item[0])
         sorted_items = sorted(self._letters_probabilities.items(), key=lambda item: (-item[1], item[0]))

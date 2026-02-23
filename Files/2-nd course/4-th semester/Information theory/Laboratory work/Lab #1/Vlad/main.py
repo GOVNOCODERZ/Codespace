@@ -14,7 +14,7 @@ def main():
         choice = input("Ваш выбор: ")
 
         if choice == "1":
-            filename = input("Введите название файла для анализа (Enter - 'input.txt'): ").strip() or "input.txt"
+            filename = input("Введите название файла для анализа (Enter — 'input.txt'): ").strip() or "input.txt"
             if(analyzer.load_file(filename)):
                 print(f"Файл {filename} был успешно загружен.")
         elif choice == "2":
