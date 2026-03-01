@@ -1,0 +1,135 @@
+﻿namespace LabWork3
+{
+    public class Staff
+    {
+        public string? FullName { get; set; }
+        public int Age { get; set; }
+
+        public virtual void Print()
+        {
+            Console.WriteLine($"ФИО: {FullName}, Возраст: {Age}");
+        }
+
+        public override string ToString()
+        {
+            return $"Сотрудник {FullName}";
+        }
+
+        public override bool Equals(object? obj)  
+        {  
+            if (obj is Staff other && GetType() == other.GetType())  
+            {  
+                return FullName == other.FullName && Age == other.Age;  
+            }  
+            return false;  
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(FullName, Age);
+        }
+    }
+
+    public class Worker : Staff
+    {
+        public int Rank { get; set; }
+
+        public override void Print()
+        {
+            base.Print();
+            Console.WriteLine($"  Разряд: {Rank}");
+        }
+
+        public override string ToString()
+        {
+            return base.ToString() + $" (Рабочий)";
+        }
+
+        public override bool Equals(object? obj)  
+        {  
+            return base.Equals(obj) && obj is Worker other && Rank == other.Rank;  
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(base.GetHashCode(), Rank);
+        }
+    }
+
+    public class Engineer : Staff
+    {
+        public string? Specialization { get; set; }
+
+        public override void Print()
+        {
+            base.Print();
+            Console.WriteLine($"  Специализация: {Specialization}");
+        }
+
+        public override string ToString()
+        {
+            return base.ToString() + $" (Инженер)";
+        }
+
+        public override bool Equals(object? obj)  
+        {  
+            return base.Equals(obj) && obj is Engineer other && Specialization == other.Specialization;  
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(base.GetHashCode(), Specialization);
+        }
+    }
+
+    public class Administrator : Staff
+    {
+        public string? Position { get; set; }
+
+        public override void Print()
+        {
+            base.Print();
+            Console.WriteLine($"  Должность: {Position}");
+        }
+
+        public override string ToString()
+        {
+            return base.ToString() + $" (Администратор)";
+        }
+
+        public override bool Equals(object? obj)  
+        {  
+            return base.Equals(obj) && obj is Administrator other && Position == other.Position;  
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(base.GetHashCode(), Position);
+        }
+    }
+
+    class Program
+    {
+        static void Main()
+        {
+            Staff[] staff_list =
+            [
+                new Worker { FullName = "Иванов И.И.", Age = 30, Rank = 5 },
+                new Worker { FullName = "Иванов И.И.", Age = 30, Rank = 5 },
+                new Engineer { FullName = "Петров П.П.", Age = 35, Specialization = "АСУП" },
+                new Administrator { FullName = "Сидоров С.С.", Age = 45, Position = "Директор" },
+            ];
+
+            for (var i = 0; i < staff_list.Length; i++)  
+            {  
+                var person = staff_list[i];  
+                Console.WriteLine($"{i + 1}) {person}");  
+                person.Print();  
+                Console.WriteLine(new string('-', 20));
+            } 
+            
+            Console.WriteLine($"Сравнение 1) и 2): {staff_list[0].Equals(staff_list[1])}");
+            Console.WriteLine($"Сравнение 1) и 3): {staff_list[0].Equals(staff_list[2])}");
+        }
+    }
+}
