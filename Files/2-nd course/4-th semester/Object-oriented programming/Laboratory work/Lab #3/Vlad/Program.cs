@@ -15,13 +15,13 @@
             return $"Сотрудник {FullName}";
         }
 
-        public override bool Equals(object obj)  
+        public override bool Equals(object? obj)  
         {  
-            if (obj is not Staff other || GetType() != obj.GetType())  
+            if (obj is Staff other && GetType() == other.GetType())  
             {  
-                return false;  
+                return FullName == other.FullName && Age == other.Age;  
             }  
-            return FullName == other.FullName && Age == other.Age;  
+            return false;  
         }
 
         public override int GetHashCode()
@@ -45,15 +45,10 @@
             return base.ToString() + $" (Рабочий)";
         }
 
-        public override bool Equals(object obj)  
+        public override bool Equals(object? obj)  
         {  
-            if (!base.Equals(obj))  
-            {  
-                return false;  
-            }  
-            if (obj is Worker other);  
-                return Rank == other.Rank;  
-        }  
+            return base.Equals(obj) && obj is Worker other && Rank == other.Rank;  
+        }
 
         public override int GetHashCode()
         {
@@ -76,14 +71,9 @@
             return base.ToString() + $" (Инженер)";
         }
 
-        public override bool Equals(object obj)  
+        public override bool Equals(object? obj)  
         {  
-            if (!base.Equals(obj))  
-            {  
-                return false;  
-            }  
-            if (obj is Engineer other);  
-                return Specialization == other.Specialization;  
+            return base.Equals(obj) && obj is Engineer other && Specialization == other.Specialization;  
         }
 
         public override int GetHashCode()
@@ -107,15 +97,10 @@
             return base.ToString() + $" (Администратор)";
         }
 
-        public override bool Equals(object obj)  
+        public override bool Equals(object? obj)  
         {  
-            if (!base.Equals(obj))  
-            {  
-                return false;  
-            }  
-            if (obj is Administrator other);  
-                return Position == other.Position;  
-        } 
+            return base.Equals(obj) && obj is Administrator other && Position == other.Position;  
+        }
 
         public override int GetHashCode()
         {
@@ -138,7 +123,7 @@
             for (var i = 0; i < staff_list.Length; i++)  
             {  
                 var person = staff_list[i];  
-                Console.WriteLine($"{i + 1}) {person.ToString()}");  
+                Console.WriteLine($"{i + 1}) {person}");  
                 person.Print();  
                 Console.WriteLine(new string('-', 20));
             } 
