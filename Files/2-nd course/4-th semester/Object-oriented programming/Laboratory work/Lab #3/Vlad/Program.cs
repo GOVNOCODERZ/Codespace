@@ -51,13 +51,13 @@
             {  
                 return false;  
             }  
-            var other = (Worker)obj;  
-            return Rank == other.Rank;  
+            if (obj is Worker other);  
+                return Rank == other.Rank;  
         }  
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(FullName, Age, Rank);
+            return HashCode.Combine(base.GetHashCode(), Rank);
         }
     }
 
@@ -82,13 +82,13 @@
             {  
                 return false;  
             }  
-            var other = (Engineer)obj;  
-            return Specialization == other.Specialization;  
+            if (obj is Engineer other);  
+                return Specialization == other.Specialization;  
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(FullName, Age, Specialization);
+            return HashCode.Combine(base.GetHashCode(), Specialization);
         }
     }
 
@@ -113,13 +113,13 @@
             {  
                 return false;  
             }  
-            var other = (Administrator)obj;  
-            return Position == other.Position;  
+            if (obj is Administrator other);  
+                return Position == other.Position;  
         } 
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(FullName, Age, Position);
+            return HashCode.Combine(base.GetHashCode(), Position);
         }
     }
 
