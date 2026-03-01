@@ -4,7 +4,6 @@
     {
         public string FullName { get; set; }
         public int Age { get; set; }
-        public int Experience { get; set; }
 
         public virtual void Print()
         {
@@ -16,13 +15,13 @@
             return $"Сотрудник {FullName}";
         }
 
-        public override bool Equals(object obj)
-        {
-            if (obj is Staff other)
-            {
-                return this.FullName == other.FullName && this.Age == other.Age;
-            }
-            return false;
+        public override bool Equals(object obj)  
+        {  
+            if (obj is not Staff other || GetType() != obj.GetType())  
+            {  
+                return false;  
+            }  
+            return FullName == other.FullName && Age == other.Age;  
         }
 
         public override int GetHashCode()
@@ -46,14 +45,15 @@
             return base.ToString() + $" (Рабочий)";
         }
 
-        public override bool Equals(object obj)
-        {
-            if (obj is Worker other)
-            {
-                return base.Equals(obj) && this.Rank == other.Rank;
-            }
-            return false;
-        }
+        public override bool Equals(object obj)  
+        {  
+            if (!base.Equals(obj))  
+            {  
+                return false;  
+            }  
+            var other = (Worker)obj;  
+            return Rank == other.Rank;  
+        }  
 
         public override int GetHashCode()
         {
@@ -76,13 +76,14 @@
             return base.ToString() + $" (Инженер)";
         }
 
-        public override bool Equals(object obj)
-        {
-            if (obj is Engineer other)
-            {
-                return base.Equals(obj) && this.Specialization == other.Specialization;
-            }
-            return false;
+        public override bool Equals(object obj)  
+        {  
+            if (!base.Equals(obj))  
+            {  
+                return false;  
+            }  
+            var other = (Engineer)obj;  
+            return Specialization == other.Specialization;  
         }
 
         public override int GetHashCode()
@@ -106,14 +107,15 @@
             return base.ToString() + $" (Администратор)";
         }
 
-        public override bool Equals(object obj)
-        {
-            if (obj is Administrator other)
-            {
-                return base.Equals(obj) && this.Position == other.Position;
-            }
-            return false;
-        }
+        public override bool Equals(object obj)  
+        {  
+            if (!base.Equals(obj))  
+            {  
+                return false;  
+            }  
+            var other = (Administrator)obj;  
+            return Position == other.Position;  
+        } 
 
         public override int GetHashCode()
         {
@@ -133,12 +135,13 @@
                 new Administrator { FullName = "Сидоров С.С.", Age = 45, Position = "Директор" },
             ];
 
-            foreach (var person in staff_list)
-            {
-                Console.WriteLine($"{staff_list.IndexOf(person) + 1}) {person.ToString()}");
-                person.Print(); // Вызовется метод конкретного класса
+            for (var i = 0; i < staff_list.Length; i++)  
+            {  
+                var person = staff_list[i];  
+                Console.WriteLine($"{i + 1}) {person.ToString()}");  
+                person.Print();  
                 Console.WriteLine(new string('-', 20));
-            }
+            } 
             
             Console.WriteLine($"Сравнение 1) и 2): {staff_list[0].Equals(staff_list[1])}");
             Console.WriteLine($"Сравнение 1) и 3): {staff_list[0].Equals(staff_list[2])}");
