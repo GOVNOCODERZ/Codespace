@@ -2,7 +2,7 @@
 {
     public class Staff
     {
-        public string FullName { get; set; }
+        public string? FullName { get; set; }
         public int Age { get; set; }
 
         public virtual void Print()
@@ -63,7 +63,7 @@
 
     public class Engineer : Staff
     {
-        public string Specialization { get; set; }
+        public string? Specialization { get; set; }
 
         public override void Print()
         {
@@ -94,7 +94,7 @@
 
     public class Administrator : Staff
     {
-        public string Position { get; set; }
+        public string? Position { get; set; }
 
         public override void Print()
         {
