@@ -1,4 +1,5 @@
 import math
+import re
 from collections import Counter
 
 class TextEntropyAnalyzer:
@@ -50,9 +51,15 @@ class TextEntropyAnalyzer:
         
         # Обработка текста
         clear_text = self._text.lower()
+        # Оставляем только русские буквы и пробелы
+        clear_text = re.sub(r'[^а-яё ]', '', clear_text)
         self._total_chars = len(clear_text)
-        self._char_counts = Counter(clear_text)
         self._letters_probabilities = {}
+
+        self._char_counts = Counter(clear_text)
+        # "ъ" и "ь" должны считываться как один символ
+        self._char_counts['ъ'] += self._char_counts['ь']
+        del self._char_counts['ь']
 
         # Рассчёт энтропии
         entropy_sum = 0.0 # Суммарная энтропия
