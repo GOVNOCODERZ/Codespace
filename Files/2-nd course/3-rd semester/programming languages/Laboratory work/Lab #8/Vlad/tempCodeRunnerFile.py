@@ -1,1 +1,0 @@
-input_houses_from_console

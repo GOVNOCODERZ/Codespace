@@ -1,6 +1,0 @@
-PortableHDD,WD Blue,1000,Western Digital,5000.0,5400
-DVD,Disk A,4.7,Generic,100.0,DVD-R
-PortableHDD,Seagate Fast,2000,Seagate,8000.0,7200
-DVD,Disk B,4.7,Verbatim,150.0,DVD+R
-PortableHDD,Toshiba Canvio,500,Toshiba,3500.0,5400
-DVD,Disk C,9.4,Verbatim,200.0,DVD-RW

@@ -1,3 +1,0 @@
-HDD Aa Seagate 1500 500 5400
-Flash flash oo 10000 500 100
-HDD Bb disk 15000 6000 7200

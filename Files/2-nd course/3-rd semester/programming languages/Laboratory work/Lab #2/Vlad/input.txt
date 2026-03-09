@@ -1,6 +1,0 @@
-BankTransfer 01.01 500 BANK_1
-WebMoney 01.04 750 5
-BankTransfer 05.10 13 BANK_2
-WebMoney 20.04 1002 10
-BankTransfer 31.12 10000 BANK_3
-WebMoney 26.08 4200 13

@@ -1,1 +1,0 @@
- -- Just (Simple IntType)

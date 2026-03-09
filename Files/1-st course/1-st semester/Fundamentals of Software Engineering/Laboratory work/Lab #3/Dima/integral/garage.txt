@@ -1,1 +1,0 @@
-1 Toyota Yaris 2000 White 86 12455 4 0 2 BMW M4 2015 Black 145 1012 1 1 3 Mercedes AMG_SL_43 2023 Blue 381 4012 1 0 4 Lexus RX_350_V 2023 Black 249 50 0 0 5 Toyota Land_Cruser_200_Series 2015 Black 235 217000 1 0 6 Honda CR-V 2019 Black 190 43200 2 0 7 Xiaomi SU7 2024 Blue 673 10 0 0          
