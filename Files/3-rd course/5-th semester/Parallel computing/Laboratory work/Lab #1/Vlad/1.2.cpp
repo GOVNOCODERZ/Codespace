@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <functional>
 #include <cmath>
@@ -16,7 +17,7 @@ void bubbleSort(double* mas, int cnt) {
     do {
         ex = false;
         for (int i = 0; i < cnt - 1; i++)
-            if (mas[i] > mas[i + 1]) 
+            if (mas[i] > mas[i + 1])
             {
                 swap(mas[i], mas[i + 1]);
                 ex = true;
@@ -94,72 +95,89 @@ double Fillarr_par_for(double* a, double* b, int n) {
     return (omp_get_wtime() - t0) * 1000;
 }
 
+// Количество повторений каждой операции для более точных данных
+const int REPS = 5;
+
 // Последовательное сложение массивов
 double SumArrays_posl(double* a, double* b, double* r, int n) {
     double t0 = omp_get_wtime();
-    for (int i = 0; i < n; i++)
-        r[i] = a[i] + b[i];
-    return (omp_get_wtime() - t0) * 1000;
+    for (int rep = 0; rep < REPS; rep++)
+        for (int i = 0; i < n; i++)
+            r[i] = a[i] + b[i];
+    return (omp_get_wtime() - t0) * 1000 / REPS;
 }
 
-// Параллельное заполнение массива через `for`
+// Параллельное сложение массивов через `for`
 double SumArrays_par_for(double* a, double* b, double* r, int n) {
     double t0 = omp_get_wtime();
+    for (int rep = 0; rep < REPS; rep++) {
 #pragma omp parallel for
-    for (int i = 0; i < n; i++)
-        r[i] = a[i] + b[i];
-    return (omp_get_wtime() - t0) * 1000;
+        for (int i = 0; i < n; i++)
+            r[i] = a[i] + b[i];
+    }
+    return (omp_get_wtime() - t0) * 1000 / REPS;
 }
 
-// Последовательное заполнение массива через `Sections`
+// Параллельное сложение массивов через `Sections`
 double SumArrays_par_section(double* a, double* b, double* r, int n) {
     double t0 = omp_get_wtime();
     int p = omp_get_max_threads();
     int s1 = n / p, s2 = 2 * n / p, s3 = 3 * n / p;
+    for (int rep = 0; rep < REPS; rep++) {
 #pragma omp parallel sections
-    {
+        {
 #pragma omp section
-        { for (int i = 0; i < s1; i++) r[i] = a[i] + b[i]; }
+            { for (int i = 0; i < s1; i++) r[i] = a[i] + b[i]; }
 #pragma omp section
-        { if (p > 1) for (int i = s1; i < s2; i++) r[i] = a[i] + b[i]; }
+            { if (p > 1) for (int i = s1; i < s2; i++) r[i] = a[i] + b[i]; }
 #pragma omp section
-        { if (p > 2) for (int i = s2; i < s3; i++) r[i] = a[i] + b[i]; }
+            { if (p > 2) for (int i = s2; i < s3; i++) r[i] = a[i] + b[i]; }
 #pragma omp section
-        { if (p > 3) for (int i = s3; i < n; i++) r[i] = a[i] + b[i]; }
+            { if (p > 3) for (int i = s3; i < n; i++) r[i] = a[i] + b[i]; }
+        }
     }
-    return (omp_get_wtime() - t0) * 1000;
+    return (omp_get_wtime() - t0) * 1000 / REPS;
 }
 
 // Последовательная сумма элементов массива
 double ElArrSum_posl(double* a, int n, double& sum) {
     double t0 = omp_get_wtime(), s = 0;
-    for (int i = 0; i < n; i++) s += a[i];
+    for (int rep = 0; rep < REPS; rep++) {
+        s = 0;
+        for (int i = 0; i < n; i++) s += a[i];
+    }
     sum = s;
-    return (omp_get_wtime() - t0) * 1000;
+    return (omp_get_wtime() - t0) * 1000 / REPS;
 }
 
 // Параллельная сумма элементов массива через редукторы
 double ElArrSum_par_reduction(double* a, int n, double& sum) {
     double t0 = omp_get_wtime(), s = 0;
+    for (int rep = 0; rep < REPS; rep++) {
+        s = 0;
 #pragma omp parallel for reduction(+:s)
-    for (int i = 0; i < n; i++) s += a[i];
+        for (int i = 0; i < n; i++) s += a[i];
+    }
     sum = s;
-    return (omp_get_wtime() - t0) * 1000;
+    return (omp_get_wtime() - t0) * 1000 / REPS;
 }
 
 // Параллельная сумма элементов массива через критические секции
 double ElArrSum_par_critical(double* a, int n, double& sum) {
     double t0 = omp_get_wtime(), total = 0;
+    for (int rep = 0; rep < REPS; rep++) {
+        total = 0;
 #pragma omp parallel
-    {
-        double local = 0;
+        {
+            double local = 0;
 #pragma omp for
-        for (int i = 0; i < n; i++) local += a[i];
+            for (int i = 0; i < n; i++) local += a[i];
 #pragma omp critical
-        total += local;
+            total += local;
+        }
     }
     sum = total;
-    return (omp_get_wtime() - t0) * 1000;
+    return (omp_get_wtime() - t0) * 1000 / REPS;
 }
 
 // MARK: Тестирование
@@ -169,7 +187,8 @@ double ElArrSum_par_critical(double* a, int n, double& sum) {
 /// @param names названия функций
 /// @param size размер массивов для набора данных
 /// @param iters кол-во повторений замеров каждой функции
-void test_functions(double** T, vector<string>& names, int size, int iters) {
+/// @param csv поток для построчной записи результатов в CSV-файл
+void test_functions(double** T, vector<string>& names, int size, int iters, ofstream& csv) {
     double* a = new double[size], * b = new double[size], * c = new double[size]; // рабочие массивы
     double tsum = 0;
 
@@ -199,6 +218,8 @@ void test_functions(double** T, vector<string>& names, int size, int iters) {
                 T[f][0] = T[f][1] = T[f][2] = r; // время выполнения посл. функций дублируется
             else
                 T[f][th - 2] = r;
+
+            csv << size << ',' << '"' << names[f] << '"' << ',' << th << ',' << r << '\n';
         }
     }
     delete[] a; delete[] b; delete[] c;
@@ -217,11 +238,22 @@ int main() {
         for (int f = 0; f < fCount; f++) T[nd][f] = new double[3];
     }
 
+    ofstream csv("results.csv");
+    if (!csv.is_open())
+    {
+        cerr << "Failed to open results.csv for writing" << endl;
+        return 1;
+    }
+    csv << "Dataset,Function,Threads,Time_ms" << '\n';
+
     for (int nd = 0; nd < ndCount; nd++) {
         int size = base + step * nd;
         cout << "\n=== Dataset size: " << size << " ===" << endl;
-        test_functions(T[nd], names, size, iters);
+        test_functions(T[nd], names, size, iters, csv);
     }
+
+    csv.close();
+    cout << "\nResults written to results.csv" << endl;
 
     cout << "\nResults:" << endl;
     for (int nd = 0; nd < ndCount; nd++) {
