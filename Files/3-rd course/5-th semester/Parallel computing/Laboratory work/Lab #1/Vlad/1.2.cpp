@@ -96,7 +96,7 @@ double Fillarr_par_for(double* a, double* b, int n) {
 }
 
 // Количество повторений каждой операции для более точных данных
-const int REPS = 5;
+const int REPS = 25;
 
 // Последовательное сложение массивов
 double SumArrays_posl(double* a, double* b, double* r, int n) {
@@ -260,10 +260,10 @@ int main() {
         cout << "Dataset " << (base + step * nd) << ":" << endl;
         for (int f = 0; f < fCount; f++) {
             if (f == 0 || f == 2 || f == 5) // проверка на посл. функции
-                cout << "  " << names[f] << ": " << T[nd][f][0] << " ms" << endl;
+                cout << "  " << names[f] << ": " << T[nd][f][0] << endl;
             else
                 for (int th = 0; th < 3; th++)
-                    cout << "  " << names[f] << " [" << th + 2 << " threads]: " << T[nd][f][th] << " ms" << endl;
+                    cout << "  " << names[f] << " [" << th + 2 << " threads]: " << T[nd][f][th] << endl;
         }
     }
     return 0;

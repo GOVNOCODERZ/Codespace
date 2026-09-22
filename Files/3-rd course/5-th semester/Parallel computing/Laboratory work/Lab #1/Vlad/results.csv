@@ -1,73 +1,73 @@
 Dataset,Function,Threads,Time_ms
-100000,"Fill arrays (seq)",1,9
-100000,"Sum arrays (seq)",1,0.199998
-100000,"Sum elements (seq)",1,0.251007
-100000,"Fill arrays (parallel for)",2,4.99999
-100000,"Sum arrays (parallel for)",2,0.2
-100000,"Sum arrays (sections)",2,0.2
-100000,"Sum elements (reduction)",2,0.199999
-100000,"Sum elements (critical)",2,0.199999
-100000,"Fill arrays (parallel for)",3,3
-100000,"Sum arrays (parallel for)",3,0.2
-100000,"Sum arrays (sections)",3,0.199999
-100000,"Sum elements (reduction)",3,0.2
-100000,"Sum elements (critical)",3,0.2
+100000,"Fill arrays (seq)",1,9.00001
+100000,"Sum arrays (seq)",1,0
+100000,"Sum elements (seq)",1,0.258388
+100000,"Fill arrays (parallel for)",2,5
+100000,"Sum arrays (parallel for)",2,0
+100000,"Sum arrays (sections)",2,0
+100000,"Sum elements (reduction)",2,0
+100000,"Sum elements (critical)",2,0
+100000,"Fill arrays (parallel for)",3,2.99999
+100000,"Sum arrays (parallel for)",3,0
+100000,"Sum arrays (sections)",3,0
+100000,"Sum elements (reduction)",3,0
+100000,"Sum elements (critical)",3,0
 100000,"Fill arrays (parallel for)",4,3
-100000,"Sum arrays (parallel for)",4,0.200001
-100000,"Sum arrays (sections)",4,0.2
-100000,"Sum elements (reduction)",4,0.2
-100000,"Sum elements (critical)",4,0.200001
-170000,"Fill arrays (seq)",1,15
-170000,"Sum arrays (seq)",1,0.4
-170000,"Sum elements (seq)",1,0.4
-170000,"Fill arrays (parallel for)",2,7.68562
-170000,"Sum arrays (parallel for)",2,0.278787
-170000,"Sum arrays (sections)",2,0.199998
-170000,"Sum elements (reduction)",2,0.199999
-170000,"Sum elements (critical)",2,0.200001
-170000,"Fill arrays (parallel for)",3,6
-170000,"Sum arrays (parallel for)",3,0.199999
-170000,"Sum arrays (sections)",3,0.2
-170000,"Sum elements (reduction)",3,0.2
-170000,"Sum elements (critical)",3,0.200001
-170000,"Fill arrays (parallel for)",4,4.00001
-170000,"Sum arrays (parallel for)",4,0.199999
-170000,"Sum arrays (sections)",4,0.2
-170000,"Sum elements (reduction)",4,0.2
-170000,"Sum elements (critical)",4,0.199999
-240000,"Fill arrays (seq)",1,21.0435
-240000,"Sum arrays (seq)",1,0.651504
-240000,"Sum elements (seq)",1,0.6
-240000,"Fill arrays (parallel for)",2,10.7584
-240000,"Sum arrays (parallel for)",2,0.400001
-240000,"Sum arrays (sections)",2,0.4
-240000,"Sum elements (reduction)",2,0.400002
-240000,"Sum elements (critical)",2,0.351516
-240000,"Fill arrays (parallel for)",3,7
-240000,"Sum arrays (parallel for)",3,0.199999
-240000,"Sum arrays (sections)",3,0.399999
-240000,"Sum elements (reduction)",3,0.2
-240000,"Sum elements (critical)",3,0.200001
-240000,"Fill arrays (parallel for)",4,6
-240000,"Sum arrays (parallel for)",4,0.2
-240000,"Sum arrays (sections)",4,0.200001
-240000,"Sum elements (reduction)",4,0.200001
-240000,"Sum elements (critical)",4,0.2
+100000,"Sum arrays (parallel for)",4,0
+100000,"Sum arrays (sections)",4,0
+100000,"Sum elements (reduction)",4,0
+100000,"Sum elements (critical)",4,0
+170000,"Fill arrays (seq)",1,14.7576
+170000,"Sum arrays (seq)",1,0
+170000,"Sum elements (seq)",1,0
+170000,"Fill arrays (parallel for)",2,8
+170000,"Sum arrays (parallel for)",2,0
+170000,"Sum arrays (sections)",2,0
+170000,"Sum elements (reduction)",2,0
+170000,"Sum elements (critical)",2,0
+170000,"Fill arrays (parallel for)",3,5.41611
+170000,"Sum arrays (parallel for)",3,0
+170000,"Sum arrays (sections)",3,0
+170000,"Sum elements (reduction)",3,0
+170000,"Sum elements (critical)",3,0
+170000,"Fill arrays (parallel for)",4,4
+170000,"Sum arrays (parallel for)",4,0
+170000,"Sum arrays (sections)",4,0
+170000,"Sum elements (reduction)",4,0
+170000,"Sum elements (critical)",4,0
+240000,"Fill arrays (seq)",1,21
+240000,"Sum arrays (seq)",1,0.999998
+240000,"Sum elements (seq)",1,0.999999
+240000,"Fill arrays (parallel for)",2,11
+240000,"Sum arrays (parallel for)",2,0
+240000,"Sum arrays (sections)",2,0
+240000,"Sum elements (reduction)",2,0
+240000,"Sum elements (critical)",2,0
+240000,"Fill arrays (parallel for)",3,7.30303
+240000,"Sum arrays (parallel for)",3,0
+240000,"Sum arrays (sections)",3,0
+240000,"Sum elements (reduction)",3,0
+240000,"Sum elements (critical)",3,0
+240000,"Fill arrays (parallel for)",4,6.00001
+240000,"Sum arrays (parallel for)",4,0
+240000,"Sum arrays (sections)",4,0
+240000,"Sum elements (reduction)",4,0
+240000,"Sum elements (critical)",4,0
 310000,"Fill arrays (seq)",1,27
-310000,"Sum arrays (seq)",1,0.840271
-310000,"Sum elements (seq)",1,0.800001
-310000,"Fill arrays (parallel for)",2,13.8542
-310000,"Sum arrays (parallel for)",2,0.491409
-310000,"Sum arrays (sections)",2,0.6
-310000,"Sum elements (reduction)",2,0.399999
-310000,"Sum elements (critical)",2,0.4
-310000,"Fill arrays (parallel for)",3,9.99999
-310000,"Sum arrays (parallel for)",3,0.399998
-310000,"Sum arrays (sections)",3,0.4
-310000,"Sum elements (reduction)",3,0.400001
-310000,"Sum elements (critical)",3,0.349664
-310000,"Fill arrays (parallel for)",4,8
-310000,"Sum arrays (parallel for)",4,0.399999
-310000,"Sum arrays (sections)",4,0.399998
-310000,"Sum elements (reduction)",4,0.200001
-310000,"Sum elements (critical)",4,0.399999
+310000,"Sum arrays (seq)",1,0.999999
+310000,"Sum elements (seq)",1,0.789301
+310000,"Fill arrays (parallel for)",2,14
+310000,"Sum arrays (parallel for)",2,1
+310000,"Sum arrays (sections)",2,1
+310000,"Sum elements (reduction)",2,0
+310000,"Sum elements (critical)",2,0
+310000,"Fill arrays (parallel for)",3,9.44444
+310000,"Sum arrays (parallel for)",3,0
+310000,"Sum arrays (sections)",3,0
+310000,"Sum elements (reduction)",3,0
+310000,"Sum elements (critical)",3,0
+310000,"Fill arrays (parallel for)",4,7
+310000,"Sum arrays (parallel for)",4,0.38255
+310000,"Sum arrays (sections)",4,0
+310000,"Sum elements (reduction)",4,0
+310000,"Sum elements (critical)",4,0
