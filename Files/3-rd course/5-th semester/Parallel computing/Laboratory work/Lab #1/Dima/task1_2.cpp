@@ -2,9 +2,12 @@
 #include <cmath>
 #include <vector>
 #include <functional>
-#include <algorithm>
 #include <fstream>
+#include <chrono>
 #include <omp.h>
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 // ---------------- Заполнение массивов ----------------
 
@@ -34,17 +37,34 @@ void sum_arrays_par_for(double* mas1, double* mas2, double* mas3, int size) {
     for (int i = 0; i < size; i++) mas3[i] = mas1[i] + mas2[i];
 }
 
-void sum_arrays_par_sections(double* mas1, double* mas2, double* mas3, int size) {
-    int half = size / 2;
+// Сложение с равномерной балансировкой нагрузки по секциям (см. методичку:
+// "Ручная равномерная балансировка нагрузки для директивы omp sections").
+// Фиксировано 4 секции, границы S_i = (i*Size)/p; реально работают только
+// первые p секций - остальные проверяются условием if(p>N) и ничего не делают
+void sum_arrays_par_sections(double* mas1, double* mas2, double* mas3, int size, int p) {
+    int S0 = 0;
+    int S1 = (1 * size) / p;
+    int S2 = (2 * size) / p;
+    int S3 = (3 * size) / p;
+    int S4 = (4 * size) / p;
+
     #pragma omp parallel sections
     {
         #pragma omp section
         {
-            for (int i = 0; i < half; i++) mas3[i] = mas1[i] + mas2[i];
+            for (int i = S0; i < S1; i++) mas3[i] = mas1[i] + mas2[i];
         }
         #pragma omp section
         {
-            for (int i = half; i < size; i++) mas3[i] = mas1[i] + mas2[i];
+            if (p > 1) for (int i = S1; i < S2; i++) mas3[i] = mas1[i] + mas2[i];
+        }
+        #pragma omp section
+        {
+            if (p > 2) for (int i = S2; i < S3; i++) mas3[i] = mas1[i] + mas2[i];
+        }
+        #pragma omp section
+        {
+            if (p > 3) for (int i = S3; i < S4; i++) mas3[i] = mas1[i] + mas2[i];
         }
     }
 }
@@ -79,28 +99,52 @@ volatile double g_sink = 0;
 
 // ---------------- Замер времени ----------------
 
-// Усреднение с отбрасыванием 10% наибольших и наименьших значений (доверительный интервал)
+// Усреднение с доверительным интервалом на основе среднеарифметического
+// значения и стандартного отклонения (метод AvgTrustedIntervalAVG из
+// методички "Использование доверительного интервала..."):
+// 1) считаем среднее avg по всей выборке
+// 2) считаем стандартное отклонение sd
+// 3) оставляем только значения из диапазона [avg-sd, avg+sd]
+// 4) возвращаем среднее по оставшимся значениям
 double AvgTrustedInterval(std::vector<double>& times) {
-    std::sort(times.begin(), times.end());
-    int cut = (int)(times.size() * 0.1);
-    double sum = 0;
-    int cnt = 0;
-    for (int i = cut; i < (int)times.size() - cut; i++) {
-        sum += times[i];
-        cnt++;
+    int cnt = (int)times.size();
+
+    double avg = 0;
+    for (double t : times) avg += t;
+    avg /= cnt;
+
+    double sd = 0;
+    for (double t : times) sd += (t - avg) * (t - avg);
+    sd /= (cnt - 1.0);
+    sd = sqrt(sd);
+
+    double newAvg = 0;
+    int newCnt = 0;
+    for (double t : times) {
+        if (avg - sd <= t && t <= avg + sd) {
+            newAvg += t;
+            newCnt++;
+        }
     }
-    return cnt > 0 ? sum / cnt : 0;
+    if (newCnt == 0) newCnt = 1;
+    return newAvg / newCnt;
 }
 
 // innerReps — сколько раз подряд вызвать func() внутри одного замера (нужно для
 // коротких операций, время которых меньше разрешения таймера); итоговое время
-// делится на innerReps, чтобы получить время одного вызова
+// делится на innerReps, чтобы получить время одного вызова.
+// Используется std::chrono::high_resolution_clock вместо omp_get_wtime(),
+// т.к. на некоторых сборках MinGW libgomp даёт разрешение таймера всего 1 мс
+// (см. вывод omp_get_wtick() в начале main), тогда как chrono на Windows
+// опирается на QueryPerformanceCounter и даёт наносекундную точность
 double MeasureTime(const std::function<void()>& func, int expCnt, int innerReps = 1) {
     std::vector<double> times(expCnt);
     for (int i = 0; i < expCnt; i++) {
-        double t0 = omp_get_wtime();
+        auto t0 = std::chrono::high_resolution_clock::now();
         for (int r = 0; r < innerReps; r++) func();
-        times[i] = (omp_get_wtime() - t0) * 1000.0 / innerReps; // мс
+        auto t1 = std::chrono::high_resolution_clock::now();
+        double ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
+        times[i] = ms / innerReps;
     }
     return AvgTrustedInterval(times);
 }
@@ -122,6 +166,12 @@ void run_research(int size, int iterations, std::ofstream& out) {
     double* mas3 = new double[size];
     double tsum = 0;
 
+    // для операций сложения и суммирования элементов (простые и быстрые)
+    // делаем несколько вызовов подряд внутри одного замера, чтобы сгладить
+    // статистический шум между отдельными вызовами
+    const int sumInnerReps = 20;
+    const int elInnerReps = 20;
+
     for (int threads = 1; threads <= 4; threads++) {
         omp_set_num_threads(threads);
         std::cout << "\nРазмер НД: " << size << ", потоков: " << omp_get_max_threads() << std::endl;
@@ -129,12 +179,6 @@ void run_research(int size, int iterations, std::ofstream& out) {
         for (int f = 0; f < 8; f++) {
             if (threads == 1 && !is_seq(f)) continue;
             if (threads > 1 && is_seq(f)) continue;
-
-            // для операций сложения и суммирования элементов (простые и быстрые)
-            // делаем несколько вызовов подряд внутри одного замера, иначе
-            // время может округлиться до 0 из-за разрешения таймера
-            const int sumInnerReps = 20;
-            const int elInnerReps = 20;
 
             double time_ms = 0;
             switch (f) {
@@ -151,7 +195,7 @@ void run_research(int size, int iterations, std::ofstream& out) {
                     time_ms = MeasureTime([&]() { sum_arrays_par_for(mas1, mas2, mas3, size); g_sink += mas3[size - 1]; }, iterations, sumInnerReps);
                     break;
                 case 4:
-                    time_ms = MeasureTime([&]() { sum_arrays_par_sections(mas1, mas2, mas3, size); g_sink += mas3[size - 1]; }, iterations, sumInnerReps);
+                    time_ms = MeasureTime([&]() { sum_arrays_par_sections(mas1, mas2, mas3, size, threads); g_sink += mas3[size - 1]; }, iterations, sumInnerReps);
                     break;
                 case 5:
                     time_ms = MeasureTime([&]() { tsum = sum_el_seq(mas3, size); g_sink += tsum; }, iterations, elInnerReps);
@@ -175,7 +219,15 @@ void run_research(int size, int iterations, std::ofstream& out) {
 }
 
 int main() {
+#ifdef _WIN32
+    // консоль Windows по умолчанию не в UTF-8 - без этого кириллица будет "кракозябрами"
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
+#endif
     std::cout << "Максимально доступное количество потоков: " << omp_get_max_threads() << std::endl;
+    // разрешение таймера omp_get_wtime() на этой машине - если сравнимо
+    // с измеряемым временем операции, замеры будут неточными/квантованными
+    std::cout << "Разрешение таймера (omp_get_wtick): " << omp_get_wtick() * 1000.0 << " мс" << std::endl;
 
     std::vector<int> data_sizes = { 100000, 170000, 240000, 310000 };
     int iterations = 300;
