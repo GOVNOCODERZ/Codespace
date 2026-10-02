@@ -9,7 +9,7 @@
 #include <windows.h>
 #endif
 
-// ---------------- Заполнение массивов ----------------
+// Заполнение массивов
 
 void fill_seq(double* mas1, double* mas2, int size) {
     for (int i = 0; i < size; i++) {
@@ -26,7 +26,7 @@ void fill_par_for(double* mas1, double* mas2, int size) {
     }
 }
 
-// ---------------- Сложение массивов ----------------
+// Сложение массивов
 
 void sum_arrays_seq(double* mas1, double* mas2, double* mas3, int size) {
     for (int i = 0; i < size; i++) mas3[i] = mas1[i] + mas2[i];
@@ -37,10 +37,6 @@ void sum_arrays_par_for(double* mas1, double* mas2, double* mas3, int size) {
     for (int i = 0; i < size; i++) mas3[i] = mas1[i] + mas2[i];
 }
 
-// Сложение с равномерной балансировкой нагрузки по секциям (см. методичку:
-// "Ручная равномерная балансировка нагрузки для директивы omp sections").
-// Фиксировано 4 секции, границы S_i = (i*Size)/p; реально работают только
-// первые p секций - остальные проверяются условием if(p>N) и ничего не делают
 void sum_arrays_par_sections(double* mas1, double* mas2, double* mas3, int size, int p) {
     int S0 = 0;
     int S1 = (1 * size) / p;
@@ -69,7 +65,7 @@ void sum_arrays_par_sections(double* mas1, double* mas2, double* mas3, int size,
     }
 }
 
-// ---------------- Подсчёт суммы элементов ----------------
+// Подсчёт суммы элементов
 
 double sum_el_seq(double* mas3, int size) {
     double sum = 0;
@@ -97,15 +93,7 @@ double sum_el_critical(double* mas3, int size) {
 // volatile-приёмник результата — не даёт компилятору выбросить "бесполезные" вычисления
 volatile double g_sink = 0;
 
-// ---------------- Замер времени ----------------
-
-// Усреднение с доверительным интервалом на основе среднеарифметического
-// значения и стандартного отклонения (метод AvgTrustedIntervalAVG из
-// методички "Использование доверительного интервала..."):
-// 1) считаем среднее avg по всей выборке
-// 2) считаем стандартное отклонение sd
-// 3) оставляем только значения из диапазона [avg-sd, avg+sd]
-// 4) возвращаем среднее по оставшимся значениям
+// Замер времени
 double AvgTrustedInterval(std::vector<double>& times) {
     int cnt = (int)times.size();
 
@@ -130,13 +118,6 @@ double AvgTrustedInterval(std::vector<double>& times) {
     return newAvg / newCnt;
 }
 
-// innerReps — сколько раз подряд вызвать func() внутри одного замера (нужно для
-// коротких операций, время которых меньше разрешения таймера); итоговое время
-// делится на innerReps, чтобы получить время одного вызова.
-// Используется std::chrono::high_resolution_clock вместо omp_get_wtime(),
-// т.к. на некоторых сборках MinGW libgomp даёт разрешение таймера всего 1 мс
-// (см. вывод omp_get_wtick() в начале main), тогда как chrono на Windows
-// опирается на QueryPerformanceCounter и даёт наносекундную точность
 double MeasureTime(const std::function<void()>& func, int expCnt, int innerReps = 1) {
     std::vector<double> times(expCnt);
     for (int i = 0; i < expCnt; i++) {
@@ -149,7 +130,7 @@ double MeasureTime(const std::function<void()>& func, int expCnt, int innerReps 
     return AvgTrustedInterval(times);
 }
 
-// ---------------- Экспериментальное исследование ----------------
+// Экспериментальное исследование
 
 const std::vector<std::string> function_names = {
     "Заполнение (посл.)", "Заполнение (парал. FOR)",
@@ -220,7 +201,7 @@ void run_research(int size, int iterations, std::ofstream& out) {
 
 int main() {
 #ifdef _WIN32
-    // консоль Windows по умолчанию не в UTF-8 - без этого кириллица будет "кракозябрами"
+
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
 #endif

@@ -6,7 +6,7 @@
 #include <string>
 #include <cstring>
 
-// ====================== Доверительный интервал ======================
+// Доверительный интервал
 double AvgTrustedIntervalAVG(const std::vector<double>& times)
 {
     int cnt = static_cast<int>(times.size());
@@ -33,7 +33,7 @@ double AvgTrustedIntervalAVG(const std::vector<double>& times)
     return newCnt > 0 ? newAvg / newCnt : avg;
 }
 
-// ====================== Матрица (row-major) ======================
+// Матрица (row-major)
 using Matrix = std::vector<double>;
 
 inline double& at(Matrix& m, int rows, int cols, int i, int j)
@@ -118,7 +118,7 @@ void fill_B_sections(Matrix& B, int N, int K)
     }
 }
 
-// ====================== Классическое умножение ======================
+// Классическое умножение
 // C = A * B, A(M×N), B(N×K), C(M×K)
 void mult_classic_seq(const Matrix& A, const Matrix& B, Matrix& C, int M, int N, int K)
 {
@@ -202,7 +202,7 @@ void mult_classic_sections(const Matrix& A, const Matrix& B, Matrix& C, int M, i
     }
 }
 
-// ====================== Быстрый алгоритм: блочное (tiled) умножение ======================
+// Быстрый алгоритм: блочное (tiled) умножение
 const int BLOCK = 64;
 
 void mult_blocked_seq(const Matrix& A, const Matrix& B, Matrix& C, int M, int N, int K)
@@ -253,7 +253,7 @@ void mult_blocked_for(const Matrix& A, const Matrix& B, Matrix& C, int M, int N,
             }
 }
 
-// ====================== Измерение ======================
+// Измерение
 template<typename Func>
 double measure(Func f, int runs = 15)
 {
@@ -302,7 +302,7 @@ int main()
         Matrix B(static_cast<size_t>(N) * K);
         Matrix C(static_cast<size_t>(M) * K);
 
-        // ----- Заполнение -----
+        // Заполнение
         std::cout << "\n--- Matrix filling ---\n";
 
         // Последовательное
@@ -342,7 +342,7 @@ int main()
         fill_A_seq(A, M, N);
         fill_B_seq(B, N, K);
 
-        // ----- Classic matrix multiplication -----
+        // Classic matrix multiplication
         std::cout << "\n--- Classic matrix multiplication ---\n";
 
         double t_classic_seq = measure([&]() {
@@ -374,7 +374,7 @@ int main()
                       << "  Ep=" << (t_classic_seq / t) / th << "\n";
         }
 
-        // ----- Блочное (быстрый) -----
+        // Блочное (быстрый)
         std::cout << "\n--- Blocked matrix multiplication (fast algorithm) ---\n";
 
         double t_blocked_seq = measure([&]() {

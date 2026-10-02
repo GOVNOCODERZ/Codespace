@@ -5,7 +5,7 @@
 #include <omp.h>
 #include <string>
 
-// Функция расчёта среднего в доверительном интервале (из лекции)
+// Функция расчёта среднего в доверительном интервала
 // на основе среднеарифметического значения
 double AvgTrustedIntervalAVG(const std::vector<double>& times)
 {
@@ -43,7 +43,7 @@ double AvgTrustedIntervalAVG(const std::vector<double>& times)
     return newAvg;
 }
 
-// ====================== Последовательная реализация ======================
+// Последовательная реализация
 double pi_sequential(long num_steps)
 {
     double step = 1.0 / static_cast<double>(num_steps);
@@ -56,7 +56,7 @@ double pi_sequential(long num_steps)
     return step * sum;
 }
 
-// ====================== Parallel FOR schedule(static) ======================
+// Parallel FOR schedule(static)
 double pi_for_static(long num_steps)
 {
     double step = 1.0 / static_cast<double>(num_steps);
@@ -71,7 +71,7 @@ double pi_for_static(long num_steps)
     return step * sum;
 }
 
-// ====================== Parallel FOR schedule(dynamic) ======================
+// Parallel FOR schedule(dynamic)
 double pi_for_dynamic(long num_steps)
 {
     double step = 1.0 / static_cast<double>(num_steps);
@@ -86,7 +86,7 @@ double pi_for_dynamic(long num_steps)
     return step * sum;
 }
 
-// ====================== Parallel FOR schedule(guided) ======================
+// Parallel FOR schedule(guided)
 double pi_for_guided(long num_steps)
 {
     double step = 1.0 / static_cast<double>(num_steps);
@@ -101,7 +101,7 @@ double pi_for_guided(long num_steps)
     return step * sum;
 }
 
-// ====================== Parallel Sections ======================
+// Parallel Sections
 // Делим диапазон на 4 секции (работает при любом числе потоков)
 double pi_sections(long num_steps)
 {
@@ -148,7 +148,7 @@ double pi_sections(long num_steps)
     return step * (sum1 + sum2 + sum3 + sum4);
 }
 
-// ====================== Измерение времени ======================
+// Измерение времени 
 using FuncType = double(*)(long);
 
 double measure_time(FuncType func, long num_steps, int runs = 300)
@@ -187,7 +187,7 @@ int main()
         std::cout << "Check: Pi (1e6 steps) = " << pi_ref << " (expected ~3.14159)\n\n";
     }
 
-    // ========== Последовательная версия ==========
+    // Последовательная версия
     std::cout << "=== Sequential implementation ===\n";
     std::cout << "DS1\t\tDS2\t\tDS3\t\tDS4\n";
     for (int nd = 0; nd < 4; ++nd)
@@ -198,7 +198,7 @@ int main()
     }
     std::cout << "\n\n";
 
-    // ========== Parallel FOR static ==========
+    // Parallel FOR static
     std::cout << "=== Parallel FOR schedule(static) ===\n";
     for (int th : threads_list)
     {
@@ -215,7 +215,7 @@ int main()
     }
     std::cout << "\n";
 
-    // ========== Parallel FOR dynamic ==========
+    // Parallel FOR dynamic
     std::cout << "=== Parallel FOR schedule(dynamic) ===\n";
     for (int th : threads_list)
     {
@@ -232,7 +232,7 @@ int main()
     }
     std::cout << "\n";
 
-    // ========== Parallel FOR guided ==========
+    // Parallel FOR guided
     std::cout << "=== Parallel FOR schedule(guided) ===\n";
     for (int th : threads_list)
     {
@@ -249,7 +249,7 @@ int main()
     }
     std::cout << "\n";
 
-    // ========== Parallel Sections ==========
+    // Parallel Sections
     std::cout << "=== Parallel Sections ===\n";
     for (int th : threads_list)
     {
