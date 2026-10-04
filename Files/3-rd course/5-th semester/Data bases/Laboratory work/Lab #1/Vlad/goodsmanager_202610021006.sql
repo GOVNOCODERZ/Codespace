@@ -1,4 +1,6 @@
-﻿--
+﻿
+
+--
 -- Скрипт сгенерирован Devart dbForge Studio 2020 for MySQL, Версия 9.0.567.0
 -- Домашняя страница продукта: http://www.devart.com/ru/dbforge/mysql/studio
 -- Дата скрипта: 02.10.2026 10:06:56
