@@ -1,0 +1,53 @@
+NumSteps,Function,Threads,Time_ms
+10000000,"Pi (seq)",1,23.8021
+10000000,"Pi (for, static)",2,16.6229
+10000000,"Pi (for, dynamic)",2,13.9394
+10000000,"Pi (for, guided)",2,13.9327
+10000000,"Pi (sections)",2,12
+10000000,"Pi (for, static)",3,11.1939
+10000000,"Pi (for, dynamic)",3,8.97643
+10000000,"Pi (for, guided)",3,9
+10000000,"Pi (sections)",3,8.3468
+10000000,"Pi (for, static)",4,8.7973
+10000000,"Pi (for, dynamic)",4,6.99999
+10000000,"Pi (for, guided)",4,7
+10000000,"Pi (sections)",4,7
+20000000,"Pi (seq)",1,47.2671
+20000000,"Pi (for, static)",2,32.9864
+20000000,"Pi (for, dynamic)",2,27.7703
+20000000,"Pi (for, guided)",2,27.6143
+20000000,"Pi (sections)",2,24.2237
+20000000,"Pi (for, static)",3,22.1735
+20000000,"Pi (for, dynamic)",3,17.8889
+20000000,"Pi (for, guided)",3,18.3966
+20000000,"Pi (sections)",3,17.6146
+20000000,"Pi (for, static)",4,18.1631
+20000000,"Pi (for, dynamic)",4,15.2415
+20000000,"Pi (for, guided)",4,15.2705
+20000000,"Pi (sections)",4,14.9729
+30000000,"Pi (seq)",1,70.8396
+30000000,"Pi (for, static)",2,49.2162
+30000000,"Pi (for, dynamic)",2,41.3085
+30000000,"Pi (for, guided)",2,41.1604
+30000000,"Pi (sections)",2,35.8114
+30000000,"Pi (for, static)",3,33.078
+30000000,"Pi (for, dynamic)",3,26.7525
+30000000,"Pi (for, guided)",3,27.6768
+30000000,"Pi (sections)",3,26.2413
+30000000,"Pi (for, static)",4,26.9593
+30000000,"Pi (for, dynamic)",4,22.4914
+30000000,"Pi (for, guided)",4,22.6216
+30000000,"Pi (sections)",4,21.9534
+40000000,"Pi (seq)",1,94.3596
+40000000,"Pi (for, static)",2,65.5753
+40000000,"Pi (for, dynamic)",2,54.9865
+40000000,"Pi (for, guided)",2,54.8374
+40000000,"Pi (sections)",2,47.596
+40000000,"Pi (for, static)",3,44.0203
+40000000,"Pi (for, dynamic)",3,35.6714
+40000000,"Pi (for, guided)",3,36.6276
+40000000,"Pi (sections)",3,34.4712
+40000000,"Pi (for, static)",4,35.8041
+40000000,"Pi (for, dynamic)",4,29.6233
+40000000,"Pi (for, guided)",4,29.7075
+40000000,"Pi (sections)",4,28.9
