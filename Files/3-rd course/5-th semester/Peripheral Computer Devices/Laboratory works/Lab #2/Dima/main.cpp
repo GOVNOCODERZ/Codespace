@@ -57,7 +57,7 @@ static void transform(const cv::Mat& src, cv::Mat& dst) {
         uchar* ptr = dst.ptr<uchar>(y);
         for (int x = 0; x < dst.cols; ++x) {
             ptr[3 * x] = 0;        // Blue
-            ptr[3 * x + 2] = 0;    // Red
+            ptr[3 * x + 1] = 0;    // Red
         }
     }
 }
