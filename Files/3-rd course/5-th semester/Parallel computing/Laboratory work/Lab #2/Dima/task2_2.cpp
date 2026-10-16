@@ -9,13 +9,13 @@
 #include <windows.h>
 
 // -----------------------------------------------------------------------------
-// 1. Управление памятью: непрерывный блок (по образцу DemoMatrix2 из лекции)
+// 1. Управление памятью: непрерывный блок (DemoMatrix2 из лекции)
 // -----------------------------------------------------------------------------
 double** CreateMatrix(int rows, int cols) {
     double** mat = new double*[rows];
-    mat[0] = new double[rows * cols];
+    mat[0] = new double[(size_t)rows * cols];
     for (int i = 1; i < rows; i++) {
-        mat[i] = &mat[0][i * cols];
+        mat[i] = &mat[0][(size_t)i * cols];
     }
     return mat;
 }
@@ -33,6 +33,11 @@ void FreeMatrix(double** mat) {
 double AvgTrustedInterval(const std::vector<double>& times) {
     int cnt = (int)times.size();
     if (cnt == 0) return 0.0;
+    if (cnt <= 2) {
+        double sum = 0.0;
+        for (double t : times) sum += t;
+        return sum / cnt;
+    }
 
     double avg = 0.0;
     for (double t : times) avg += t;
@@ -53,13 +58,12 @@ double AvgTrustedInterval(const std::vector<double>& times) {
     return (newCnt > 0) ? (newAvg / newCnt) : avg;
 }
 
-// Защита от удаления кода оптимизатором
 volatile double g_sink = 0.0;
 
 template <typename Func>
 double RunBenchmark(Func f, int runs = 15) {
     std::vector<double> times(runs);
-    // Прогрев кэша
+    // Прогрев
     f();
 
     for (int i = 0; i < runs; i++) {
@@ -75,12 +79,9 @@ double RunBenchmark(Func f, int runs = 15) {
 // -----------------------------------------------------------------------------
 // 3. Форматированный вывод таблицы 2.2 с учетом UTF-8
 // -----------------------------------------------------------------------------
-
-// Подсчет РЕАЛЬНЫХ видимых символов на экране для UTF-8
 int Utf8Length(const std::string& str) {
     int len = 0;
     for (unsigned char c : str) {
-        // Пропускаем байты продолжения UTF-8 символов (10xxxxxx)
         if ((c & 0xC0) != 0x80) {
             len++;
         }
@@ -93,26 +94,23 @@ void PrintTableRow(const std::string& name, const std::string& threads, double t
     int p_num = std::stoi(threads);
     double ep = sp / p_num;
 
-    // Колонка "Функция (реализация)" — строго 38 видимых символов
     int visible_len = Utf8Length(name);
     int pad_name = 38 - visible_len;
     if (pad_name < 2) pad_name = 2;
     std::cout << name << std::string(pad_name, ' ');
 
-    // Колонка "Поток" — строго 8 символов
     std::cout << threads;
     int pad_th = 8 - (int)threads.length();
     if (pad_th < 2) pad_th = 2;
     std::cout << std::string(pad_th, ' ');
 
-    // Вывод числовых значений
     std::cout << std::setw(14) << std::fixed << std::setprecision(2) << time
               << std::setw(14) << std::fixed << std::setprecision(2) << sp
               << std::setw(12) << std::fixed << std::setprecision(2) << ep << "\n";
 }
 
 // -----------------------------------------------------------------------------
-// 4. Заполнение матриц A и B
+// 4. Заполнение матриц A и B (собственные формулы)
 // -----------------------------------------------------------------------------
 void FillMatrix_Serial(double** A, double** B, int M, int N, int K) {
     for (int i = 0; i < M; i++)
@@ -345,14 +343,14 @@ void Strassen_Main(double** A, double** B, double** C, int M, int N, int K, bool
     int extSize = 1;
     while (extSize < maxDim) extSize <<= 1;
 
-    std::vector<double> padA(extSize * extSize, 0.0);
-    std::vector<double> padB(extSize * extSize, 0.0);
-    std::vector<double> padC(extSize * extSize, 0.0);
+    std::vector<double> padA((size_t)extSize * extSize, 0.0);
+    std::vector<double> padB((size_t)extSize * extSize, 0.0);
+    std::vector<double> padC((size_t)extSize * extSize, 0.0);
 
     for (int i = 0; i < M; i++)
-        std::copy_n(A[i], N, &padA[i * extSize]);
+        std::copy_n(A[i], N, &padA[(size_t)i * extSize]);
     for (int i = 0; i < N; i++)
-        std::copy_n(B[i], K, &padB[i * extSize]);
+        std::copy_n(B[i], K, &padB[(size_t)i * extSize]);
 
     if (is_parallel) {
         #pragma omp parallel num_threads(threads)
@@ -367,17 +365,17 @@ void Strassen_Main(double** A, double** B, double** C, int M, int N, int K, bool
     }
 
     for (int i = 0; i < M; i++) {
-        std::copy_n(&padC[i * extSize], K, C[i]);
+        std::copy_n(&padC[(size_t)i * extSize], K, C[i]);
     }
     g_sink += C[0][0];
 }
 
 // -----------------------------------------------------------------------------
-// 7. Функция запуска тестов
+// 7. Функция запуска тестов группы алгоритмов
 // -----------------------------------------------------------------------------
 template <typename SeqFunc, typename ParFunc>
 void BenchmarkGroup(const std::string& base_name, SeqFunc seq_fn, ParFunc par_fn, 
-                    const int thread_counts[], int num_threads_cnt, int runs = 15) {
+                    const int thread_counts[], int num_threads_cnt, int runs) {
     double t_seq = RunBenchmark(seq_fn, runs);
     PrintTableRow(base_name + " (посл.)", "1", t_seq, t_seq);
 
@@ -394,23 +392,24 @@ void BenchmarkGroup(const std::string& base_name, SeqFunc seq_fn, ParFunc par_fn
 struct DataSet {
     std::string name;
     int M, N, K;
+    int mul_runs;      // количество прогонов для классического перемножения
+    int strassen_runs; // количество прогонов для Штрассена
 };
 
 int main() {
-    // Включение кодировки UTF-8 для корректного вывода в консоли Windows
     SetConsoleOutputCP(65001);
     SetConsoleCP(65001);
 
-    // 4 набора данных: 2 квадратных, 2 прямоугольных (согласно методичке)
+    // 4 набора данных СТРОГО ИЗ СТРАНИЦ 2 и 3 МЕТОДИЧКИ
     std::vector<DataSet> datasets = {
-        { "НД1 (1000x1000, 1000x1000)", 1000, 1000, 1000 },
-        { "НД2 (1320x1800, 1800x1470) [Прямоуг.]", 1320, 1800, 1470 },
-        { "НД3 (1200x1200, 1200x1200)", 1200, 1200, 1200 },
-        { "НД4 (1500x1200, 1200x1600) [Прямоуг.]", 1500, 1200, 1600 }
+        { "НД1 (А = 1000x1000, В = 1000x1000)", 1000, 1000, 1000, 15, 3 },
+        { "НД2 (А = 1320x1800, В = 1800x1471)", 1320, 1800, 1471, 10, 2 },
+        { "НД3 (А = 2420x1971, В = 1971x2500)", 2420, 1971, 2500,  3, 1 },
+        { "НД4 (А = 2420x2500, В = 2500x2370)", 2420, 2500, 2370,  3, 1 }
     };
 
     int thread_counts[] = { 2, 3, 4 };
-    const int RUNS = 15;
+    const int FILL_RUNS = 15; // Заполнение матриц быстрое, всегда 15 прогонов
 
     std::cout << "Лабораторная работа 2. Задание 2.2\n";
     std::cout << "Сводная таблица результатов исследования перемножения матриц\n";
@@ -428,41 +427,40 @@ int main() {
 
         // --- 1. Заполнение матриц ---
         auto fill_seq = [&]() { FillMatrix_Serial(A, B, ds.M, ds.N, ds.K); };
-        double t_fill_seq = RunBenchmark(fill_seq, RUNS);
+        double t_fill_seq = RunBenchmark(fill_seq, FILL_RUNS);
         PrintTableRow("Заполнение матриц (посл.)", "1", t_fill_seq, t_fill_seq);
 
         for (int p : thread_counts) {
-            double tp = RunBenchmark([&]() { FillMatrix_OMP_For(A, B, ds.M, ds.N, ds.K, p); }, RUNS);
+            double tp = RunBenchmark([&]() { FillMatrix_OMP_For(A, B, ds.M, ds.N, ds.K, p); }, FILL_RUNS);
             PrintTableRow("Заполнение (парал.) omp for", std::to_string(p), tp, t_fill_seq);
         }
         for (int p : thread_counts) {
-            double tp = RunBenchmark([&]() { FillMatrix_OMP_Sections(A, B, ds.M, ds.N, ds.K, p); }, RUNS);
+            double tp = RunBenchmark([&]() { FillMatrix_OMP_Sections(A, B, ds.M, ds.N, ds.K, p); }, FILL_RUNS);
             PrintTableRow("Заполнение (парал.) omp sections", std::to_string(p), tp, t_fill_seq);
         }
 
         std::cout << std::string(86, '-') << "\n";
 
-        // --- 2. Классическое перемножение ---
+        // --- 2. Классическое перемножение матриц ---
         auto mul_seq = [&]() { Multiply_Serial(A, B, C, ds.M, ds.N, ds.K); };
-        double t_mul_seq = RunBenchmark(mul_seq, RUNS);
+        double t_mul_seq = RunBenchmark(mul_seq, ds.mul_runs);
         PrintTableRow("Перемножение матриц (посл.)", "1", t_mul_seq, t_mul_seq);
 
         for (int p : thread_counts) {
-            double tp = RunBenchmark([&]() { Multiply_Parallel_For(A, B, C, ds.M, ds.N, ds.K, p); }, RUNS);
+            double tp = RunBenchmark([&]() { Multiply_Parallel_For(A, B, C, ds.M, ds.N, ds.K, p); }, ds.mul_runs);
             PrintTableRow("Перемножение Вариант 1 (omp for)", std::to_string(p), tp, t_mul_seq);
         }
         for (int p : thread_counts) {
-            double tp = RunBenchmark([&]() { Multiply_Parallel_Sections(A, B, C, ds.M, ds.N, ds.K, p); }, RUNS);
+            double tp = RunBenchmark([&]() { Multiply_Parallel_Sections(A, B, C, ds.M, ds.N, ds.K, p); }, ds.mul_runs);
             PrintTableRow("Перемножение Вариант 2 (sections)", std::to_string(p), tp, t_mul_seq);
         }
 
         std::cout << std::string(86, '-') << "\n";
 
         // --- 3. Быстрый алгоритм Штрассена ---
-        // 3 прогона, так как рекурсивный алгоритм очень ресурсоемок
         auto str_seq = [&]() { Strassen_Main(A, B, C, ds.M, ds.N, ds.K, false, 1); };
         auto str_par = [&](int p) { Strassen_Main(A, B, C, ds.M, ds.N, ds.K, true, p); };
-        BenchmarkGroup("Перемножение Штрассен", str_seq, str_par, thread_counts, 3, 3);
+        BenchmarkGroup("Перемножение Штрассен", str_seq, str_par, thread_counts, 3, ds.strassen_runs);
 
         FreeMatrix(A);
         FreeMatrix(B);
