@@ -94,7 +94,7 @@ static void FillRows(double** m, int r0, int r1, int cols, ElemFn f) {
     }
 }
 
-// Последовательное заполнение матриц A (m x n) и B (n x k)
+// Последовательное заполнение матриц одним вызовом
 double Fill_posl(double** A, double** B, int m, int n, int k) {
     double t0 = omp_get_wtime();
     FillRows(A, 0, m, n, ElemA);
@@ -115,9 +115,8 @@ double Fill_par_for(double** A, double** B, int m, int n, int k) {
     return (omp_get_wtime() - t0) * 1000;
 }
 
-// Размер порции строк, которую обрабатывает одна задача (task)
+// Размер порции строк для задачи заполнения
 const int FILL_TASK_ROWS = 16;
-const int MUL_TASK_ROWS = 8;
 
 // Параллельное заполнение: omp task, каждая задача - блок строк
 double Fill_par_task(double** A, double** B, int m, int n, int k) {
@@ -139,14 +138,14 @@ double Fill_par_task(double** A, double** B, int m, int n, int k) {
     return (omp_get_wtime() - t0) * 1000;
 }
 
-// MARK: Классическое перемножение (порядок циклов i-k-j, локальная переменная a[i][t])
-// Строки результата не зависят друг от друга, поэтому распараллеливание по строкам безопасно.
+// MARK: Перемножение матриц
 
-/// @brief Считает строки [r0, r1) матрицы C = A (rows x n) * B (n x k); C предварительно обнуляется по строкам
+/// @brief Классическое перемножение матриц. Перемножает указанный набор строк
 static void MulRows(double** A, double** B, double** C, int r0, int r1, int n, int k) {
     for (int i = r0; i < r1; i++) {
         double* ci = C[i];
-        for (int j = 0; j < k; j++) ci[j] = 0.0;
+        for (int j = 0; j < k; j++)
+            ci[j] = 0.0;
         for (int t = 0; t < n; t++) {
             double aik = A[i][t];
             const double* bt = B[t];
@@ -156,13 +155,14 @@ static void MulRows(double** A, double** B, double** C, int r0, int r1, int n, i
     }
 }
 
+/// @brief Последовательное перемножение всех строк одним вызовом
 double Mul_posl(double** A, double** B, double** C, int m, int n, int k) {
     double t0 = omp_get_wtime();
     MulRows(A, B, C, 0, m, n, k);
     return (omp_get_wtime() - t0) * 1000;
 }
 
-// Вариант 1: omp for по строкам результата
+/// @brief Параллельное перемножение через omp for. Одна строка на итерацию
 double Mul_par_for(double** A, double** B, double** C, int m, int n, int k) {
     double t0 = omp_get_wtime();
 #pragma omp parallel for schedule(static)
@@ -171,7 +171,10 @@ double Mul_par_for(double** A, double** B, double** C, int m, int n, int k) {
     return (omp_get_wtime() - t0) * 1000;
 }
 
-// Вариант 2: omp task, каждая задача - блок строк результата
+// Размер блока строк для задачи перемножения
+const int MUL_TASK_ROWS = 8;
+
+/// @brief Параллельное перемножение через omp task. Каждая задача - блок строк
 double Mul_par_task(double** A, double** B, double** C, int m, int n, int k) {
     double t0 = omp_get_wtime();
 #pragma omp parallel
@@ -191,41 +194,53 @@ double Mul_par_task(double** A, double** B, double** C, int m, int n, int k) {
 // размер оставался чётным, пока не станет <= STRASSEN_BASE. Дополнение - нулями.
 // Подматрицы A11..A22 и B11..B22 - "окна" (массивы указателей на строки родителя), без копирования.
 
-const int STRASSEN_BASE = 64;   // ниже этого размера - обычное перемножение
-const int STRASSEN_PAR_DEPTH = 2; // сколько верхних уровней рекурсии порождают задачи
+// Ниже этого размера идёт обычное перемножение
+const int STRASSEN_BASE = 64;   
+// Сколько верхних уровней рекурсии порождают задачи
+const int STRASSEN_PAR_DEPTH = 2; 
 
+/// @brief Получение блока матрицы через создание массива вместо прямого копирования
 static double** View(double** M, int r0, int c0, int rows) {
     double** v = new double* [rows];
-    for (int i = 0; i < rows; i++) v[i] = M[r0 + i] + c0;
+    for (int i = 0; i < rows; i++)
+        v[i] = M[r0 + i] + c0;
     return v;
 }
 
-// R = X + sign * Y (квадратные n x n)
+/// @brief Сложение или вычитание
+/// @param sign знак операции
 static void AddSub(double** X, double** Y, double** R, int n, int sign) {
     for (int i = 0; i < n; i++) {
         const double* x = X[i];
         const double* y = Y[i];
         double* r = R[i];
-        if (sign > 0) for (int j = 0; j < n; j++) r[j] = x[j] + y[j];
-        else          for (int j = 0; j < n; j++) r[j] = x[j] - y[j];
+        if (sign > 0)
+            for (int j = 0; j < n; j++)
+                r[j] = x[j] + y[j];
+        else
+            for (int j = 0; j < n; j++)
+                r[j] = x[j] - y[j];
     }
 }
 
 static void StrassenRec(double** A, double** B, double** C, int n, int depth);
 
-// Одно из семи произведений Штрассена: Mi = (X1 [+-] X2) * (Y1 [+-] Y2); если X2/Y2 == nullptr, операнд берётся как есть
-static void Product(double** X1, double** X2, int sx, double** Y1, double** Y2, int sy,
-                    double** Mi, int h, int depth) {
+/// @brief Одно из семи произведений Штрассена
+static void Product(double** X1, double** X2, int sx, double** Y1, double** Y2, int sy, double** Mi, int h, int depth) {
     double** TX = X1;
     double** TY = Y1;
-    if (X2) { TX = AllocMatrix(h, h); AddSub(X1, X2, TX, h, sx); }
-    if (Y2) { TY = AllocMatrix(h, h); AddSub(Y1, Y2, TY, h, sy); }
+    if (X2)
+        { TX = AllocMatrix(h, h); AddSub(X1, X2, TX, h, sx); }
+    if (Y2)
+        { TY = AllocMatrix(h, h); AddSub(Y1, Y2, TY, h, sy); }
     StrassenRec(TX, TY, Mi, h, depth);
-    if (X2) FreeMatrix(TX);
-    if (Y2) FreeMatrix(TY);
+    if (X2)
+        FreeMatrix(TX);
+    if (Y2)
+        FreeMatrix(TY);
 }
 
-// C = A * B для квадратных матриц размера n; depth > 0 - семь произведений выполняются задачами
+/// @brief Основная рекурсивная функция алгоритма
 static void StrassenRec(double** A, double** B, double** C, int n, int depth) {
     if (n <= STRASSEN_BASE) {
         MulRows(A, B, C, 0, n, n, n);
@@ -260,7 +275,8 @@ static void StrassenRec(double** A, double** B, double** C, int n, int depth) {
 #pragma omp task
         Product(A12, A22, -1, B21, B22, +1, M7, h, d);   // M7 = (A12 - A22)(B21 + B22)
 #pragma omp taskwait
-    } else {
+    }
+    else {
         Product(A11, A22, +1, B11, B22, +1, M1, h, 0);
         Product(A21, A22, +1, B11, nullptr, 0, M2, h, 0);
         Product(A11, nullptr, 0, B12, B22, -1, M3, h, 0);
@@ -275,35 +291,48 @@ static void StrassenRec(double** A, double** B, double** C, int n, int depth) {
         double* c1 = C[i];
         double* c2 = C[i + h];
         for (int j = 0; j < h; j++) {
-            c1[j]     = M1[i][j] + M4[i][j] - M5[i][j] + M7[i][j]; // C11
-            c1[j + h] = M3[i][j] + M5[i][j];                       // C12
-            c2[j]     = M2[i][j] + M4[i][j];                       // C21
+            c1[j] = M1[i][j] + M4[i][j] - M5[i][j] + M7[i][j]; // C11
+            c1[j + h] = M3[i][j] + M5[i][j]; // C12
+            c2[j] = M2[i][j] + M4[i][j]; // C21
             c2[j + h] = M1[i][j] - M2[i][j] + M3[i][j] + M6[i][j]; // C22
         }
     }
 
-    FreeMatrix(M1); FreeMatrix(M2); FreeMatrix(M3); FreeMatrix(M4);
-    FreeMatrix(M5); FreeMatrix(M6); FreeMatrix(M7);
-    delete[] A11; delete[] A12; delete[] A21; delete[] A22;
-    delete[] B11; delete[] B12; delete[] B21; delete[] B22;
+    FreeMatrix(M1);
+    FreeMatrix(M2);
+    FreeMatrix(M3);
+    FreeMatrix(M4);
+    FreeMatrix(M5);
+    FreeMatrix(M6);
+    FreeMatrix(M7);
+    delete[] A11;
+    delete[] A12;
+    delete[] A21;
+    delete[] A22;
+    delete[] B11;
+    delete[] B12;
+    delete[] B21;
+    delete[] B22;
 }
 
 static bool ValidSize(int size) {
     int t = size;
     while (t > STRASSEN_BASE) {
-        if (t % 2 != 0) return false;
+        if (t % 2 != 0)
+            return false;
         t /= 2;
     }
     return true;
 }
 
+/// @brief Подбор корректного размера квадрата
 static int FindValidSize(int size) {
-    while (!ValidSize(size)) size++;
+    while (!ValidSize(size))
+        size++;
     return size;
 }
 
 /// @brief Перемножение A (m x n) * B (n x k) методом Штрассена с дополнением до квадрата.
-/// В замер входят: выделение памяти, дополнение нулями, умножение, копирование результата.
 /// @param par false - последовательно; true - параллельно (omp task + omp for на подготовке данных)
 double Strassen_Multiply(double** A, double** B, double** C, int m, int n, int k, bool par) {
     double t0 = omp_get_wtime();
@@ -341,7 +370,9 @@ double Strassen_Multiply(double** A, double** B, double** C, int m, int n, int k
 
 // MARK: Тестирование
 
-struct DataSet { int m, n, k; }; // A: m x n, B: n x k, C: m x k
+// Датасет с размерами матриц.
+// `A: m x n, B: n x k, C: m x k`
+struct DataSet { int m, n, k; };
 
 /// @brief Прогон всех реализаций для одного набора данных
 void test_dataset(int index, DataSet ds, int iters, ofstream& csv) {
@@ -383,8 +414,7 @@ void test_dataset(int index, DataSet ds, int iters, ofstream& csv) {
             double r = MeasureFTime(F[f], iters);
             cout << "  avg time: " << r << " ms" << endl;
 
-            csv << index << ',' << dimsA << ',' << dimsB << ',' << '"' << names[f] << '"'
-                << ',' << th << ',' << r << '\n';
+            csv << index << ',' << dimsA << ',' << dimsB << ',' << '"' << names[f] << '"' << ',' << th << ',' << r << '\n';
             csv.flush();
         }
     }
@@ -394,11 +424,15 @@ void test_dataset(int index, DataSet ds, int iters, ofstream& csv) {
     for (int i = 0; i < m; i++)
         for (int j = 0; j < k; j++) {
             double d = fabs(C1[i][j] - C2[i][j]) / (1.0 + fabs(C1[i][j]));
-            if (d > maxRel) maxRel = d;
+            if (d > maxRel)
+                maxRel = d;
         }
     cout << "Validation (classic vs Strassen): max relative difference = " << maxRel << (maxRel < 1e-6 ? "  OK" : "  MISMATCH") << endl;
 
-    FreeMatrix(A); FreeMatrix(B); FreeMatrix(C1); FreeMatrix(C2);
+    FreeMatrix(A);
+    FreeMatrix(B);
+    FreeMatrix(C1);
+    FreeMatrix(C2);
 }
 
 // Использование: Task2_2_Matrices [iterations] [size_divisor]
@@ -407,8 +441,10 @@ void test_dataset(int index, DataSet ds, int iters, ofstream& csv) {
 int main(int argc, char** argv) {
     int iters = (argc > 1) ? atoi(argv[1]) : 15;
     int divisor = (argc > 2) ? atoi(argv[2]) : 1;
-    if (iters < 1) iters = 1;
-    if (divisor < 1) divisor = 1;
+    if (iters < 1)
+        iters = 1;
+    if (divisor < 1)
+        divisor = 1;
 
     DataSet sets[4] = {
         { 1000, 1000, 1000 },   // A = 1000x1000, B = 1000x1000
