@@ -1,11 +1,5 @@
-﻿// Лабораторная работа: «Периферийные устройства ЭВМ». Вариант №4.
-// Устройство «счетчик импульсов»: значение увеличивается при каждом чтении из порта.
-//
-// Целевая платформа: .NET 6+ (Windows). Для COM-порта нужен пакет System.IO.Ports:
-//   dotnet add package System.IO.Ports
-// Под Linux/macOS программа тоже запустится (COM и HID недоступны, остальное работает).
-
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.IO.Ports;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -14,32 +8,28 @@ using Microsoft.Win32.SafeHandles;
 
 namespace PeripheralLab
 {
-    // -----------------------------------------------------------------------
     // Базовый интерфейс порта ввода-вывода
-    // -----------------------------------------------------------------------
     public interface IPort
     {
-        uint Read();            // чтение из порта
+        uint Read(); // чтение из порта
         void Write(uint value); // запись в порт
     }
 
-    // -----------------------------------------------------------------------
-    // Устройство «счетчик импульсов» (вариант №4).
+    // Устройство "Счётчик импульсов"
     // Каждое чтение порта возвращает текущее значение и увеличивает его на 1.
-    // -----------------------------------------------------------------------
     public class PulseCounter : IPort
     {
-        private uint _value;   // регистр счетчика
+        private uint _value; // регистр счетчика
         public ulong Reads { get; private set; }   // сколько раз порт был прочитан
 
         public uint Read()
         {
             Reads++;
-            unchecked { _value++; }   // значение растет при каждом чтении
+            unchecked { _value++; } // значение растет при каждом чтении
             return _value;
         }
 
-        public void Write(uint v) => _value = v;   // запись = загрузка начального значения
+        public void Write(uint v) => _value = v; // запись = загрузка начального значения
 
         public void Reset()
         {
@@ -48,9 +38,7 @@ namespace PeripheralLab
         }
     }
 
-    // -----------------------------------------------------------------------
     // Виртуальный порт светодиодов (8 бит)
-    // -----------------------------------------------------------------------
     public class LedPort : IPort
     {
         private byte _reg;
@@ -67,10 +55,7 @@ namespace PeripheralLab
         }
     }
 
-    // -----------------------------------------------------------------------
-    // COM-порт. Для проверки без физического порта используется пара
-    // виртуальных портов (com0com) и терминал на втором конце.
-    // -----------------------------------------------------------------------
+    // COM-порт
     public static class ComTester
     {
         public static void Run(string name)
@@ -79,7 +64,7 @@ namespace PeripheralLab
             {
                 using (var sp = new SerialPort(name, 9600, Parity.None, 8, StopBits.One))
                 {
-                    sp.ReadTimeout = 1000;    // ждем ответ не более 1 с
+                    sp.ReadTimeout = 1000; // ждем ответ не более 1 с
                     sp.WriteTimeout = 1000;
                     sp.Open();
 
@@ -89,8 +74,8 @@ namespace PeripheralLab
                     try
                     {
                         var buf = new byte[64];
-                        int n = sp.Read(buf, 0, buf.Length);   // ждем первые байты
-                        Thread.Sleep(50);                       // даем дойти остальным
+                        int n = sp.Read(buf, 0, buf.Length); // ждем первые байты
+                        Thread.Sleep(50); // даем дойти остальным
                         if (sp.BytesToRead > 0 && n < buf.Length)
                             n += sp.Read(buf, n, Math.Min(sp.BytesToRead, buf.Length - n));
                         Console.WriteLine($"Received {n} bytes: {Encoding.ASCII.GetString(buf, 0, n)}");
@@ -108,12 +93,10 @@ namespace PeripheralLab
         }
     }
 
-    // -----------------------------------------------------------------------
     // USB HID: перебор устройств, открытие, чтение входного отчета (WinAPI)
-    // -----------------------------------------------------------------------
     public static class UsbHidTester
     {
-        // ---- константы WinAPI ----
+        // константы WinAPI
         private const uint DIGCF_PRESENT = 0x02;
         private const uint DIGCF_DEVICEINTERFACE = 0x10;
         private const uint GENERIC_READ = 0x80000000;
@@ -125,7 +108,7 @@ namespace PeripheralLab
         private const int HIDP_STATUS_SUCCESS = 0x110000;
         private static readonly IntPtr InvalidHandle = new IntPtr(-1);
 
-        // ---- структуры ----
+        // структуры
         [StructLayout(LayoutKind.Sequential)]
         private struct SP_DEVICE_INTERFACE_DATA
         {
@@ -166,7 +149,7 @@ namespace PeripheralLab
             public ushort NumberFeatureDataIndices;
         }
 
-        // ---- hid.dll ----
+        // hid.dll
         [DllImport("hid.dll")]
         private static extern void HidD_GetHidGuid(out Guid hidGuid);
 
@@ -185,26 +168,20 @@ namespace PeripheralLab
         [DllImport("hid.dll")]
         private static extern int HidP_GetCaps(IntPtr preparsed, out HIDP_CAPS caps);
 
-        // ---- setupapi.dll ----
+        // setupapi.dll
         [DllImport("setupapi.dll", EntryPoint = "SetupDiGetClassDevsW", CharSet = CharSet.Unicode, SetLastError = true)]
-        private static extern IntPtr SetupDiGetClassDevs(ref Guid classGuid, IntPtr enumerator,
-                                                         IntPtr hwndParent, uint flags);
+        private static extern IntPtr SetupDiGetClassDevs(ref Guid classGuid, IntPtr enumerator, IntPtr hwndParent, uint flags);
 
         [DllImport("setupapi.dll", SetLastError = true)]
-        private static extern bool SetupDiEnumDeviceInterfaces(IntPtr devInfoSet, IntPtr devInfoData,
-                                                               ref Guid interfaceClassGuid, uint memberIndex,
-                                                               ref SP_DEVICE_INTERFACE_DATA ifData);
+        private static extern bool SetupDiEnumDeviceInterfaces(IntPtr devInfoSet, IntPtr devInfoData, ref Guid interfaceClassGuid, uint memberIndex, ref SP_DEVICE_INTERFACE_DATA ifData);
 
         [DllImport("setupapi.dll", EntryPoint = "SetupDiGetDeviceInterfaceDetailW", CharSet = CharSet.Unicode, SetLastError = true)]
-        private static extern bool SetupDiGetDeviceInterfaceDetail(IntPtr devInfoSet,
-                                                                   ref SP_DEVICE_INTERFACE_DATA ifData,
-                                                                   IntPtr detailData, uint detailSize,
-                                                                   out uint requiredSize, IntPtr devInfoData);
+        private static extern bool SetupDiGetDeviceInterfaceDetail(IntPtr devInfoSet, ref SP_DEVICE_INTERFACE_DATA ifData, IntPtr detailData, uint detailSize, out uint requiredSize, IntPtr devInfoData);
 
         [DllImport("setupapi.dll", SetLastError = true)]
         private static extern bool SetupDiDestroyDeviceInfoList(IntPtr devInfoSet);
 
-        // ---- kernel32.dll ----
+        // kernel32.dll
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         private static extern SafeFileHandle CreateFile(string fileName, uint access, uint share,
                                                         IntPtr security, uint disposition,
@@ -215,8 +192,7 @@ namespace PeripheralLab
                                             IntPtr bytesRead, ref NativeOverlapped ov);
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern bool GetOverlappedResult(SafeFileHandle h, ref NativeOverlapped ov,
-                                                       out uint transferred, bool wait);
+        private static extern bool GetOverlappedResult(SafeFileHandle h, ref NativeOverlapped ov, out uint transferred, bool wait);
 
         [DllImport("kernel32.dll", SetLastError = true)]
         private static extern bool CancelIo(SafeFileHandle h);
@@ -230,25 +206,35 @@ namespace PeripheralLab
         [DllImport("kernel32.dll", SetLastError = true)]
         private static extern bool CloseHandle(IntPtr h);
 
-        // -------------------------------------------------------------------
-        public static void Run()
+        private enum ReadResult { Ok, Denied, Timeout, Error }
+
+        private class HidDevice
         {
+            public string Path;
+            public ushort Vid;
+            public ushort Pid;
+            public string Name;
+        }
+
+        // Перебор всех HID-устройств в системе
+        private static List<HidDevice> Enumerate()
+        {
+            var list = new List<HidDevice>();
+
             Guid guid;
             HidD_GetHidGuid(out guid);
 
-            IntPtr info = SetupDiGetClassDevs(ref guid, IntPtr.Zero, IntPtr.Zero,
-                                              DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
+            IntPtr info = SetupDiGetClassDevs(ref guid, IntPtr.Zero, IntPtr.Zero, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
             if (info == InvalidHandle)
             {
                 Console.WriteLine("HID device list is not available");
-                return;
+                return list;
             }
 
             try
             {
                 var ifd = new SP_DEVICE_INTERFACE_DATA();
                 ifd.cbSize = (uint)Marshal.SizeOf<SP_DEVICE_INTERFACE_DATA>();
-                int found = 0;
 
                 for (uint i = 0; SetupDiEnumDeviceInterfaces(info, IntPtr.Zero, ref guid, i, ref ifd); i++)
                 {
@@ -267,9 +253,7 @@ namespace PeripheralLab
 
                         // dwDesiredAccess = 0: достаточно для запроса атрибутов,
                         // работает и для клавиатур/мышей
-                        using (SafeFileHandle h = CreateFile(path, 0, FILE_SHARE_READ | FILE_SHARE_WRITE,
-                                                             IntPtr.Zero, OPEN_EXISTING,
-                                                             FILE_FLAG_OVERLAPPED, IntPtr.Zero))
+                        using (SafeFileHandle h = CreateFile(path, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, IntPtr.Zero))
                         {
                             if (h.IsInvalid) continue;
 
@@ -280,11 +264,13 @@ namespace PeripheralLab
                             var prod = new StringBuilder(128);
                             HidD_GetProductString(h, prod, 256);   // размер в байтах
 
-                            found++;
-                            Console.WriteLine($"{found}) VID={at.VendorID:X4} PID={at.ProductID:X4}  {prod}");
-
-                            if (found == 1)
-                                ReadReport(path, h);   // читаем отчет только у первого устройства
+                            list.Add(new HidDevice
+                            {
+                                Path = path,
+                                Vid = at.VendorID,
+                                Pid = at.ProductID,
+                                Name = prod.ToString()
+                            });
                         }
                     }
                     finally
@@ -292,32 +278,66 @@ namespace PeripheralLab
                         Marshal.FreeHGlobal(det);
                     }
                 }
-
-                if (found == 0) Console.WriteLine("No HID devices found");
             }
             finally
             {
                 SetupDiDestroyDeviceInfoList(info);
             }
+
+            return list;
+        }
+
+        // arg == null: показать список и пробовать читать устройства по очереди
+        // arg == "N":  показать список и прочитать отчет у устройства №N
+        public static void Run(string arg)
+        {
+            List<HidDevice> devices = Enumerate();
+            if (devices.Count == 0)
+            {
+                Console.WriteLine("No HID devices found");
+                return;
+            }
+
+            for (int i = 0; i < devices.Count; i++)
+                Console.WriteLine($"{i + 1}) VID={devices[i].Vid:X4} PID={devices[i].Pid:X4}  {devices[i].Name}");
+
+            if (arg != null)
+            {
+                if (!int.TryParse(arg, out int n) || n < 1 || n > devices.Count)
+                {
+                    Console.WriteLine($"Error: device number must be 1..{devices.Count}");
+                    return;
+                }
+                Console.WriteLine($"Reading device {n}...");
+                ReadReport(devices[n - 1].Path);
+                return;
+            }
+
+            Console.WriteLine("Trying devices one by one...");
+            for (int i = 0; i < devices.Count; i++)
+            {
+                Console.WriteLine($"Device {i + 1}:");
+                if (ReadReport(devices[i].Path) == ReadResult.Ok)
+                    return;   // нашли устройство, которое отдало данные
+            }
+            Console.WriteLine("No device returned a report. Use 'usb <number>' to read a specific one.");
         }
 
         // Чтение одного входного отчета (ожидание до 1 с)
-        private static void ReadReport(string path, SafeFileHandle attrHandle)
+        private static ReadResult ReadReport(string path)
         {
-            using (SafeFileHandle hr = CreateFile(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
-                                                  IntPtr.Zero, OPEN_EXISTING,
-                                                  FILE_FLAG_OVERLAPPED, IntPtr.Zero))
+            using (SafeFileHandle hr = CreateFile(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, IntPtr.Zero))
             {
                 if (hr.IsInvalid)
                 {
                     Console.WriteLine("   read denied by the system (device is used by the OS)");
-                    return;
+                    return ReadResult.Denied;
                 }
 
                 // размер входного отчета берем из дескриптора устройства
                 int len = 0;
                 IntPtr pp;
-                if (HidD_GetPreparsedData(attrHandle, out pp))
+                if (HidD_GetPreparsedData(hr, out pp))
                 {
                     HIDP_CAPS caps;
                     if (HidP_GetCaps(pp, out caps) == HIDP_STATUS_SUCCESS)
@@ -338,7 +358,7 @@ namespace PeripheralLab
                     if (!ok && err != ERROR_IO_PENDING)
                     {
                         Console.WriteLine($"   read error (code {err})");
-                        return;
+                        return ReadResult.Error;
                     }
 
                     uint got;
@@ -347,13 +367,13 @@ namespace PeripheralLab
                         var data = new byte[got];
                         Marshal.Copy(buf, data, 0, (int)got);
                         Console.WriteLine($"   report ({got} bytes): {BitConverter.ToString(data).Replace('-', ' ')}");
+                        return ReadResult.Ok;
                     }
-                    else
-                    {
-                        CancelIo(hr);
-                        GetOverlappedResult(hr, ref ov, out _, true);   // дожидаемся отмены
-                        Console.WriteLine("   no report received (timeout 1 s)");
-                    }
+
+                    CancelIo(hr);
+                    GetOverlappedResult(hr, ref ov, out _, true);   // дожидаемся отмены
+                    Console.WriteLine("   no report received (timeout 1 s)");
+                    return ReadResult.Timeout;
                 }
                 finally
                 {
@@ -364,7 +384,6 @@ namespace PeripheralLab
         }
     }
 
-    // -----------------------------------------------------------------------
     public static class Program
     {
         private static void PrintHelp()
@@ -373,7 +392,7 @@ namespace PeripheralLab
                 "Commands:\n" +
                 "  led <0..255>   write value to the LED port, show its state\n" +
                 "  com [COMx]     open COM port (COM3 by default), exchange the TEST string\n" +
-                "  usb            list HID devices, open the first one, read a report\n" +
+                "  usb [N]        list HID devices; read a report from device N (or try them one by one)\n" +
                 "  pulse [N]      read the pulse counter port N times (1 by default)\n" +
                 "  load <number>  write initial value to the counter\n" +
                 "  reset          reset the counter\n" +
@@ -432,7 +451,7 @@ namespace PeripheralLab
                     if (!OperatingSystem.IsWindows())
                         Console.WriteLine("USB HID (hid.dll / setupapi) is only available on Windows");
                     else
-                        UsbHidTester.Run();
+                        UsbHidTester.Run(arg);
                 }
                 else if (cmd == "pulse")
                 {
