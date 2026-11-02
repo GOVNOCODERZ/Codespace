@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+  <Transactions>
+    <Transaction>2026.10.29 18:18:18.707,=C:\Users\user\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2026.10.29 18:18:29.013,=C:\Users\user\Documents\Embarcadero\Studio\Projects\Unit2.pas</Transaction>
+    <Transaction>2026.10.29 18:23:49.403,C:\Codespace\Files\3-rd course\5-th semester\Data bases\Laboratory work\Lab #1\Vlad\Unit2.pas=C:\Users\user\Documents\Embarcadero\Studio\Projects\Unit2.pas</Transaction>
+    <Transaction>2026.10.29 18:23:49.403,C:\Codespace\Files\3-rd course\5-th semester\Data bases\Laboratory work\Lab #1\Vlad\Unit2.dfm=C:\Users\user\Documents\Embarcadero\Studio\Projects\Unit2.dfm</Transaction>
+    <Transaction>2026.10.29 18:23:52.928,C:\Codespace\Files\3-rd course\5-th semester\Data bases\Laboratory work\Lab #1\Vlad\Unit1.dfm=C:\Users\user\Documents\Embarcadero\Studio\Projects\Unit1.dfm</Transaction>
+    <Transaction>2026.10.29 18:23:52.928,C:\Codespace\Files\3-rd course\5-th semester\Data bases\Laboratory work\Lab #1\Vlad\Unit1.pas=C:\Users\user\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2026.10.29 18:23:54.764,C:\Codespace\Files\3-rd course\5-th semester\Data bases\Laboratory work\Lab #1\Vlad\Project1.dproj=C:\Users\user\Documents\Embarcadero\Studio\Projects\Project1.dproj</Transaction>
+    <Transaction>2026.10.29 19:10:41.667,=C:\Codespace\Files\3-rd course\5-th semester\Data bases\Laboratory work\Lab #1\Vlad\Unit3.pas</Transaction>
+    <Transaction>2026.10.29 19:10:56.745,=C:\Codespace\Files\3-rd course\5-th semester\Data bases\Laboratory work\Lab #1\Vlad\Unit4.pas</Transaction>
+    <Transaction>2026.10.29 19:11:00.038,=C:\Codespace\Files\3-rd course\5-th semester\Data bases\Laboratory work\Lab #1\Vlad\Unit5.pas</Transaction>
+  </Transactions>
+</BorlandProject>
