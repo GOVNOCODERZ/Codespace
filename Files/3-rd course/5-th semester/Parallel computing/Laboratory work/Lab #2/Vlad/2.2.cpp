@@ -436,8 +436,8 @@ void test_dataset(int index, DataSet ds, int iters, ofstream& csv) {
 }
 
 // Использование: Task2_2_Matrices [iterations] [size_divisor]
-//   iterations   - число запусков каждой реализации (по умолчанию 15)
-//   size_divisor - во сколько раз уменьшить размеры матриц (по умолчанию 1) - для быстрой пробы
+// iterations - число запусков каждой реализации (по умолчанию 15)
+// size_divisor - во сколько раз уменьшить размеры матриц (по умолчанию 1) для быстрой пробы
 int main(int argc, char** argv) {
     int iters = (argc > 1) ? atoi(argv[1]) : 15;
     int divisor = (argc > 2) ? atoi(argv[2]) : 1;
