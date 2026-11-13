@@ -1,8 +1,11 @@
-//   Task3_2_MedianFilter <input.bmp> <output.bmp> <R> [oe|qs] [threads] [runs]
-//     R       - полуразмер окна, Ksize = 2R+1
-//     oe|qs   - сортировка окрестности: чёт-нечётная перестановка или qsort (по умолчанию oe)
-//     threads - число потоков (по умолчанию максимум системы)
-//     runs    - количество запусков для замера (по умолчанию 15)
+// TODO: заменить qsort на Шелла, т.к. второй быстрее будет
+
+
+// Использование: Task3_2_MedianFilter <input.bmp> <output.bmp> <R> [oe|qs] [threads] [runs]
+// R - полуразмер окна, Ksize = 2R+1
+// oe|qs - сортировка: чёт-нечётная перестановка или qsort (по умолчанию oe)
+// threads - число потоков (по умолчанию максимум системы)
+// runs - количество запусков для замера (по умолчанию 15)
 
 #include <iostream>
 #include <fstream>
@@ -18,7 +21,6 @@
 using namespace std;
 
 // MARK: Сортировки окрестности (массив значений одного канала, 0..255)
-
 // Чёт-нечётная перестановка V3, последовательная.
 static void OddEvenSort(uint8_t* a, int n) {
     bool swapped;
@@ -43,7 +45,6 @@ static void QSortU8(uint8_t* a, int n) {
 typedef void (*SortFn)(uint8_t*, int);
 
 // MARK: Медианная фильтрация одной строки
-
 // Обрабатывает строку y. Буферы bR, bG, bB принадлежат потоку и не делятся между потоками.
 static void MedianRow(RGBTRIPLE** in, RGBTRIPLE** out, int W, int H, int R, int y, uint8_t* bR, uint8_t* bG, uint8_t* bB, SortFn sort) {
     const int N = (2 * R + 1) * (2 * R + 1);
@@ -52,7 +53,7 @@ static void MedianRow(RGBTRIPLE** in, RGBTRIPLE** out, int W, int H, int R, int 
         int m = 0;
         for (int dy = -R; dy <= R; dy++) {
             int ky = y + dy;
-            if (ky < 0) ky = 0;          // зажим по краям
+            if (ky < 0) ky = 0; // зажим по краям
             if (ky > H - 1) ky = H - 1;
             for (int dx = -R; dx <= R; dx++) {
                 int kx = x + dx;
@@ -75,7 +76,6 @@ static void MedianRow(RGBTRIPLE** in, RGBTRIPLE** out, int W, int H, int R, int 
 }
 
 // MARK: Фильтр целиком с замером времени (только обработка, без чтения/записи файла)
-
 double MedianFilter(RGBTRIPLE** in, RGBTRIPLE** out, int W, int H, int R, SortFn sort, int threads) {
     const int N = (2 * R + 1) * (2 * R + 1);
     double t0 = omp_get_wtime();
@@ -90,8 +90,7 @@ double MedianFilter(RGBTRIPLE** in, RGBTRIPLE** out, int W, int H, int R, SortFn
     return (omp_get_wtime() - t0) * 1000;
 }
 
-// MARK: Статистика замеров (как в предыдущих лабах)
-
+// MARK: Статистика замеров
 static void BubbleSortD(vector<double>& v) {
     bool ex;
     do {
@@ -101,7 +100,6 @@ static void BubbleSortD(vector<double>& v) {
     } while (ex);
 }
 
-// Среднее в доверительном интервале на основе медианы
 static double AvgTrustedIntervalMED(vector<double> t) {
     if (t.size() < 2) return t.empty() ? 0.0 : t[0];
     BubbleSortD(t);
@@ -119,7 +117,6 @@ static double AvgTrustedIntervalMED(vector<double> t) {
 }
 
 // MARK: Выделение памяти под изображение (один блок + указатели на строки)
-
 static RGBTRIPLE** AllocImage(int W, int H) {
     RGBTRIPLE** m = new RGBTRIPLE*[H];
     m[0] = new RGBTRIPLE[(size_t)W * H];
@@ -132,6 +129,7 @@ static void FreeImage(RGBTRIPLE** m) {
     delete[] m;
 }
 
+// MARK: Тестирование
 int main(int argc, char** argv) {
     if (argc < 4) {
         cerr << "Usage: " << argv[0] << " <input.bmp> <output.bmp> <R> [oe|qs] [threads] [runs]" << endl;

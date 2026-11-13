@@ -1,4 +1,8 @@
-// Использование: Task3_1_Sorting [runs]   (по умолчанию 30)
+// TODO: Переписать qsort - одна реализация у посл. и парал., а не 2 разных
+// TODO: Вывести переключение потоков из функции сортировки (идёт в зачёт времени) в одно место переключения потоков типа MakeImpls
+
+
+// Использование: Task3_1_Sorting [runs] (по умолчанию 30)
 
 #include <iostream>
 #include <fstream>
@@ -13,8 +17,7 @@
 using namespace std;
 
 // MARK: Генерация данных и проверка
-
-// Данные строятся по закономерности от индекса (не случайные), одинаковые при каждом запуске
+// Данные строятся по закономерности от индекса, одинаковые при каждом запуске
 template <typename T>
 void FillData(vector<T>& a, int n);
 
@@ -35,8 +38,7 @@ bool SameArray(const vector<T>& a, const vector<T>& ref) {
     return a == ref;
 }
 
-// MARK: Статистика замеров (как в предыдущих лабах)
-
+// MARK: Статистика замеров
 static void BubbleSortD(vector<double>& v) {
     bool ex;
     do {
@@ -62,8 +64,7 @@ static double AvgTrustedIntervalMED(vector<double> t) {
     return n ? res / n : avg;
 }
 
-// MARK: Пузырёк (классический, только последовательный)
-
+// MARK: Пузырёк (последовательный)
 template <typename T>
 void BubbleSortSeq(T* a, int n) {
     bool swapped;
@@ -75,7 +76,6 @@ void BubbleSortSeq(T* a, int n) {
 }
 
 // MARK: Чёт-нечётная перестановка
-
 template <typename T>
 void OddEvenSortSeq(T* a, int n) {
     bool swapped;
@@ -88,8 +88,6 @@ void OddEvenSortSeq(T* a, int n) {
     } while (swapped);
 }
 
-// Внутри фазы пары не пересекаются, поэтому фазу можно распараллелить по парам.
-// Фазы идут строго одна за другой.
 template <typename T>
 void OddEvenSortPar(T* a, int n, int threads) {
     int swapped;
@@ -110,7 +108,6 @@ void OddEvenSortPar(T* a, int n, int threads) {
 }
 
 // MARK: Шелла
-
 template <typename T>
 void ShellSortSeq(T* a, int n) {
     for (int gap = n / 2; gap > 0; gap /= 2)
@@ -146,7 +143,6 @@ void ShellSortPar(T* a, int n, int threads) {
 }
 
 // MARK: Быстрая сортировка
-
 template <typename T>
 int HoarePartition(T* a, int lo, int hi) {
     T pivot = a[lo + (hi - lo) / 2];
@@ -178,7 +174,7 @@ void QuickSortRangePar(T* a, int lo, int hi) {
         return;
     }
     int p = HoarePartition(a, lo, hi);
-#pragma omp task shared(a)
+#pragma omp task shared(a) untied
     QuickSortRangePar(a, lo, p);
     QuickSortRangePar(a, p + 1, hi);
 #pragma omp taskwait
@@ -209,7 +205,6 @@ void LibQSortSeq(T* a, int n) {
 }
 
 // MARK: Тестирование
-
 template <typename T>
 struct Impl {
     string name;
@@ -281,7 +276,7 @@ int main(int argc, char** argv) {
     int runs = (argc > 1) ? atoi(argv[1]) : 30;
     if (runs < 1) runs = 1;
 
-    // Три набора данных из задания: от 20 000 до 50 000 элементов
+    // Три НД
     const int sizes[3] = { 20000, 35000, 50000 };
 
     ofstream csv("results_3_1.csv");

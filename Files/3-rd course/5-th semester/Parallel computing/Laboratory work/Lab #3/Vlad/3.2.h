@@ -1,15 +1,13 @@
 #include <fstream>
 
-
 #pragma pack(push, 1)  
 typedef struct {
-   uint16_t bfType;
+	uint16_t bfType;
     uint32_t bfSize;
     uint32_t bfReserved;
     uint32_t bfOffBits;
 } BITMAPFILEHEADER;
 #pragma pack(pop)
-
 
 typedef struct {
 	uint32_t biSize;
@@ -31,8 +29,6 @@ typedef struct tagRGBTRIPLE {
     uint8_t rgbtRed;
 } RGBTRIPLE;
 
-
-
 void BMPRead(RGBTRIPLE **&, BITMAPFILEHEADER&, BITMAPINFOHEADER&, const char *);
 void BMPWrite(RGBTRIPLE**& rgb, int imWidth, int imHeight, const char* fout);
 
@@ -46,7 +42,6 @@ unsigned char get_row_data_padding(unsigned int width) {
 unsigned int bmp24b_file_size_calc(unsigned int width, unsigned int height) {
 	return sizeof(BITMAPFILEHEADER)+ sizeof(BITMAPINFOHEADER) +  height * (width* sizeof(RGBTRIPLE) + get_row_data_padding(width));
 }
-
 
 void BMPRead(RGBTRIPLE** &rgb, BITMAPFILEHEADER &header, \
 	BITMAPINFOHEADER &bmiHeader, const char* fin)
