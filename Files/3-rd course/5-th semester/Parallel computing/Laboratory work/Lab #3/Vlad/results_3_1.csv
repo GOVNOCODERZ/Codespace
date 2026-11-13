@@ -1,0 +1,85 @@
+Type,Dataset,Size,Algorithm,Threads,Time_ms,Check
+int,1,20000,"Bubble (seq)",1,1557.36,OK
+int,1,20000,"Odd-even (seq)",1,1088.81,OK
+int,1,20000,"Odd-even (par)",2,1345.54,OK
+int,1,20000,"Odd-even (par)",3,1142.09,OK
+int,1,20000,"Odd-even (par)",4,1134.68,OK
+int,1,20000,"Shell (seq)",1,2.99999,OK
+int,1,20000,"Shell (par)",2,2.27271,OK
+int,1,20000,"Shell (par)",3,2.52001,OK
+int,1,20000,"Shell (par)",4,2.89286,OK
+int,1,20000,"Quick (seq)",1,3.00001,OK
+int,1,20000,"Quick (par)",2,2,OK
+int,1,20000,"Quick (par)",3,1.00005,OK
+int,1,20000,"Quick (par)",4,0.999987,OK
+int,1,20000,"Library qsort (seq, reference)",1,3.00002,OK
+int,2,35000,"Bubble (seq)",1,4757.32,OK
+int,2,35000,"Odd-even (seq)",1,3270.73,OK
+int,2,35000,"Odd-even (par)",2,3022.64,OK
+int,2,35000,"Odd-even (par)",3,2563.32,OK
+int,2,35000,"Odd-even (par)",4,2500.04,OK
+int,2,35000,"Shell (seq)",1,6.86364,OK
+int,2,35000,"Shell (par)",2,5,OK
+int,2,35000,"Shell (par)",3,3.95833,OK
+int,2,35000,"Shell (par)",4,4.73914,OK
+int,2,35000,"Quick (seq)",1,5.62501,OK
+int,2,35000,"Quick (par)",2,2.99999,OK
+int,2,35000,"Quick (par)",3,2.99999,OK
+int,2,35000,"Quick (par)",4,2.00002,OK
+int,2,35000,"Library qsort (seq, reference)",1,5.08333,OK
+int,3,50000,"Bubble (seq)",1,9658.16,OK
+int,3,50000,"Odd-even (seq)",1,5959.89,OK
+int,3,50000,"Odd-even (par)",2,4959.19,OK
+int,3,50000,"Odd-even (par)",3,3891.76,OK
+int,3,50000,"Odd-even (par)",4,3630,OK
+int,3,50000,"Shell (seq)",1,7.00002,OK
+int,3,50000,"Shell (par)",2,5.55173,OK
+int,3,50000,"Shell (par)",3,4.44827,OK
+int,3,50000,"Shell (par)",4,4.00002,OK
+int,3,50000,"Quick (seq)",1,7.00005,OK
+int,3,50000,"Quick (par)",2,3.99999,OK
+int,3,50000,"Quick (par)",3,2.99998,OK
+int,3,50000,"Quick (par)",4,3,OK
+int,3,50000,"Library qsort (seq, reference)",1,6.00001,OK
+double,1,20000,"Bubble (seq)",1,1493.54,OK
+double,1,20000,"Odd-even (seq)",1,1038.88,OK
+double,1,20000,"Odd-even (par)",2,1168.44,OK
+double,1,20000,"Odd-even (par)",3,1046.59,OK
+double,1,20000,"Odd-even (par)",4,1052.5,OK
+double,1,20000,"Shell (seq)",1,3,OK
+double,1,20000,"Shell (par)",2,2,OK
+double,1,20000,"Shell (par)",3,1.99999,OK
+double,1,20000,"Shell (par)",4,2,OK
+double,1,20000,"Quick (seq)",1,3.00001,OK
+double,1,20000,"Quick (par)",2,2.00002,OK
+double,1,20000,"Quick (par)",3,2.00001,OK
+double,1,20000,"Quick (par)",4,1.00001,OK
+double,1,20000,"Library qsort (seq, reference)",1,3,OK
+double,2,35000,"Bubble (seq)",1,4596.73,OK
+double,2,35000,"Odd-even (seq)",1,3159.5,OK
+double,2,35000,"Odd-even (par)",2,2822.12,OK
+double,2,35000,"Odd-even (par)",3,2326.42,OK
+double,2,35000,"Odd-even (par)",4,2207.33,OK
+double,2,35000,"Shell (seq)",1,6,OK
+double,2,35000,"Shell (par)",2,4.00001,OK
+double,2,35000,"Shell (par)",3,3.99998,OK
+double,2,35000,"Shell (par)",4,2.99998,OK
+double,2,35000,"Quick (seq)",1,5,OK
+double,2,35000,"Quick (par)",2,3.00002,OK
+double,2,35000,"Quick (par)",3,1.99998,OK
+double,2,35000,"Quick (par)",4,1.99999,OK
+double,2,35000,"Library qsort (seq, reference)",1,5.06897,OK
+double,3,50000,"Bubble (seq)",1,9345.88,OK
+double,3,50000,"Odd-even (seq)",1,6452.46,OK
+double,3,50000,"Odd-even (par)",2,5182.37,OK
+double,3,50000,"Odd-even (par)",3,4178.29,OK
+double,3,50000,"Odd-even (par)",4,3854.27,OK
+double,3,50000,"Shell (seq)",1,11,OK
+double,3,50000,"Shell (par)",2,8.00002,OK
+double,3,50000,"Shell (par)",3,6.10714,OK
+double,3,50000,"Shell (par)",4,5.00002,OK
+double,3,50000,"Quick (seq)",1,6.99999,OK
+double,3,50000,"Quick (par)",2,4.99998,OK
+double,3,50000,"Quick (par)",3,3.99999,OK
+double,3,50000,"Quick (par)",4,3.99999,OK
+double,3,50000,"Library qsort (seq, reference)",1,7,OK
