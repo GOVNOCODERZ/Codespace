@@ -1,9 +1,6 @@
-// TODO: заменить qsort на Шелла, т.к. второй быстрее будет
-
-
-// Использование: Task3_2_MedianFilter <input.bmp> <output.bmp> <R> [oe|qs] [threads] [runs]
+// Использование: Task3_2_MedianFilter <input.bmp> <output.bmp> <R> [oe|sh] [threads] [runs]
 // R - полуразмер окна, Ksize = 2R+1
-// oe|qs - сортировка: чёт-нечётная перестановка или qsort (по умолчанию oe)
+// oe|sh - сортировка: чёт-нечётная перестановка или Шелла (по умолчанию oe)
 // threads - число потоков (по умолчанию максимум системы)
 // runs - количество запусков для замера (по умолчанию 15)
 
@@ -33,13 +30,18 @@ static void OddEvenSort(uint8_t* a, int n) {
     } while (swapped);
 }
 
-static int CmpU8(const void* x, const void* y) {
-    return (int)*(const uint8_t*)x - (int)*(const uint8_t*)y;
-}
-
-// qsort из стандартной библиотеки
-static void QSortU8(uint8_t* a, int n) {
-    qsort(a, (size_t)n, sizeof(uint8_t), CmpU8);
+// Сортировка Шелла, последовательная.
+static void ShellSort(uint8_t* a, int n) {
+    for (int gap = n / 2; gap > 0; gap /= 2)
+        for (int i = gap; i < n; i++) {
+            uint8_t tmp = a[i];
+            int j = i;
+            while (j >= gap && a[j - gap] > tmp) {
+                a[j] = a[j - gap];
+                j -= gap;
+            }
+            a[j] = tmp;
+        }
 }
 
 typedef void (*SortFn)(uint8_t*, int);
@@ -132,7 +134,7 @@ static void FreeImage(RGBTRIPLE** m) {
 // MARK: Тестирование
 int main(int argc, char** argv) {
     if (argc < 4) {
-        cerr << "Usage: " << argv[0] << " <input.bmp> <output.bmp> <R> [oe|qs] [threads] [runs]" << endl;
+        cerr << "Usage: " << argv[0] << " <input.bmp> <output.bmp> <R> [oe|sh] [threads] [runs]" << endl;
         return 1;
     }
     const char* inPath = argv[1];
@@ -146,7 +148,7 @@ int main(int argc, char** argv) {
         cerr << "Invalid parameters" << endl;
         return 1;
     }
-    SortFn sort = (sortName == "qs") ? QSortU8 : OddEvenSort;
+    SortFn sort = (sortName == "sh" || sortName == "shell") ? ShellSort : OddEvenSort;
 
     {
         ifstream test(inPath, ios::binary);

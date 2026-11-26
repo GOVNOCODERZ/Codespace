@@ -1,7 +1,3 @@
-// TODO: Переписать qsort - одна реализация у посл. и парал., а не 2 разных
-// TODO: Вывести переключение потоков из функции сортировки (идёт в зачёт времени) в одно место переключения потоков типа MakeImpls
-
-
 // Использование: Task3_1_Sorting [runs] (по умолчанию 30)
 
 #include <iostream>
@@ -89,13 +85,13 @@ void OddEvenSortSeq(T* a, int n) {
 }
 
 template <typename T>
-void OddEvenSortPar(T* a, int n, int threads) {
+void OddEvenSortPar(T* a, int n) {
     int swapped;
     do {
         swapped = 0;
         for (int s = 0; s < 2; s++) {
             long long pairs = ((long long)n - s) / 2;
-#pragma omp parallel for num_threads(threads) reduction(| : swapped) schedule(static)
+#pragma omp parallel for reduction(| : swapped) schedule(static)
             for (long long k = 0; k < pairs; k++) {
                 long long i = s + 2 * k;
                 if (a[i] > a[i + 1]) {
@@ -125,9 +121,9 @@ void ShellSortSeq(T* a, int n) {
 // Элементы с одинаковым остатком от деления на gap образуют независимые подпоследовательности,
 // которые сортируются вставками с шагом gap. Подпоследовательности параллелятся по остаткам.
 template <typename T>
-void ShellSortPar(T* a, int n, int threads) {
+void ShellSortPar(T* a, int n) {
     for (int gap = n / 2; gap > 0; gap /= 2) {
-#pragma omp parallel for num_threads(threads) schedule(static)
+#pragma omp parallel for schedule(static)
         for (int r = 0; r < gap; r++) {
             for (int i = r + gap; i < n; i += gap) {
                 T tmp = a[i];
@@ -155,41 +151,34 @@ int HoarePartition(T* a, int lo, int hi) {
     }
 }
 
-template <typename T>
-void QuickSortRangeSeq(T* a, int lo, int hi) {
-    if (lo >= hi) return;
-    int p = HoarePartition(a, lo, hi);
-    QuickSortRangeSeq(a, lo, p);
-    QuickSortRangeSeq(a, p + 1, hi);
-}
-
-// Задачи создаются только для достаточно больших отрезков, мелкие сортируются без задач
+// Задачи создаются только для достаточно больших отрезков в параллельном режиме
 const int QS_TASK_CUTOFF = 2000;
 
 template <typename T>
-void QuickSortRangePar(T* a, int lo, int hi) {
+void QuickSortRange(T* a, int lo, int hi, bool parallel) {
     if (lo >= hi) return;
-    if (hi - lo < QS_TASK_CUTOFF) {
-        QuickSortRangeSeq(a, lo, hi);
-        return;
-    }
     int p = HoarePartition(a, lo, hi);
+    if (parallel && hi - lo >= QS_TASK_CUTOFF) {
 #pragma omp task shared(a) untied
-    QuickSortRangePar(a, lo, p);
-    QuickSortRangePar(a, p + 1, hi);
+        QuickSortRange(a, lo, p, true);
+        QuickSortRange(a, p + 1, hi, true);
 #pragma omp taskwait
+    } else {
+        QuickSortRange(a, lo, p, false);
+        QuickSortRange(a, p + 1, hi, false);
+    }
 }
 
 template <typename T>
-void QuickSortSeq(T* a, int n) {
-    QuickSortRangeSeq(a, 0, n - 1);
-}
-
-template <typename T>
-void QuickSortPar(T* a, int n, int threads) {
-#pragma omp parallel num_threads(threads)
+void QuickSort(T* a, int n) {
+    if (n <= 1) return;
+    if (omp_get_max_threads() > 1) {
+#pragma omp parallel
 #pragma omp single
-    QuickSortRangePar(a, 0, n - 1);
+        QuickSortRange(a, 0, n - 1, true);
+    } else {
+        QuickSortRange(a, 0, n - 1, false);
+    }
 }
 
 // Библиотечный qsort - только для справки
@@ -218,13 +207,13 @@ vector<Impl<T>> MakeImpls() {
     v.push_back({ "Bubble (seq)", 1, [](T* a, int n) { BubbleSortSeq(a, n); } });
     v.push_back({ "Odd-even (seq)", 1, [](T* a, int n) { OddEvenSortSeq(a, n); } });
     for (int t = 2; t <= 4; t++)
-        v.push_back({ "Odd-even (par)", t, [t](T* a, int n) { OddEvenSortPar(a, n, t); } });
+        v.push_back({ "Odd-even (par)", t, [](T* a, int n) { OddEvenSortPar(a, n); } });
     v.push_back({ "Shell (seq)", 1, [](T* a, int n) { ShellSortSeq(a, n); } });
     for (int t = 2; t <= 4; t++)
-        v.push_back({ "Shell (par)", t, [t](T* a, int n) { ShellSortPar(a, n, t); } });
-    v.push_back({ "Quick (seq)", 1, [](T* a, int n) { QuickSortSeq(a, n); } });
+        v.push_back({ "Shell (par)", t, [](T* a, int n) { ShellSortPar(a, n); } });
+    v.push_back({ "Quick (seq)", 1, [](T* a, int n) { QuickSort(a, n); } });
     for (int t = 2; t <= 4; t++)
-        v.push_back({ "Quick (par)", t, [t](T* a, int n) { QuickSortPar(a, n, t); } });
+        v.push_back({ "Quick (par)", t, [](T* a, int n) { QuickSort(a, n); } });
     v.push_back({ "Library qsort (seq, reference)", 1, [](T* a, int n) { LibQSortSeq(a, n); } });
     return v;
 }
@@ -244,6 +233,13 @@ void RunType(const string& typeName, const int sizes[], int setCount, int runs, 
 
         vector<T> work(n);
         for (auto& impl : MakeImpls<T>()) {
+            // Переключаем число потоков и прогреваем пул вне замера времени
+            omp_set_num_threads(impl.threads);
+            if (impl.threads > 1) {
+#pragma omp parallel
+                {}
+            }
+
             cout << impl.name;
             if (impl.threads > 1) cout << " [" << impl.threads << " threads]";
             cout << "\t" << flush;
